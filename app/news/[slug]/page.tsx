@@ -6,6 +6,23 @@ import SanityContent from '@/components/SanityContent';
 import VideoEmbed from '@/components/VideoEmbed';
 import { Metadata } from 'next';
 
+function extractPlainText(content: any, max = 160): string {
+  if (!content) return '';
+  if (typeof content === 'string') return content.slice(0, max);
+  if (Array.isArray(content)) {
+    const text = content
+      .map((block: any) =>
+        (block?.children || [])
+          .map((c: any) => c?.text || '')
+          .join(' ')
+      )
+      .join(' ')
+      .trim();
+    return text.slice(0, max);
+  }
+  return '';
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const post = await getNewsPostBySlug(slug);
@@ -16,12 +33,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
   }
 
+  const description = extractPlainText(post.content) || 'PHONEOCEAN gaming news.';
+
   return {
     title: `${post.title} | PHONEOCEAN`,
-    description: post.content ? `${post.content.substring(0, 150)}...` : 'PHONEOCEAN gaming news.',
+    description,
     openGraph: {
       title: post.title,
-      description: post.content ? `${post.content.substring(0, 150)}...` : 'PHONEOCEAN gaming news.',
+      description,
       type: 'article',
       url: `${process.env.NEXT_PUBLIC_SITE_URL}/news/${post.slug?.current || slug}`,
       images: [
@@ -36,7 +55,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     twitter: {
       card: 'summary_large_image',
       title: post.title,
-      description: post.content ? `${post.content.substring(0, 150)}...` : 'PHONEOCEAN gaming news.',
+      description,
       images: [post.thumbnail || 'https://picsum.photos/1200/630'],
     },
     alternates: {

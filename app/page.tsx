@@ -20,35 +20,57 @@ export default async function Home() {
         {/* TOP LEFT: HERO */}
         <div className="lg:col-start-1 lg:row-start-1">
           {featured && (
-            <section className="relative rounded-2xl overflow-hidden group cursor-pointer h-[400px] md:h-[500px] border border-gray-200 dark:border-gray-800 shadow-md dark:shadow-[0_4px_30px_rgba(0,0,0,0.5)] w-full">
-              <Link href={`/news/${featured.slug.current}`}>
-                <Image 
-                  src={featured.thumbnail} 
-                  alt={featured.title} 
-                  fill 
-                  sizes="(max-width: 1024px) 100vw, 66vw"
-                  className="object-cover opacity-90"
-                  priority
-                  referrerPolicy="no-referrer"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0B0B0F] via-[#0B0B0F]/70 to-[#0B0B0F]/20"></div>
+            <section className="relative rounded-2xl overflow-hidden group h-[420px] md:h-[520px] border border-gray-200 dark:border-gray-800 shadow-md dark:shadow-[0_4px_30px_rgba(0,0,0,0.5)] w-full">
+              {/* Gradient halo */}
+              <div className="pointer-events-none absolute -inset-1 rounded-2xl bg-gradient-to-r from-[#00E5FF]/0 via-[#00E5FF]/30 to-[#9D00FF]/0 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-700" />
+
+              <Link href={`/news/${featured.slug.current}`} className="block relative w-full h-full">
+                <div className="absolute inset-0 overflow-hidden">
+                  <Image
+                    src={featured.thumbnail}
+                    alt={featured.title}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 66vw"
+                    className="object-cover opacity-90 animate-kenburns will-change-transform group-hover:opacity-100 transition-opacity duration-500"
+                    priority
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
+                {/* Layered gradients (work in light + dark since image is dark) */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0B0B0F] via-[#0B0B0F]/70 to-[#0B0B0F]/10" />
+                <div className="absolute inset-0 bg-[radial-gradient(80%_60%_at_0%_100%,rgba(0,229,255,0.18),transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+
+                {/* Corner mark */}
+                <div className="absolute top-5 right-5 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-white text-[10px] md:text-xs font-mono uppercase tracking-widest">
+                  <span className="relative inline-flex w-1.5 h-1.5">
+                    <span className="absolute inset-0 rounded-full bg-[#00E5FF] animate-ping opacity-75" />
+                    <span className="relative w-1.5 h-1.5 rounded-full bg-[#00E5FF]" />
+                  </span>
+                  Featured
+                </div>
+
                 <div className="absolute bottom-0 left-0 p-6 md:p-10 w-full lg:w-[85%]">
                   <div className="flex flex-wrap items-center gap-2 mb-4">
                     <span className="inline-block bg-[#00E5FF] text-[#0B0B0F] text-[10px] md:text-xs font-black tracking-widest uppercase px-3 py-1.5 rounded-sm">
                       {featured.category}
                     </span>
                     <span className="inline-block bg-[#2A2A32] text-white text-[10px] md:text-xs font-bold tracking-widest uppercase px-3 py-1.5 rounded-sm">
-                      EXCLUSIVE
+                      Exclusive
                     </span>
                   </div>
-                  <h1 className="text-3xl md:text-5xl font-black font-space-grotesk tracking-tighter leading-tight mb-5 group-hover:text-[#00E5FF] transition-colors text-white">
-                    {featured.title}
+                  <h1 className="text-3xl md:text-5xl font-black font-space-grotesk tracking-tighter leading-tight mb-5 text-white transition-colors">
+                    <span className="bg-gradient-to-r from-white to-white group-hover:from-white group-hover:to-[#00E5FF] bg-clip-text text-transparent transition-all duration-500">
+                      {featured.title}
+                    </span>
                   </h1>
                   <div className="flex items-center text-gray-300 text-xs md:text-sm font-sans gap-3">
-                    <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-blue-600 border-2 border-[#0B0B0F] shadow-sm flex-shrink-0"></div>
+                    <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-[#00E5FF] to-[#0077FF] border-2 border-[#0B0B0F] shadow-sm flex-shrink-0" />
                     <span className="font-semibold">{featured.authorName || 'PHONEOCEAN'}</span>
                     <span className="text-gray-500 text-[10px] md:text-xs">•</span>
                     <span className="text-gray-400 text-[10px] md:text-xs">{format(new Date(featured.publishDate), 'MMM dd, yyyy')}</span>
+                    <span className="ml-auto inline-flex items-center gap-1.5 text-[10px] md:text-xs font-mono uppercase tracking-widest text-white/70 group-hover:text-[#00E5FF] transition-colors">
+                      Read <span className="text-base leading-none">→</span>
+                    </span>
                   </div>
                 </div>
               </Link>

@@ -1,37 +1,58 @@
-'use client';
+import { Suspense } from 'react';
+import { getGuides, getInterviews, getNewsPosts } from '@/lib/api';
+import SearchClient from './SearchClient';
 
-import { useState } from 'react';
+export const metadata = {
+  title: 'Search | PHONEOCEAN',
+  description: 'Search across PHONEOCEAN news, interviews, and guides.',
+};
 
-export default function SearchPage() {
-  const [query, setQuery] = useState('');
+export default async function SearchPage() {
+  const [news, interviews, guides] = await Promise.all([
+    getNewsPosts(),
+    getInterviews(),
+    getGuides(),
+  ]);
 
-  // Typically, this would trigger an API call to a Sanity search endpoint.
-  // For this static/mock demo, we'll keep it as a UI demonstration.
+  const documents = [
+    ...news.map((n: any) => ({
+      _id: n._id,
+      _type: 'news' as const,
+      title: n.title,
+      subtitle: n.category,
+      href: `/news/${n.slug.current}`,
+      thumbnail: n.thumbnail,
+      tag: n.category,
+    })),
+    ...interviews.map((i: any) => ({
+      _id: i._id,
+      _type: 'interview' as const,
+      title: `Exclusive with ${i.playerOrCeoName}`,
+      subtitle: i.eventName,
+      href: '/interviews',
+      thumbnail: i.thumbnail,
+      tag: 'Interview',
+    })),
+    ...guides.map((g: any) => ({
+      _id: g._id,
+      _type: 'guide' as const,
+      title: g.title,
+      subtitle: g.gameName,
+      href: `/guides/${g.slug.current}`,
+      thumbnail: g.thumbnail,
+      tag: g.gameName,
+    })),
+  ];
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20 min-h-[60vh]">
-      <h1 className="text-4xl md:text-5xl font-black font-space-grotesk tracking-tighter uppercase mb-10 text-center">
-        Search
-      </h1>
-      
-      <div className="relative mb-12">
-        <input 
-          type="text" 
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search news, interviews, guides..." 
-          className="w-full bg-[#0a0a0a] border border-gray-800 text-white px-6 py-5 text-xl font-mono focus:outline-none focus:border-blue-500 transition-colors"
-        />
-        <button className="absolute right-4 top-1/2 -translate-y-1/2 bg-blue-600 text-white px-6 py-2 uppercase font-mono tracking-wider font-bold hover:bg-blue-500 transition-colors">
-          Go
-        </button>
-      </div>
-
-      <div className="text-center">
-        <p className="text-gray-500 font-mono tracking-widest uppercase text-sm">
-          {query.length > 0 ? `Searching for "${query}"...` : 'Enter a keyword to start searching.'}
-        </p>
-      </div>
-    </div>
+    <Suspense
+      fallback={
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20 min-h-[60vh]">
+          <div className="h-12 bg-gray-100 dark:bg-[#13131A] rounded-2xl animate-pulse" />
+        </div>
+      }
+    >
+      <SearchClient documents={documents} />
+    </Suspense>
   );
 }

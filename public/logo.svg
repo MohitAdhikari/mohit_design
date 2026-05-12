@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" role="img" aria-label="PHONEOCEAN logo">
+  <defs>
+    <linearGradient id="poGrad" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#00E5FF"/>
+      <stop offset="0.55" stop-color="#0077FF"/>
+      <stop offset="1" stop-color="#9D00FF"/>
+    </linearGradient>
+    <linearGradient id="poGrad2" x1="0" y1="64" x2="64" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0B0B0F"/>
+      <stop offset="1" stop-color="#1A1A22"/>
+    </linearGradient>
+  </defs>
+  <!-- rounded squircle -->
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#poGrad2)" stroke="url(#poGrad)" stroke-width="2"/>
+  <!-- stylized wave -->
+  <path d="M8 40 C 16 30, 24 50, 32 40 S 48 30, 56 40" stroke="url(#poGrad)" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <path d="M8 48 C 16 40, 24 56, 32 48 S 48 40, 56 48" stroke="url(#poGrad)" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.55"/>
+  <!-- PO mark -->
+  <text x="32" y="26" text-anchor="middle" font-family="ui-sans-serif, -apple-system, Segoe UI, Roboto, sans-serif" font-weight="900" font-size="18" fill="url(#poGrad)" letter-spacing="1">PO</text>
+</svg>

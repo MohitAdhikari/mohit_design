@@ -5,6 +5,20 @@ import { notFound } from 'next/navigation';
 import SanityContent from '@/components/SanityContent';
 import VideoEmbed from '@/components/VideoEmbed';
 import { Metadata } from 'next';
+import CopyButton from '@/components/CopyButton';
+
+function extractPlainText(content: any, max = 160): string {
+  if (!content) return '';
+  if (typeof content === 'string') return content.slice(0, max);
+  if (Array.isArray(content)) {
+    return content
+      .map((b: any) => (b?.children || []).map((c: any) => c?.text || '').join(' '))
+      .join(' ')
+      .trim()
+      .slice(0, max);
+  }
+  return '';
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -16,12 +30,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
   }
 
+  const description = extractPlainText(guide.content) || `Comprehensive guide and codes for ${guide.gameName}.`;
+
   return {
     title: `${guide.title} | ${guide.gameName} Guide | PHONEOCEAN`,
-    description: guide.content ? `${guide.content.substring(0, 150)}...` : `Comprehensive guide and codes for ${guide.gameName}.`,
+    description,
     openGraph: {
       title: guide.title,
-      description: guide.content ? `${guide.content.substring(0, 150)}...` : `Comprehensive guide and codes for ${guide.gameName}.`,
+      description,
       type: 'article',
       url: `${process.env.NEXT_PUBLIC_SITE_URL}/guides/${guide.slug?.current || slug}`,
       images: [
@@ -36,7 +52,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     twitter: {
       card: 'summary_large_image',
       title: guide.title,
-      description: guide.content ? `${guide.content.substring(0, 150)}...` : `Comprehensive guide and codes for ${guide.gameName}.`,
+      description,
       images: [guide.thumbnail || 'https://picsum.photos/1200/630'],
     },
     alternates: {
@@ -110,19 +126,16 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
         )}
 
         {guide.codesList && guide.codesList.length > 0 && (
-          <div className="mb-12 p-8 bg-[#0a0a0a] border border-purple-500/30 rounded-sm">
-            <h2 className="text-2xl font-bold font-space-grotesk mb-6 flex items-center gap-3">
-              <span className="text-purple-500 font-mono tracking-tighter">{"//"}</span> 
+          <div className="mb-12 p-8 bg-white dark:bg-[#0a0a0a] border border-purple-300 dark:border-purple-500/30 rounded-2xl shadow-sm dark:shadow-[0_0_30px_rgba(157,0,255,0.05)]">
+            <h2 className="text-2xl font-bold font-space-grotesk mb-6 flex items-center gap-3 text-gray-900 dark:text-white">
+              <span className="text-purple-600 dark:text-purple-400 font-mono tracking-tighter">{"//"}</span>
               Active Codes
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {guide.codesList.map((code: string, idx: number) => (
-                <div key={idx} className="flex items-center justify-between p-4 border border-gray-800 bg-[#050505] hover:border-purple-500/50 transition-colors">
-                  <span className="font-mono text-white tracking-widest text-lg">{code}</span>
-                  <button className="text-[10px] uppercase font-bold tracking-wider text-purple-400 hover:text-white transition-colors"
-                          onClick={() => { /* client component action normally, skip for pure server render demo */ }}>
-                    Copy
-                  </button>
+                <div key={idx} className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] hover:border-purple-500/50 transition-colors rounded-xl">
+                  <span className="font-mono text-gray-900 dark:text-white tracking-widest text-lg">{code}</span>
+                  <CopyButton value={code} />
                 </div>
               ))}
             </div>

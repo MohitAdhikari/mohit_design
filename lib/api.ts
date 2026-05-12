@@ -168,7 +168,7 @@ export const mockData = {
   ]
 }
 
-export async function getNewsPosts() {
+export async function getNewsPosts(): Promise<any[]> {
   if (projectId === 'demo1234' || !projectId) {
     return mockData.newsPosts;
   }
@@ -178,7 +178,7 @@ export async function getNewsPosts() {
   return client.fetch(query);
 }
 
-export async function getNewsPostBySlug(slug: string) {
+export async function getNewsPostBySlug(slug: string): Promise<any> {
   if (projectId === 'demo1234' || !projectId) {
     return mockData.newsPosts.find(p => p.slug.current === slug);
   }
@@ -188,7 +188,7 @@ export async function getNewsPostBySlug(slug: string) {
   return client.fetch(query, { slug });
 }
 
-export async function getInterviews() {
+export async function getInterviews(): Promise<any[]> {
   if (projectId === 'demo1234' || !projectId) {
     return mockData.interviews;
   }
@@ -198,7 +198,7 @@ export async function getInterviews() {
   return client.fetch(query);
 }
 
-export async function getGuides() {
+export async function getGuides(): Promise<any[]> {
   if (projectId === 'demo1234' || !projectId) {
     return mockData.guides;
   }
@@ -208,7 +208,7 @@ export async function getGuides() {
   return client.fetch(query);
 }
 
-export async function getGuideBySlug(slug: string) {
+export async function getGuideBySlug(slug: string): Promise<any> {
   if (projectId === 'demo1234' || !projectId) {
     return mockData.guides.find(g => g.slug.current === slug);
   }
@@ -218,7 +218,7 @@ export async function getGuideBySlug(slug: string) {
   return client.fetch(query, { slug });
 }
 
-export async function getAllVideos() {
+export async function getAllVideos(): Promise<any[]> {
   if (projectId === 'demo1234' || !projectId) {
     const videoPosts = mockData.newsPosts.filter((p: any) => p.youtubeUrl || p.instagramUrl).map((p: any) => ({...p, _type: 'newsPost', date: p.publishDate}));
     const videoInterviews = mockData.interviews.filter((i: any) => i.youtubeUrl || i.instagramUrl).map((i: any) => ({...i, _type: 'interview', date: i.publishDate, title: i.playerOrCeoName}));

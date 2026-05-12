@@ -4,6 +4,9 @@ import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { ThemeProvider } from '@/components/ThemeProvider';
+import BreakingTicker from '@/components/BreakingTicker';
+import NewsletterCTA from '@/components/NewsletterCTA';
+import { getNewsPosts } from '@/lib/api';
 import { GoogleAnalytics } from '@next/third-parties/google';
 
 const spaceGrotesk = Space_Grotesk({
@@ -31,15 +34,25 @@ export const metadata: Metadata = {
   }),
 };
 
-export default function RootLayout({children}: {children: React.ReactNode}) {
+export default async function RootLayout({children}: {children: React.ReactNode}) {
+  const news = await getNewsPosts();
+  const tickerItems = news.slice(0, 6).map((n: any) => ({
+    title: n.title,
+    href: `/news/${n.slug.current}`,
+  }));
+
   return (
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
       <body className="bg-white dark:bg-[#0B0B0F] text-gray-900 dark:text-white font-sans antialiased min-h-screen flex flex-col" suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={true}>
           <Navbar />
-          <main className="flex-grow pt-16">
+          <div className="pt-20">
+            <BreakingTicker items={tickerItems} />
+          </div>
+          <main className="flex-grow">
             {children}
           </main>
+          <NewsletterCTA />
           <Footer />
         </ThemeProvider>
       </body>

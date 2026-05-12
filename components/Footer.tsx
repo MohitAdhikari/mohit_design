@@ -1,41 +1,107 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { Github, Twitter, Youtube, Instagram, Mail } from 'lucide-react';
+
+const navLinks = [
+  { href: '/news', label: 'News' },
+  { href: '/interviews', label: 'Interviews' },
+  { href: '/guides', label: 'Guides' },
+  { href: '/videos', label: 'Videos' },
+];
+const companyLinks = [
+  { href: '/about', label: 'About' },
+  { href: '/contact', label: 'Contact' },
+  { href: '/privacy-policy', label: 'Privacy Policy' },
+  { href: '/terms-and-conditions', label: 'Terms & Conditions' },
+];
 
 export default function Footer() {
   return (
-    <footer className="bg-[#0B0B0F] border-t border-gray-800/40 py-12 mt-12 md:mt-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-6 md:space-y-0">
-          <div className="flex flex-col items-center md:items-start">
-            <Link href="/" className="flex items-center gap-2 mb-3 hover:opacity-80 transition-opacity">
-               <Image 
-                  src="/logo.png" 
-                  alt="PHONEOCEAN Logo" 
-                  width={190} 
-                  height={68} 
-                  className="w-auto h-[62px] lg:h-[68px] object-contain"
-               />
-               <span className="font-sans font-bold text-xl md:text-[1.35rem] tracking-[0.02em] text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-blue-600 dark:from-white dark:to-cyan-400 uppercase">
-                  PHONEOCEAN
-               </span>
+    <footer className="relative bg-gray-50 dark:bg-[#0B0B0F] border-t border-gray-200 dark:border-gray-800/40">
+      {/* accent line */}
+      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#00E5FF]/40 to-transparent" />
+
+      <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 py-14">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-8">
+          {/* Brand */}
+          <div className="md:col-span-5">
+            <Link href="/" className="inline-flex items-center gap-2 hover:opacity-90 transition-opacity">
+              <Image
+                src="/logo.svg"
+                alt="PHONEOCEAN Logo"
+                width={48}
+                height={48}
+                className="w-11 h-11 md:w-12 md:h-12 object-contain"
+              />
+              <span className="font-sans font-bold text-xl md:text-[1.35rem] tracking-[0.02em] text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-blue-600 dark:from-white dark:to-cyan-400 uppercase">
+                PHONEOCEAN
+              </span>
             </Link>
-            <p className="mt-2 text-xs md:text-sm text-gray-500 font-mono tracking-tight text-center md:text-left">Gaming News, Esports Updates & Exclusive Interviews</p>
+            <p className="mt-4 text-sm text-gray-600 dark:text-gray-400 font-sans leading-relaxed max-w-md">
+              Independent gaming news, esports updates and exclusive interviews. Built for the next generation of fans.
+            </p>
+            <div className="mt-6 flex items-center gap-3">
+              {[
+                { Icon: Twitter, href: 'https://twitter.com', label: 'Twitter' },
+                { Icon: Youtube, href: 'https://youtube.com', label: 'YouTube' },
+                { Icon: Instagram, href: 'https://instagram.com', label: 'Instagram' },
+                { Icon: Github, href: 'https://github.com', label: 'GitHub' },
+                { Icon: Mail, href: 'mailto:contact@phoneocean.com', label: 'Email' },
+              ].map(({ Icon, href, label }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target={href.startsWith('mailto:') ? undefined : '_blank'}
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  className="w-9 h-9 inline-flex items-center justify-center rounded-full border border-gray-300 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-[#00E5FF] hover:border-blue-600 dark:hover:border-[#00E5FF] transition-colors"
+                >
+                  <Icon className="w-4 h-4" />
+                </a>
+              ))}
+            </div>
           </div>
-          <div className="flex flex-wrap justify-center gap-x-6 gap-y-4">
-             <Link href="/about" className="text-gray-500 hover:text-white uppercase text-[10px] md:text-xs font-semibold tracking-wider min-h-[44px] flex items-center">About</Link>
-             <Link href="/news" className="text-gray-500 hover:text-white uppercase text-[10px] md:text-xs font-semibold tracking-wider min-h-[44px] flex items-center">News</Link>
-             <Link href="/interviews" className="text-gray-500 hover:text-white uppercase text-[10px] md:text-xs font-semibold tracking-wider min-h-[44px] flex items-center">Interviews</Link>
-             <Link href="/guides" className="text-gray-500 hover:text-white uppercase text-[10px] md:text-xs font-semibold tracking-wider min-h-[44px] flex items-center">Guides</Link>
-             <Link href="/contact" className="text-gray-500 hover:text-white uppercase text-[10px] md:text-xs font-semibold tracking-wider min-h-[44px] flex items-center">Contact</Link>
-             <Link href="/privacy-policy" className="text-gray-500 hover:text-white uppercase text-[10px] md:text-xs font-semibold tracking-wider min-h-[44px] flex items-center">Privacy Policy</Link>
-             <Link href="/terms-and-conditions" className="text-gray-500 hover:text-white uppercase text-[10px] md:text-xs font-semibold tracking-wider min-h-[44px] flex items-center">Terms & Conditions</Link>
+
+          {/* Explore */}
+          <div className="md:col-span-3">
+            <h4 className="text-xs font-mono font-bold uppercase tracking-[0.2em] text-gray-900 dark:text-white mb-4">Explore</h4>
+            <ul className="space-y-3">
+              {navLinks.map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-[#00E5FF] transition-colors">
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Company */}
+          <div className="md:col-span-4">
+            <h4 className="text-xs font-mono font-bold uppercase tracking-[0.2em] text-gray-900 dark:text-white mb-4">Company</h4>
+            <ul className="space-y-3">
+              {companyLinks.map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-[#00E5FF] transition-colors">
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
-        <div className="mt-8 border-t border-gray-800/40 pt-8 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-          <p className="text-gray-600 text-[10px] md:text-xs font-mono text-center md:text-left">
+
+        {/* Bottom row */}
+        <div className="mt-12 border-t border-gray-200 dark:border-gray-800/50 pt-6 flex flex-col md:flex-row justify-between items-center gap-3">
+          <p className="text-gray-500 dark:text-gray-500 text-[11px] md:text-xs font-mono text-center md:text-left">
             &copy; {new Date().getFullYear()} PHONEOCEAN. All rights reserved.
           </p>
-          <Link href="/studio" className="text-gray-600 hover:text-gray-300 text-[10px] md:text-xs font-mono uppercase underline underline-offset-4 min-h-[44px] flex items-center justify-center">Owner CMS Login</Link>
+          <Link
+            href="/studio"
+            className="text-gray-500 hover:text-gray-900 dark:hover:text-gray-200 text-[11px] md:text-xs font-mono uppercase tracking-wider underline underline-offset-4"
+          >
+            Owner CMS Login
+          </Link>
         </div>
       </div>
     </footer>

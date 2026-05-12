@@ -1,10 +1,10 @@
 import { MetadataRoute } from 'next';
-import { getAllPosts, getInterviews, getGuides } from '@/lib/api';
+import { getNewsPosts, getInterviews, getGuides } from '@/lib/api';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.com';
 
-  const posts = await getAllPosts();
+  const posts = await getNewsPosts();
   const interviews = await getInterviews();
   const guides = await getGuides();
 
@@ -15,12 +15,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  const interviewUrls = interviews.map((interview: any) => ({
-    url: `${baseUrl}/interviews`, // Assuming interviews don't have individual pages yet based on current routing
-    lastModified: new Date(interview.publishDate),
-    changeFrequency: 'weekly' as const,
-    priority: 0.8,
-  }));
+  // Interviews currently share a single index page; include latest publish date as lastmod
+  const interviewsLastMod = interviews.length
+    ? new Date(
+        Math.max(...interviews.map((i: any) => new Date(i.publishDate).getTime()))
+      )
+    : new Date();
 
   const guideUrls = guides.map((guide: any) => ({
     url: `${baseUrl}/guides/${guide.slug.current}`,
@@ -44,7 +44,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${baseUrl}/interviews`,
-      lastModified: new Date(),
+      lastModified: interviewsLastMod,
       changeFrequency: 'weekly',
       priority: 0.9,
     },
