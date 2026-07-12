@@ -2,7 +2,7 @@ import { createClient } from 'next-sanity'
 import { apiVersion, dataset, projectId } from '../sanity/env'
 
 const client = createClient({
-  projectId: projectId || 'demo1234',
+  projectId: projectId || 'nlydr3l6',
   dataset: dataset || 'production',
   apiVersion: apiVersion || '2024-04-28',
   useCdn: process.env.NODE_ENV === 'production',
@@ -169,7 +169,7 @@ export const mockData = {
 }
 
 export async function getNewsPosts(): Promise<any[]> {
-  if (projectId === 'demo1234' || !projectId) {
+  if (!projectId) {
     return mockData.newsPosts;
   }
   const query = `*[_type == "newsPost"] | order(publishDate desc) {
@@ -179,7 +179,7 @@ export async function getNewsPosts(): Promise<any[]> {
 }
 
 export async function getNewsPostBySlug(slug: string): Promise<any> {
-  if (projectId === 'demo1234' || !projectId) {
+  if (!projectId) {
     return mockData.newsPosts.find(p => p.slug.current === slug);
   }
   const query = `*[_type == "newsPost" && slug.current == $slug][0] {
@@ -189,7 +189,7 @@ export async function getNewsPostBySlug(slug: string): Promise<any> {
 }
 
 export async function getInterviews(): Promise<any[]> {
-  if (projectId === 'demo1234' || !projectId) {
+  if (!projectId) {
     return mockData.interviews;
   }
   const query = `*[_type == "interview"] | order(publishDate desc) {
@@ -199,7 +199,7 @@ export async function getInterviews(): Promise<any[]> {
 }
 
 export async function getGuides(): Promise<any[]> {
-  if (projectId === 'demo1234' || !projectId) {
+  if (!projectId) {
     return mockData.guides;
   }
   const query = `*[_type == "guide"] | order(lastUpdated desc) {
@@ -209,7 +209,7 @@ export async function getGuides(): Promise<any[]> {
 }
 
 export async function getGuideBySlug(slug: string): Promise<any> {
-  if (projectId === 'demo1234' || !projectId) {
+  if (!projectId) {
     return mockData.guides.find(g => g.slug.current === slug);
   }
   const query = `*[_type == "guide" && slug.current == $slug][0] {
@@ -219,7 +219,7 @@ export async function getGuideBySlug(slug: string): Promise<any> {
 }
 
 export async function getAllVideos(): Promise<any[]> {
-  if (projectId === 'demo1234' || !projectId) {
+  if (!projectId) {
     const videoPosts = mockData.newsPosts.filter((p: any) => p.youtubeUrl || p.instagramUrl).map((p: any) => ({...p, _type: 'newsPost', date: p.publishDate}));
     const videoInterviews = mockData.interviews.filter((i: any) => i.youtubeUrl || i.instagramUrl).map((i: any) => ({...i, _type: 'interview', date: i.publishDate, title: i.playerOrCeoName}));
     const videoGuides = mockData.guides.filter((g: any) => g.youtubeUrl || g.instagramUrl).map((g: any) => ({...g, _type: 'guide', date: g.lastUpdated}));
