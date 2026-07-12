@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import PageHeader from '@/components/PageHeader';
+import Reveal from '@/components/Reveal';
 
 export const metadata = {
   title: 'Latest News | PHONEOCEAN',
@@ -27,11 +28,11 @@ export default async function NewsPage() {
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
-        {news.map((post: any) => (
+        {news.map((post: any, i: number) => (
+          <Reveal key={post._id} delay={(i % 3) * 90} className="h-full">
           <Link
             href={`/news/${post.slug.current}`}
-            key={post._id}
-            className="group relative flex flex-col bg-white dark:bg-[#0E0E12] rounded-2xl border border-gray-200 dark:border-gray-800/60 hover:border-blue-500/40 dark:hover:border-[#00E5FF]/40 transition-all duration-300 shadow-sm hover:shadow-md dark:hover:shadow-[0_4px_24px_rgba(0,229,255,0.05)] overflow-hidden hover:-translate-y-1"
+            className="sheen-parent group relative flex flex-col h-full bg-white dark:bg-[#0E0E12] rounded-2xl border border-gray-200 dark:border-gray-800/60 hover:border-blue-500/40 dark:hover:border-[#00E5FF]/40 transition-all duration-300 shadow-sm hover:shadow-md dark:hover:shadow-[0_4px_24px_rgba(0,229,255,0.05)] overflow-hidden hover:-translate-y-1"
           >
             <div className="relative aspect-video overflow-hidden border-b border-gray-200 dark:border-gray-800/60">
               <Image
@@ -63,6 +64,7 @@ export default async function NewsPage() {
               </div>
             </div>
           </Link>
+          </Reveal>
         ))}
       </div>
     </div>

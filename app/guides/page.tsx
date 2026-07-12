@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import PageHeader from '@/components/PageHeader';
+import Reveal from '@/components/Reveal';
 
 export const metadata = {
   title: 'Guides & Codes | PHONEOCEAN',
@@ -44,11 +45,11 @@ export default async function GuidesPage() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
-        {guides.map((guide: any) => (
+        {guides.map((guide: any, i: number) => (
+          <Reveal key={guide._id} delay={(i % 3) * 90} className="h-full">
           <Link
             href={`/guides/${guide.slug.current}`}
-            key={guide._id}
-            className="group relative flex flex-col bg-white dark:bg-[#0E0E12] rounded-2xl border border-gray-200 dark:border-gray-800/60 hover:border-green-500/40 dark:hover:border-[#00FF66]/40 transition-all duration-300 shadow-sm hover:shadow-md dark:hover:shadow-[0_4px_24px_rgba(0,255,102,0.06)] overflow-hidden hover:-translate-y-1"
+            className="sheen-parent group relative flex flex-col h-full bg-white dark:bg-[#0E0E12] rounded-2xl border border-gray-200 dark:border-gray-800/60 hover:border-green-500/40 dark:hover:border-[#00FF66]/40 transition-all duration-300 shadow-sm hover:shadow-md dark:hover:shadow-[0_4px_24px_rgba(0,255,102,0.06)] overflow-hidden hover:-translate-y-1"
           >
             <div className="relative aspect-video overflow-hidden border-b border-gray-200 dark:border-gray-800/60">
               <Image
@@ -76,6 +77,7 @@ export default async function GuidesPage() {
               </div>
             </div>
           </Link>
+          </Reveal>
         ))}
       </div>
     </div>

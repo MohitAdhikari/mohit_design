@@ -2,6 +2,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getNewsPosts, getInterviews, getGuides } from '@/lib/api';
 import { format } from 'date-fns';
+import Reveal from '@/components/Reveal';
+import StatsBand from '@/components/StatsBand';
+import GamesMarquee from '@/components/GamesMarquee';
 
 export default async function Home() {
   const [news, interviews, guides] = await Promise.all([
@@ -15,16 +18,16 @@ export default async function Home() {
 
   return (
     <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-y-10 lg:gap-y-12 gap-x-8 xl:gap-x-12">
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px] gap-y-10 lg:gap-y-12 gap-x-8 xl:gap-x-12 items-start">
         
         {/* TOP LEFT: HERO */}
-        <div className="lg:col-start-1 lg:row-start-1">
+        <div className="min-w-0 lg:col-start-1 lg:row-start-1">
           {featured && (
             <section className="relative rounded-2xl overflow-hidden group h-[420px] md:h-[520px] border border-gray-200 dark:border-gray-800 shadow-md dark:shadow-[0_4px_30px_rgba(0,0,0,0.5)] w-full">
               {/* Gradient halo */}
               <div className="pointer-events-none absolute -inset-1 rounded-2xl bg-gradient-to-r from-[#00E5FF]/0 via-[#00E5FF]/30 to-[#9D00FF]/0 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-700" />
 
-              <Link href={`/news/${featured.slug.current}`} className="block relative w-full h-full">
+              <Link href={`/news/${featured.slug.current}`} className="sheen-parent block relative w-full h-full">
                 <div className="absolute inset-0 overflow-hidden">
                   <Image
                     src={featured.thumbnail}
@@ -49,7 +52,7 @@ export default async function Home() {
                   Featured
                 </div>
 
-                <div className="absolute bottom-0 left-0 p-6 md:p-10 w-full lg:w-[85%]">
+                <div className="absolute bottom-0 left-0 p-6 md:p-10 w-full lg:w-[85%] animate-rise">
                   <div className="flex flex-wrap items-center gap-2 mb-4">
                     <span className="inline-block bg-[#00E5FF] text-[#0B0B0F] text-[10px] md:text-xs font-black tracking-widest uppercase px-3 py-1.5 rounded-sm">
                       {featured.category}
@@ -79,7 +82,7 @@ export default async function Home() {
         </div>
 
         {/* TOP RIGHT (Desktop) / BELOW HERO (Mobile): TRENDING */}
-        <div className="lg:col-start-2 lg:row-start-1 lg:row-span-2">
+        <div className="min-w-0 lg:col-start-2 lg:row-start-1">
           <section className="bg-transparent lg:bg-white dark:lg:bg-[#111116] lg:border lg:border-gray-200 dark:lg:border-gray-800/60 lg:rounded-2xl lg:shadow-sm dark:lg:shadow-md lg:overflow-hidden lg:sticky lg:top-24">
             <div className="flex items-center justify-between border-b border-gray-300 dark:border-gray-800/50 pb-3 lg:p-6 lg:pb-5">
               <h2 className="text-xl lg:text-sm font-bold font-mono uppercase tracking-[0.2em] text-gray-900 dark:text-white flex items-center gap-2 lg:gap-0">
@@ -144,10 +147,20 @@ export default async function Home() {
         </div>
 
         {/* BOTTOM LEFT (Desktop) / BELOW TRENDING (Mobile): MAIN CONTENT */}
-        <div className="lg:col-start-1 lg:row-start-2 flex flex-col gap-10 lg:gap-12">
-          
+        <div className="min-w-0 lg:col-start-1 lg:row-start-2 flex flex-col gap-10 lg:gap-12">
+
+          {/* STATS BAND */}
+          <Reveal>
+            <StatsBand />
+          </Reveal>
+
+          {/* GAMES MARQUEE */}
+          <Reveal delay={80}>
+            <GamesMarquee />
+          </Reveal>
+
           {/* LATEST NEWS */}
-          <section className="space-y-6">
+          <Reveal as="section" className="space-y-6">
             <div className="flex items-center justify-between border-b border-gray-300 dark:border-gray-800/50 pb-3">
               <h2 className="text-xl md:text-2xl font-bold font-space-grotesk uppercase tracking-tight text-gray-900 dark:text-white flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#00E5FF] shadow-[0_0_8px_rgba(0,229,255,0.8)]"></span>
@@ -191,11 +204,11 @@ export default async function Home() {
                 Load More News
               </Link>
             </div>
-          </section>
+          </Reveal>
 
           {/* INTERVIEWS */}
           <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-800/60 to-transparent my-2" />
-          <section className="space-y-6">
+          <Reveal as="section" className="space-y-6">
             <div className="flex items-center justify-between border-b border-gray-300 dark:border-gray-800/50 pb-3">
               <h2 className="text-xl md:text-2xl font-bold font-space-grotesk uppercase tracking-tight text-gray-900 dark:text-white flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#9D00FF] shadow-[0_0_8px_rgba(157,0,255,0.8)]"></span>
@@ -236,12 +249,12 @@ export default async function Home() {
                 </Link>
               ))}
             </div>
-          </section>
+          </Reveal>
 
         </div>
 
         {/* BOTTOM RIGHT (Desktop) / BOTTOM (Mobile): GUIDES */}
-        <div className="lg:col-start-2 lg:row-start-3 space-y-6 pt-4 lg:pt-0">
+        <Reveal className="min-w-0 lg:col-start-2 lg:row-start-2 space-y-6 lg:sticky lg:top-24">
           <div className="flex items-center justify-between border-b border-gray-300 dark:border-gray-800/50 pb-3">
              <h2 className="text-xl md:text-sm font-bold font-mono uppercase tracking-[0.2em] text-gray-900 dark:text-[#00FF66] flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#00FF66] shadow-[0_0_8px_rgba(0,255,102,0.8)] lg:hidden"></span>
@@ -263,7 +276,7 @@ export default async function Home() {
               </Link>
             ))}
           </div>
-        </div>
+        </Reveal>
 
       </div>
     </div>

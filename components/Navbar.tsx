@@ -61,7 +61,7 @@ export default function Navbar() {
                 className="w-12 h-12 lg:w-[52px] lg:h-[52px] object-contain"
                 priority
               />
-              <span className="font-sans font-bold text-xl sm:text-[1.35rem] tracking-[0.02em] text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-blue-600 dark:from-white dark:to-cyan-400 uppercase hidden sm:block">
+              <span className="font-sans font-bold text-xl sm:text-[1.35rem] tracking-[0.02em] text-transparent bg-clip-text bg-gradient-to-r from-gray-900 via-blue-600 to-gray-900 dark:from-white dark:via-cyan-400 dark:to-white animate-gradient-x uppercase hidden sm:block">
                 PHONEOCEAN
               </span>
             </Link>

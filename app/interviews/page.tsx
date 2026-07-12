@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { format } from 'date-fns';
 import VideoEmbed from '@/components/VideoEmbed';
 import PageHeader from '@/components/PageHeader';
+import Reveal from '@/components/Reveal';
 
 export const metadata = {
   title: 'Exclusive Interviews | PHONEOCEAN',
@@ -27,10 +28,10 @@ export default async function InterviewsPage() {
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-        {interviews.map((interview: any) => (
+        {interviews.map((interview: any, i: number) => (
+          <Reveal key={interview._id} delay={(i % 2) * 100} className="h-full">
           <article
-            key={interview._id}
-            className="group flex flex-col border border-gray-200 dark:border-gray-800/60 bg-white dark:bg-[#0E0E12] rounded-2xl overflow-hidden shadow-sm hover:shadow-md dark:hover:shadow-[0_4px_30px_rgba(157,0,255,0.08)] hover:border-purple-500/40 dark:hover:border-[#9D00FF]/40 transition-all"
+            className="group flex flex-col h-full border border-gray-200 dark:border-gray-800/60 bg-white dark:bg-[#0E0E12] rounded-2xl overflow-hidden shadow-sm hover:shadow-md dark:hover:shadow-[0_4px_30px_rgba(157,0,255,0.08)] hover:border-purple-500/40 dark:hover:border-[#9D00FF]/40 transition-all hover:-translate-y-1 duration-300"
           >
             <div className="relative border-b border-gray-200 dark:border-gray-800/60">
               {interview.youtubeUrl || interview.instagramUrl ? (
@@ -72,6 +73,7 @@ export default async function InterviewsPage() {
               </p>
             </div>
           </article>
+          </Reveal>
         ))}
       </div>
     </div>

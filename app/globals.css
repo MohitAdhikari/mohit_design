@@ -17,6 +17,14 @@ html {
 
 body {
   text-rendering: optimizeLegibility;
+  /* Guard against accidental horizontal scroll. `clip` (not `hidden`)
+     avoids creating a scroll container, so `position: sticky` still works. */
+  overflow-x: clip;
+}
+
+/* Never let a stray wide element create a horizontal scrollbar */
+html {
+  overflow-x: clip;
 }
 
 /* Subtle ambient background in dark mode */
@@ -123,4 +131,143 @@ body {
 }
 .animate-marquee:hover {
   animation-play-state: paused;
+}
+
+/* Brand marquee (slower, secondary) */
+.animate-marquee-slow {
+  animation: marquee 55s linear infinite;
+}
+
+/* ============================================================= */
+/* Dynamic UI enhancements                                       */
+/* ============================================================= */
+
+/* Scroll reveal — element fades/slides in when .is-visible added */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .animate-kenburns,
+  .animate-marquee,
+  .animate-marquee-slow,
+  .animate-float,
+  .animate-float-slow,
+  .animate-aurora,
+  .animate-gradient-x,
+  .animate-shimmer-sheen {
+    animation: none !important;
+  }
+}
+
+/* Aurora / animated ambient blobs */
+@keyframes aurora {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  33%  { transform: translate3d(4%, -3%, 0) scale(1.12); }
+  66%  { transform: translate3d(-3%, 3%, 0) scale(0.95); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+.animate-aurora {
+  animation: aurora 22s ease-in-out infinite;
+}
+
+/* Floating accents */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-14px); }
+}
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+.animate-float-slow {
+  animation: float 9s ease-in-out infinite;
+}
+
+/* Animated gradient background position (for gradient text/borders) */
+@keyframes gradientX {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+.animate-gradient-x {
+  background-size: 200% 200%;
+  animation: gradientX 6s ease infinite;
+}
+
+/* Shine sweep across an element on hover */
+@keyframes sheen {
+  0%   { transform: translateX(-120%) skewX(-15deg); }
+  100% { transform: translateX(220%) skewX(-15deg); }
+}
+.sheen-parent { position: relative; overflow: hidden; }
+.sheen-parent::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.18) 50%,
+    transparent 80%
+  );
+  transform: translateX(-120%) skewX(-15deg);
+  pointer-events: none;
+  opacity: 0;
+}
+.sheen-parent:hover::after {
+  opacity: 1;
+  animation: sheen 0.9s ease;
+}
+
+/* Gradient conic border glow (for feature cards) */
+@keyframes spinSlow {
+  to { transform: rotate(360deg); }
+}
+.animate-spin-slow {
+  animation: spinSlow 12s linear infinite;
+}
+
+/* Entrance for hero content */
+@keyframes riseIn {
+  0%   { opacity: 0; transform: translateY(24px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.animate-rise {
+  animation: riseIn 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Count-up / pop for stats */
+@keyframes popIn {
+  0%   { opacity: 0; transform: scale(0.9); }
+  60%  { opacity: 1; transform: scale(1.03); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.animate-pop {
+  animation: popIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Subtle grid texture overlay */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgba(125, 125, 135, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(125, 125, 135, 0.06) 1px, transparent 1px);
+  background-size: 40px 40px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 40%, transparent 100%);
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 40%, transparent 100%);
 }

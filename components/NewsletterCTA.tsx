@@ -75,7 +75,7 @@ export default function NewsletterCTA() {
                     <button
                       type="submit"
                       disabled={status === 'submitting'}
-                      className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 dark:from-[#00E5FF] dark:to-[#9D00FF] text-white dark:text-[#0B0B0F] font-black uppercase tracking-widest text-xs hover:opacity-95 disabled:opacity-60 transition-all shadow-sm hover:shadow-[0_8px_24px_rgba(0,229,255,0.25)]"
+                      className="sheen-parent inline-flex items-center justify-center px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 dark:from-[#00E5FF] dark:via-[#9D00FF] dark:to-[#00E5FF] animate-gradient-x text-white dark:text-[#0B0B0F] font-black uppercase tracking-widest text-xs hover:opacity-95 disabled:opacity-60 transition-all shadow-sm hover:shadow-[0_8px_24px_rgba(0,229,255,0.25)]"
                     >
                       {status === 'submitting' ? 'Subscribing…' : 'Subscribe'}
                     </button>
