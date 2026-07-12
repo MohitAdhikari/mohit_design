@@ -11,16 +11,5 @@ import { NextStudio } from 'next-sanity/studio'
 import config from '../../../sanity.config'
 
 export default function StudioPage() {
-  if (!config.projectId || config.projectId === 'demo1234' || config.projectId === '') {
-    return (
-      <div style={{ padding: '2rem', fontFamily: 'sans-serif', textAlign: 'center', backgroundColor: '#111', color: '#fff', height: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-        <h1 style={{ color: '#FF4444' }}>Sanity CMS Not Configured</h1>
-        <p>Please log in to <a href="https://sanity.io" target="_blank" style={{ color: '#00ccff' }}>Sanity.io</a>, create a project, and add your Project ID and Dataset to the Environment Variables.</p>
-        <p><code>NEXT_PUBLIC_SANITY_PROJECT_ID</code></p>
-        <p><code>NEXT_PUBLIC_SANITY_DATASET=&apos;production&apos;</code></p>
-      </div>
-    )
-  }
-
   return <NextStudio config={config} />
 }
