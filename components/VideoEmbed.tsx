@@ -3,11 +3,41 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 
+function getYouTubeId(url: string): string | null {
+  const patterns = [
+    /[?&]v=([^&]+)/,
+    /youtu\.be\/([^?&/]+)/,
+    /\/embed\/([^?&/]+)/,
+    /\/shorts\/([^?&/]+)/,
+    /\/live\/([^?&/]+)/,
+  ];
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match?.[1]) return match[1];
+  }
+  return null;
+}
+
 export default function VideoEmbed({ youtubeUrl, instagramUrl, title }: { youtubeUrl?: string, instagramUrl?: string, title: string }) {
   const [isLoaded, setIsLoaded] = useState(false);
 
   if (youtubeUrl) {
-    const videoId = youtubeUrl.split('v=')[1]?.split('&')[0] || youtubeUrl.split('youtu.be/')[1]?.split('?')[0];
+    const videoId = getYouTubeId(youtubeUrl);
+
+    if (!videoId) {
+      return (
+        <a
+          href={youtubeUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center gap-3 w-full aspect-video rounded-xl border border-gray-200 dark:border-gray-800/60 bg-gray-100 dark:bg-[#0B0B0F] text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-500 transition-colors font-mono text-xs uppercase tracking-widest"
+        >
+          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+          Watch on YouTube
+        </a>
+      );
+    }
+
     const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
     const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
 

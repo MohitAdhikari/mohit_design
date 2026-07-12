@@ -10,6 +10,8 @@ export const metadata = {
   description: 'Stay updated with the latest gaming and esports news, roster moves, and tournament coverage.',
 };
 
+export const revalidate = 60;
+
 export default async function NewsPage() {
   const news = await getNewsPosts();
 

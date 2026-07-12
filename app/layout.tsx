@@ -25,6 +25,8 @@ const jetbrainsMono = JetBrains_Mono({
   variable: '--font-mono',
 });
 
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: 'PHONEOCEAN | Gaming News, Esports Updates & Exclusive Interviews',
   description: 'Professional esports news and content platform featuring latest BGMI updates, roster changes, and Roblox codes.',

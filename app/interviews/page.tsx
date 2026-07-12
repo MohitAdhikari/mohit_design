@@ -10,6 +10,8 @@ export const metadata = {
   description: 'Exclusive conversations with esports players, team owners, and industry insiders.',
 };
 
+export const revalidate = 60;
+
 export default async function InterviewsPage() {
   const interviews = await getInterviews();
 

@@ -6,6 +6,8 @@ import Reveal from '@/components/Reveal';
 import StatsBand from '@/components/StatsBand';
 import GamesMarquee from '@/components/GamesMarquee';
 
+export const revalidate = 60;
+
 export default async function Home() {
   const [news, interviews, guides] = await Promise.all([
     getNewsPosts(),

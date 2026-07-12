@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 import VideoEmbed from '@/components/VideoEmbed';
 import Reveal from '@/components/Reveal';
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 export default async function VideosPage() {
   const videos = await getAllVideos();
