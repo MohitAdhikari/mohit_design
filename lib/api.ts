@@ -218,6 +218,28 @@ export async function getGuideBySlug(slug: string): Promise<any> {
   return client.fetch(query, { slug });
 }
 
+export async function getSiteSettings(): Promise<{
+  discordUrl: string;
+  twitterUrl: string;
+  youtubeUrl: string;
+  instagramUrl: string;
+  contactEmail: string;
+}> {
+  const defaults = {
+    discordUrl: '',
+    twitterUrl: '',
+    youtubeUrl: '',
+    instagramUrl: '',
+    contactEmail: '',
+  };
+  if (!projectId) return defaults;
+  const query = `*[_type == "siteSettings"][0] {
+    discordUrl, twitterUrl, youtubeUrl, instagramUrl, contactEmail
+  }`;
+  const data = await client.fetch(query);
+  return { ...defaults, ...(data || {}) };
+}
+
 export async function getAllVideos(): Promise<any[]> {
   if (!projectId) {
     const videoPosts = mockData.newsPosts.filter((p: any) => p.youtubeUrl || p.instagramUrl).map((p: any) => ({...p, _type: 'newsPost', date: p.publishDate}));

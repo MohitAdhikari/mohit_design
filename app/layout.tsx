@@ -7,7 +7,7 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 import BreakingTicker from '@/components/BreakingTicker';
 import NewsletterCTA from '@/components/NewsletterCTA';
 import AmbientBackground from '@/components/AmbientBackground';
-import { getNewsPosts } from '@/lib/api';
+import { getNewsPosts, getSiteSettings } from '@/lib/api';
 import { GoogleAnalytics } from '@next/third-parties/google';
 
 const spaceGrotesk = Space_Grotesk({
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({children}: {children: React.ReactNode}) {
-  const news = await getNewsPosts();
+  const [news, settings] = await Promise.all([getNewsPosts(), getSiteSettings()]);
   const tickerItems = news.slice(0, 6).map((n: any) => ({
     title: n.title,
     href: `/news/${n.slug.current}`,
@@ -57,7 +57,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
             {children}
           </main>
           <NewsletterCTA />
-          <Footer />
+          <Footer settings={settings} />
         </ThemeProvider>
       </body>
       {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (

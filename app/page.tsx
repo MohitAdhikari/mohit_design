@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { getNewsPosts, getInterviews, getGuides } from '@/lib/api';
+import { getNewsPosts, getInterviews, getGuides, getSiteSettings } from '@/lib/api';
 import { format } from 'date-fns';
 import Reveal from '@/components/Reveal';
 import StatsBand from '@/components/StatsBand';
@@ -9,10 +9,11 @@ import GamesMarquee from '@/components/GamesMarquee';
 export const revalidate = 60;
 
 export default async function Home() {
-  const [news, interviews, guides] = await Promise.all([
+  const [news, interviews, guides, settings] = await Promise.all([
     getNewsPosts(),
     getInterviews(),
-    getGuides()
+    getGuides(),
+    getSiteSettings(),
   ]);
 
   const featured = news[0];
@@ -132,17 +133,24 @@ export default async function Home() {
               ))}
 
               {/* Community Promo inside trending (Desktop only) */}
-              <div className="hidden lg:block p-6 bg-gray-50 dark:bg-[#15151C]">
-                <div className="bg-white dark:bg-[#1A1A22] rounded-xl p-5 border border-gray-200 dark:border-gray-800/60 shadow-sm">
-                  <div className="text-gray-500 text-[10px] font-mono uppercase tracking-widest mb-3">Community</div>
-                  <p className="text-sm text-gray-800 dark:text-gray-300 font-medium mb-4 leading-relaxed">
-                    Join 50k+ gamers on our Discord for instant alerts and discussions.
-                  </p>
-                  <button className="w-full py-2.5 bg-[#5865F2] hover:bg-[#4752C4] text-white text-xs font-bold uppercase tracking-widest rounded-md transition-colors shadow-sm cursor-pointer min-h-[44px]">
-                    Join Discord
-                  </button>
+              {settings.discordUrl && (
+                <div className="hidden lg:block p-6 bg-gray-50 dark:bg-[#15151C]">
+                  <div className="bg-white dark:bg-[#1A1A22] rounded-xl p-5 border border-gray-200 dark:border-gray-800/60 shadow-sm">
+                    <div className="text-gray-500 text-[10px] font-mono uppercase tracking-widest mb-3">Community</div>
+                    <p className="text-sm text-gray-800 dark:text-gray-300 font-medium mb-4 leading-relaxed">
+                      Join gamers on our Discord for instant alerts and discussions.
+                    </p>
+                    <a
+                      href={settings.discordUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center w-full py-2.5 bg-[#5865F2] hover:bg-[#4752C4] text-white text-xs font-bold uppercase tracking-widest rounded-md transition-colors shadow-sm min-h-[44px]"
+                    >
+                      Join Discord
+                    </a>
+                  </div>
                 </div>
-              </div>
+              )}
 
             </div>
           </section>
