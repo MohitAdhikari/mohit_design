@@ -18,6 +18,7 @@ export default async function Home() {
 
   const featured = news[0];
   const latestNews = news.slice(1, 4);
+  const feedNews = news.length > 3 ? news.slice(1) : news;
 
   return (
     <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
@@ -179,7 +180,7 @@ export default async function Home() {
             </div>
             
             <div className="grid grid-cols-1 gap-5">
-              {news.slice(1).map((post) => (
+              {feedNews.map((post) => (
                 <Link href={`/news/${post.slug.current}`} key={post._id} className="group flex flex-col sm:flex-row gap-4 sm:gap-6 bg-white dark:bg-[#111116] p-4 sm:p-5 rounded-2xl border border-gray-200 dark:border-gray-800/60 hover:border-[#00E5FF]/40 transition-all duration-300 shadow-sm dark:shadow-md hover:shadow-md dark:hover:shadow-[0_4px_20px_rgba(0,229,255,0.05)] hover:-translate-y-1">
                   <div className="relative aspect-video sm:w-56 sm:aspect-[4/3] rounded-xl overflow-hidden flex-shrink-0 border border-gray-200 dark:border-gray-800">
                     <Image 

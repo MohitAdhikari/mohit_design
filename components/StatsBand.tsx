@@ -5,10 +5,10 @@ import { useEffect, useRef, useState } from 'react';
 type Stat = { label: string; value: number; suffix?: string; accent: string };
 
 const STATS: Stat[] = [
-  { label: 'Monthly Readers', value: 250, suffix: 'K+', accent: 'text-blue-600 dark:text-[#00E5FF]' },
-  { label: 'Stories Published', value: 1200, suffix: '+', accent: 'text-purple-600 dark:text-[#9D00FF]' },
-  { label: 'Exclusive Interviews', value: 340, suffix: '+', accent: 'text-green-600 dark:text-[#00FF66]' },
-  { label: 'Events Covered', value: 85, suffix: '+', accent: 'text-red-500 dark:text-red-400' },
+  { label: 'Monthly Readers', value: 1, suffix: 'K+', accent: 'text-blue-600 dark:text-[#00E5FF]' },
+  { label: 'Stories Published', value: 100, suffix: '+', accent: 'text-purple-600 dark:text-[#9D00FF]' },
+  { label: 'Exclusive Interviews', value: 50, suffix: '+', accent: 'text-green-600 dark:text-[#00FF66]' },
+  { label: 'Events Covered', value: 20, suffix: '+', accent: 'text-red-500 dark:text-red-400' },
 ];
 
 function useCountUp(target: number, run: boolean, duration = 1400) {

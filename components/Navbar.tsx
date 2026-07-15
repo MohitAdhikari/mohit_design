@@ -101,9 +101,6 @@ export default function Navbar() {
               />
             </form>
             <ThemeToggle />
-            <Link href="/studio" className="inline-flex items-center justify-center px-4 py-2 rounded-full text-xs font-bold font-sans text-gray-700 bg-gray-100 hover:bg-gray-200 dark:text-[#00E5FF] dark:bg-[#00E5FF]/10 dark:hover:bg-[#00E5FF]/20 transition-all uppercase tracking-wider">
-              Studio
-            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -148,9 +145,6 @@ export default function Navbar() {
                 className="bg-gray-100 dark:bg-[#13131A] text-gray-900 dark:text-gray-300 placeholder-gray-500 dark:placeholder-gray-600 text-sm rounded-xl py-3 pl-11 pr-5 w-full border border-gray-300 dark:border-gray-800/80 focus:outline-none focus:border-blue-500 dark:focus:border-[#00E5FF]/60 transition-all font-mono"
               />
              </form>
-             <Link href="/studio" onClick={() => setIsOpen(false)} className="flex w-full items-center justify-center px-4 py-3 rounded-xl text-sm font-bold font-sans text-gray-700 bg-gray-100 hover:bg-gray-200 dark:text-[#00E5FF] dark:bg-[#00E5FF]/10 uppercase tracking-wider">
-              Studio Login
-            </Link>
           </div>
         </div>
       )}
