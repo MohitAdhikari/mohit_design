@@ -116,14 +116,6 @@ export default function Footer({ settings }: { settings: SiteSettings }) {
           <p className="text-gray-500 dark:text-gray-500 text-[11px] md:text-xs font-mono text-center md:text-left">
             &copy; {new Date().getFullYear()} PHONEOCEAN. All rights reserved.
           </p>
-          <a
-            href="https://phoneocean.sanity.studio/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-gray-500 hover:text-gray-900 dark:hover:text-gray-200 text-[11px] md:text-xs font-mono uppercase tracking-wider underline underline-offset-4"
-          >
-            Owner CMS Login
-          </a>
         </div>
       </div>
     </footer>
