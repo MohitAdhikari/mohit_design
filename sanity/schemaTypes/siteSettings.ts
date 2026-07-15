@@ -6,6 +6,19 @@ export const siteSettings = defineType({
   type: 'document',
   fields: [
     defineField({
+      name: 'logo',
+      title: 'Site Logo',
+      type: 'image',
+      options: { hotspot: true },
+      description: 'Logo shown in the top-left of every page. Recommended: square SVG or PNG (at least 112×112px).',
+    }),
+    defineField({
+      name: 'siteName',
+      title: 'Site Name',
+      type: 'string',
+      description: 'Brand name displayed next to the logo (e.g. PHONEOCEAN).',
+    }),
+    defineField({
       name: 'discordUrl',
       title: 'Discord Invite URL',
       type: 'url',

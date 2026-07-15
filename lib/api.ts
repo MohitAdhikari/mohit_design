@@ -219,6 +219,8 @@ export async function getGuideBySlug(slug: string): Promise<any> {
 }
 
 export async function getSiteSettings(): Promise<{
+  logoUrl: string;
+  siteName: string;
   discordUrl: string;
   twitterUrl: string;
   youtubeUrl: string;
@@ -226,6 +228,8 @@ export async function getSiteSettings(): Promise<{
   contactEmail: string;
 }> {
   const defaults = {
+    logoUrl: '',
+    siteName: '',
     discordUrl: '',
     twitterUrl: '',
     youtubeUrl: '',
@@ -234,6 +238,8 @@ export async function getSiteSettings(): Promise<{
   };
   if (!projectId) return defaults;
   const query = `*[_type == "siteSettings"][0] {
+    "logoUrl": logo.asset->url,
+    siteName,
     discordUrl, twitterUrl, youtubeUrl, instagramUrl, contactEmail
   }`;
   const data = await client.fetch(query);

@@ -49,7 +49,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
       <body className="bg-white dark:bg-[#0B0B0F] text-gray-900 dark:text-white font-sans antialiased min-h-screen flex flex-col" suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={true}>
           <AmbientBackground />
-          <Navbar />
+          <Navbar logoUrl={settings.logoUrl} siteName={settings.siteName} />
           <div className="pt-20">
             <BreakingTicker items={tickerItems} />
           </div>
