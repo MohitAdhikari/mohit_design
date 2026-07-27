@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'About Us | PHONEOCEAN',
-  description: 'PHONEOCEAN is an esports-focused media platform delivering the latest updates from the competitive gaming ecosystem.',
+  description: 'PhoneOcean is a gaming and esports media platform delivering breaking news, tournament coverage, reviews, game updates, guides, interviews, and original content.',
 };
 
 export default function AboutPage() {
@@ -13,7 +13,7 @@ export default function AboutPage() {
           ABOUT PHONE<span className="text-blue-600 dark:text-[#00E5FF]">OCEAN</span>
         </h1>
         <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 font-medium leading-relaxed max-w-3xl">
-          An esports-focused media platform delivering the latest updates from the competitive gaming ecosystem.
+          A gaming and esports media platform delivering breaking news, tournament coverage, reviews, game updates, guides, interviews, and original content.
         </p>
       </header>
 
@@ -26,10 +26,10 @@ export default function AboutPage() {
             </h2>
             <div className="text-gray-800 dark:text-gray-300 font-sans text-lg leading-relaxed">
               <p className="mb-6">
-                PHONEOCEAN aims to become a reliable source for esports news, insights, and community-driven content through consistent reporting and real-time updates.
+                PhoneOcean is committed to delivering accurate, timely, and community-focused gaming and esports coverage through original reporting, reviews, event coverage, and trusted journalism.
               </p>
               <p>
-                Our primary focus is on the evolving esports scene, with strong coverage of mobile esports titles and competitive gaming communities.
+                We strive to keep gamers informed with reliable news, in-depth insights, and engaging content from across the gaming industry.
               </p>
             </div>
           </section>
@@ -40,33 +40,70 @@ export default function AboutPage() {
               What We Cover
             </h2>
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <li className="bg-white dark:bg-[#111116] border border-gray-200 dark:border-gray-800/60 p-5 rounded-xl shadow-sm">
-                <span className="block text-blue-600 dark:text-[#00E5FF] text-xl mb-3">&bull;</span>
-                <span className="text-gray-900 dark:text-gray-200 font-medium">Esports news, roster changes, and tournament updates</span>
-              </li>
-              <li className="bg-white dark:bg-[#111116] border border-gray-200 dark:border-gray-800/60 p-5 rounded-xl shadow-sm">
-                <span className="block text-blue-600 dark:text-[#00E5FF] text-xl mb-3">&bull;</span>
-                <span className="text-gray-900 dark:text-gray-200 font-medium">On-ground coverage from LAN events</span>
-              </li>
-              <li className="bg-white dark:bg-[#111116] border border-gray-200 dark:border-gray-800/60 p-5 rounded-xl shadow-sm">
-                <span className="block text-blue-600 dark:text-[#00E5FF] text-xl mb-3">&bull;</span>
-                <span className="text-gray-900 dark:text-gray-200 font-medium">Exclusive interviews with players, creators, and professionals</span>
-              </li>
-              <li className="bg-white dark:bg-[#111116] border border-gray-200 dark:border-gray-800/60 p-5 rounded-xl shadow-sm">
-                <span className="block text-blue-600 dark:text-[#00E5FF] text-xl mb-3">&bull;</span>
-                <span className="text-gray-900 dark:text-gray-200 font-medium">Game guides, updates, and trending gaming content</span>
-              </li>
+              {[
+                'Breaking gaming & esports news',
+                'Tournament coverage & match results',
+                'Roster changes & transfer updates',
+                'Exclusive interviews',
+                'Game reviews & hands-on impressions',
+                'Gaming hardware reviews',
+                'Game guides & tutorials',
+                'Patch notes & game updates',
+                'Industry news & announcements',
+                'Gaming events & LAN coverage',
+              ].map((item) => (
+                <li key={item} className="bg-white dark:bg-[#111116] border border-gray-200 dark:border-gray-800/60 p-5 rounded-xl shadow-sm">
+                  <span className="block text-blue-600 dark:text-[#00E5FF] text-xl mb-3">&bull;</span>
+                  <span className="text-gray-900 dark:text-gray-200 font-medium">{item}</span>
+                </li>
+              ))}
             </ul>
           </section>
 
           <section>
             <h2 className="text-xl md:text-2xl font-bold font-space-grotesk text-gray-900 dark:text-white mb-6 flex items-center gap-3">
               <span className="w-2 h-2 rounded-full bg-[#00FF66] shadow-[0_0_8px_rgba(0,255,102,0.8)]"></span>
+              Editorial Standards
+            </h2>
+            <div className="text-gray-800 dark:text-gray-300 font-sans text-lg leading-relaxed">
+              <p>
+                At PhoneOcean, accuracy and credibility come first. Every article is carefully reviewed to ensure factual reporting, timely updates, and clear information. If an error is identified, we are committed to correcting it promptly and transparently.
+              </p>
+            </div>
+          </section>
+
+          <section>
+            <h2 className="text-xl md:text-2xl font-bold font-space-grotesk text-gray-900 dark:text-white mb-6 flex items-center gap-3">
+              <span className="w-2 h-2 rounded-full bg-[#00E5FF] shadow-[0_0_8px_rgba(0,229,255,0.8)]"></span>
+              Why Trust PhoneOcean
+            </h2>
+            <div className="text-gray-800 dark:text-gray-300 font-sans text-lg leading-relaxed">
+              <p>
+                PhoneOcean focuses on delivering reliable gaming journalism backed by original reporting, tournament coverage, community insights, and timely updates. Our goal is to provide content that informs, educates, and keeps the gaming community connected.
+              </p>
+            </div>
+          </section>
+
+          <section>
+            <h2 className="text-xl md:text-2xl font-bold font-space-grotesk text-gray-900 dark:text-white mb-6 flex items-center gap-3">
+              <span className="w-2 h-2 rounded-full bg-[#9D00FF] shadow-[0_0_8px_rgba(157,0,255,0.8)]"></span>
               Original Content
             </h2>
             <div className="text-gray-800 dark:text-gray-300 font-sans text-lg leading-relaxed">
               <p>
-                We also create original content across multiple platforms, bringing fans closer to the action both online and at live events.
+                Beyond written coverage, PhoneOcean creates original videos, event coverage, interviews, reviews, and exclusive features across multiple platforms, bringing the gaming community closer to the biggest stories in gaming and esports.
+              </p>
+            </div>
+          </section>
+
+          <section>
+            <h2 className="text-xl md:text-2xl font-bold font-space-grotesk text-gray-900 dark:text-white mb-6 flex items-center gap-3">
+              <span className="w-2 h-2 rounded-full bg-[#00FF66] shadow-[0_0_8px_rgba(0,255,102,0.8)]"></span>
+              Work With Us
+            </h2>
+            <div className="text-gray-800 dark:text-gray-300 font-sans text-lg leading-relaxed">
+              <p>
+                PhoneOcean welcomes collaboration with game developers, publishers, esports organizations, technology brands, PR agencies, and event organizers. We are open to media partnerships, product reviews, review units, event invitations, interviews, sponsored campaigns, and advertising opportunities. For business or media inquiries, please contact our team.
               </p>
             </div>
           </section>
