@@ -24,6 +24,12 @@ function extractPlainText(content: any, max = 160): string {
   return '';
 }
 
+function calcReadingTime(content: any): number {
+  const full = extractPlainText(content, Number.MAX_SAFE_INTEGER);
+  const words = full.split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.round(words / 200));
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const post = await getNewsPostBySlug(slug);
@@ -43,6 +49,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       title: post.title,
       description,
       type: 'article',
+      publishedTime: new Date(post.publishDate).toISOString(),
+      modifiedTime: post._updatedAt ? new Date(post._updatedAt).toISOString() : new Date(post.publishDate).toISOString(),
       url: `${process.env.NEXT_PUBLIC_SITE_URL}/news/${post.slug?.current || slug}`,
       images: [
         {
@@ -75,6 +83,10 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.com';
   const canonicalUrl = `${baseUrl}/news/${post.slug?.current || slug}`;
+  const readingTime = calcReadingTime(post.content);
+  const publishedIso = new Date(post.publishDate).toISOString();
+  const modifiedIso = post._updatedAt ? new Date(post._updatedAt).toISOString() : publishedIso;
+  const isUpdated = post._updatedAt && new Date(post._updatedAt).getTime() - new Date(post.publishDate).getTime() > 60_000;
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -83,12 +95,34 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
     image: [
       post.thumbnail || 'https://picsum.photos/1200/630'
     ],
-    datePublished: new Date(post.publishDate).toISOString(),
-    dateModified: new Date(post.publishDate).toISOString(),
+    datePublished: publishedIso,
+    dateModified: modifiedIso,
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': canonicalUrl,
+    },
     author: [{
         '@type': 'Person',
         name: post.authorName || 'PHONEOCEAN Staff',
-      }]
+      }],
+    publisher: {
+      '@type': 'Organization',
+      name: 'PHONEOCEAN',
+      logo: {
+        '@type': 'ImageObject',
+        url: `${baseUrl}/logo.svg`,
+      },
+    },
+  };
+
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: baseUrl },
+      { '@type': 'ListItem', position: 2, name: 'News', item: `${baseUrl}/news` },
+      { '@type': 'ListItem', position: 3, name: post.title, item: canonicalUrl },
+    ],
   };
 
   return (
@@ -96,6 +130,10 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       {/* HERO BANNER */}
       <div className="relative w-full h-[40vh] md:h-[60vh] border-b border-gray-900">
@@ -121,6 +159,14 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
               <span>By {post.authorName || 'PHONEOCEAN Staff'}</span>
               <span>•</span>
               <span>{format(new Date(post.publishDate), 'MMMM dd, yyyy')}</span>
+              <span>•</span>
+              <span>{readingTime} min read</span>
+              {isUpdated && (
+                <>
+                  <span>•</span>
+                  <span>Updated {format(new Date(post._updatedAt), 'MMM dd, yyyy')}</span>
+                </>
+              )}
             </div>
           </div>
         </div>

@@ -183,7 +183,7 @@ export async function getNewsPostBySlug(slug: string): Promise<any> {
     return mockData.newsPosts.find(p => p.slug.current === slug);
   }
   const query = `*[_type == "newsPost" && slug.current == $slug][0] {
-    _id, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, authorName, content, youtubeUrl, instagramUrl
+    _id, _updatedAt, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, authorName, content, youtubeUrl, instagramUrl
   }`;
   return client.fetch(query, { slug });
 }

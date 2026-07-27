@@ -44,9 +44,41 @@ export default async function RootLayout({children}: {children: React.ReactNode}
     href: `/news/${n.slug.current}`,
   }));
 
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.com';
+  const siteName = settings.siteName || 'PHONEOCEAN';
+  const orgJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: siteName,
+    url: baseUrl,
+    logo: settings.logoUrl || `${baseUrl}/logo.svg`,
+  };
+  const websiteJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: siteName,
+    url: baseUrl,
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${baseUrl}/search?q={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
+  };
+
   return (
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
       <body className="bg-white dark:bg-[#0B0B0F] text-gray-900 dark:text-white font-sans antialiased min-h-screen flex flex-col" suppressHydrationWarning>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={true}>
           <AmbientBackground />
           <Navbar logoUrl={settings.logoUrl} siteName={settings.siteName} />
