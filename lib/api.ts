@@ -183,7 +183,18 @@ export async function getNewsPostBySlug(slug: string): Promise<any> {
     return mockData.newsPosts.find(p => p.slug.current === slug);
   }
   const query = `*[_type == "newsPost" && slug.current == $slug][0] {
-    _id, _updatedAt, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, authorName, content, youtubeUrl, instagramUrl
+    _id, _updatedAt, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, authorName, content, youtubeUrl, instagramUrl,
+    excerpt, imageAlt, imageCaption,
+    "author": author->{ name, role },
+    "categoryRef": categoryRef->{ title, "slug": slug.current },
+    "tags": tags[]->{ title, "slug": slug.current },
+    "seo": {
+      "seoTitle": seo.seoTitle,
+      "metaDescription": seo.metaDescription,
+      "focusKeyword": seo.focusKeyword,
+      "canonicalUrl": seo.canonicalUrl,
+      "socialShareImage": seo.socialShareImage.asset->url
+    }
   }`;
   return client.fetch(query, { slug });
 }
@@ -227,6 +238,7 @@ export async function getSiteSettings(): Promise<{
   instagramUrl: string;
   contactEmail: string;
 }> {
+  const DEFAULT_CONTACT_EMAIL = 'phoneoceanlive@gmail.com';
   const defaults = {
     logoUrl: '',
     siteName: '',
@@ -234,7 +246,7 @@ export async function getSiteSettings(): Promise<{
     twitterUrl: '',
     youtubeUrl: '',
     instagramUrl: '',
-    contactEmail: '',
+    contactEmail: DEFAULT_CONTACT_EMAIL,
   };
   if (!projectId) return defaults;
   const query = `*[_type == "siteSettings"][0] {
@@ -243,7 +255,12 @@ export async function getSiteSettings(): Promise<{
     discordUrl, twitterUrl, youtubeUrl, instagramUrl, contactEmail
   }`;
   const data = await client.fetch(query);
-  return { ...defaults, ...(data || {}) };
+  return {
+    ...defaults,
+    ...(data || {}),
+    // Always fall back to the default when the CMS field is empty/null.
+    contactEmail: data?.contactEmail || DEFAULT_CONTACT_EMAIL,
+  };
 }
 
 export async function getHomepage(): Promise<{

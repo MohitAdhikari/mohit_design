@@ -43,6 +43,11 @@ export const siteSettings = defineType({
       name: 'contactEmail',
       title: 'Contact Email',
       type: 'string',
+      initialValue: 'phoneoceanlive@gmail.com',
+      description:
+        'Public contact email shown on About, Contact, Privacy Policy, and Terms pages. Defaults to phoneoceanlive@gmail.com if left empty.',
+      validation: (Rule) =>
+        Rule.email().warning('Enter a valid email address.'),
     }),
   ],
 })

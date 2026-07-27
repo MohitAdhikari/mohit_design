@@ -1,11 +1,13 @@
 import { Metadata } from 'next';
+import { getSiteSettings } from '@/lib/api';
 
 export const metadata: Metadata = {
   title: 'Terms & Conditions | PHONEOCEAN',
   description: 'Terms and Conditions for using PHONEOCEAN. Please read them carefully.',
 };
 
-export default function TermsAndConditionsPage() {
+export default async function TermsAndConditionsPage() {
+  const { contactEmail } = await getSiteSettings();
   return (
     <div className="max-w-[800px] mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
       <header className="mb-12 border-b border-gray-800/50 pb-8">
@@ -73,8 +75,8 @@ export default function TermsAndConditionsPage() {
             If you have any questions regarding these Terms & Conditions, please reach out to us at:
           </p>
           <p>
-            <a href="mailto:contact@phoneocean.com" className="text-[#00E5FF] hover:underline underline-offset-4 font-semibold">
-              contact@phoneocean.com
+            <a href={`mailto:${contactEmail}`} className="text-[#00E5FF] hover:underline underline-offset-4 font-semibold">
+              {contactEmail}
             </a>
           </p>
         </section>

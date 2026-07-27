@@ -22,7 +22,7 @@ export default function ContactForm() {
     e.preventDefault();
     setStatus('submitting');
     
-    // Simulate form submission to contact@phoneocean.com
+    // Simulate form submission to the configured contact email (phoneoceanlive@gmail.com)
     setTimeout(() => {
       setStatus('success');
       setFormData({ name: '', email: '', subject: '', message: '' });

@@ -1,12 +1,14 @@
 import { Metadata } from 'next';
 import ContactForm from '@/components/ContactForm';
+import { getSiteSettings } from '@/lib/api';
 
 export const metadata: Metadata = {
   title: 'Contact Us | PHONEOCEAN',
   description: 'For business inquiries, collaborations, media coverage, or general questions, feel free to reach out to PHONEOCEAN.',
 };
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const { contactEmail } = await getSiteSettings();
   return (
     <div className="max-w-[1000px] mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
       <header className="mb-12 md:mb-16 border-b border-gray-300 dark:border-gray-800/50 pb-8 text-center md:text-left">
@@ -32,8 +34,8 @@ export default function ContactPage() {
               Email
             </h2>
             <div className="pl-11">
-              <a href="mailto:contact@phoneocean.com" className="text-lg text-gray-800 dark:text-gray-300 hover:text-blue-600 dark:hover:text-[#00E5FF] transition-colors font-sans underline underline-offset-4">
-                contact@phoneocean.com
+              <a href={`mailto:${contactEmail}`} className="text-lg text-gray-800 dark:text-gray-300 hover:text-blue-600 dark:hover:text-[#00E5FF] transition-colors font-sans underline underline-offset-4">
+                {contactEmail}
               </a>
             </div>
           </section>

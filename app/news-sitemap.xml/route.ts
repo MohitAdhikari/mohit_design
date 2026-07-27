@@ -16,7 +16,7 @@ function escapeXml(unsafe: string): string {
 }
 
 export async function GET() {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.com';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in';
   const siteName = 'PHONEOCEAN';
 
   const posts = await getNewsPosts();

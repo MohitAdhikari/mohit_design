@@ -1,11 +1,13 @@
 import { Metadata } from 'next';
+import { getSiteSettings } from '@/lib/api';
 
 export const metadata: Metadata = {
   title: 'About Us | PHONEOCEAN',
   description: 'PhoneOcean is a gaming and esports media platform delivering breaking news, tournament coverage, reviews, game updates, guides, interviews, and original content.',
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const { contactEmail } = await getSiteSettings();
   return (
     <div className="max-w-[1000px] mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
       <header className="mb-12 md:mb-16 border-b border-gray-300 dark:border-gray-800/50 pb-8">
@@ -116,7 +118,7 @@ export default function AboutPage() {
               Have a tip or want to collaborate? Get in touch with our team.
             </p>
             <a 
-              href="mailto:contact@phoneocean.com" 
+              href={`mailto:${contactEmail}`}
               className="flex items-center justify-center w-full px-4 py-3 bg-[#00E5FF] hover:bg-[#00C4DD] text-[#0B0B0F] font-bold uppercase tracking-widest text-xs rounded-xl transition-colors cursor-pointer"
             >
               Contact Us

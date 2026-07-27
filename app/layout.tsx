@@ -28,6 +28,7 @@ const jetbrainsMono = JetBrains_Mono({
 export const revalidate = 60;
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in'),
   title: 'PHONEOCEAN | Gaming News, Esports Updates & Exclusive Interviews',
   description: 'Professional esports news and content platform featuring latest BGMI updates, roster changes, and Roblox codes.',
   ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION && {
@@ -44,7 +45,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
     href: `/news/${n.slug.current}`,
   }));
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.com';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in';
   const siteName = settings.siteName || 'PHONEOCEAN';
   const orgJsonLd = {
     '@context': 'https://schema.org',

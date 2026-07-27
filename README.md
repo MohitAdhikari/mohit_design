@@ -46,7 +46,7 @@ NEXT_PUBLIC_SANITY_DATASET=production
 NEXT_PUBLIC_SANITY_API_VERSION=2024-04-28
 
 # --- SEO / canonical URLs (used by sitemap.xml, robots.txt, OG tags) ---
-NEXT_PUBLIC_SITE_URL=https://phoneocean.com
+NEXT_PUBLIC_SITE_URL=https://phoneocean.in
 
 # --- Analytics (optional) ---
 NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX

@@ -40,35 +40,50 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
   }
 
-  const description = extractPlainText(post.content) || 'PHONEOCEAN gaming news.';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in';
+  // Prefer CMS-authored SEO fields, then excerpt, then extracted body text.
+  const description =
+    post.seo?.metaDescription || post.excerpt || extractPlainText(post.content) || 'PHONEOCEAN gaming news.';
+  const seoTitle = post.seo?.seoTitle || `${post.title} | PHONEOCEAN`;
+  const shareImage = post.seo?.socialShareImage || post.thumbnail || 'https://picsum.photos/1200/630';
+  const imageAlt = post.imageAlt || post.title;
+  const pageUrl = `${baseUrl}/news/${post.slug?.current || slug}`;
+  // Only override canonical if the editor explicitly set one (e.g. syndicated content).
+  const canonical = post.seo?.canonicalUrl || pageUrl;
+  const keywords = [
+    post.seo?.focusKeyword,
+    ...(post.tags?.map((t: any) => t?.title).filter(Boolean) || []),
+  ].filter(Boolean) as string[];
 
   return {
-    title: `${post.title} | PHONEOCEAN`,
+    title: seoTitle,
     description,
+    ...(keywords.length ? { keywords } : {}),
+    authors: [{ name: post.author?.name || post.authorName || 'PHONEOCEAN Staff' }],
     openGraph: {
-      title: post.title,
+      title: seoTitle,
       description,
       type: 'article',
       publishedTime: new Date(post.publishDate).toISOString(),
       modifiedTime: post._updatedAt ? new Date(post._updatedAt).toISOString() : new Date(post.publishDate).toISOString(),
-      url: `${process.env.NEXT_PUBLIC_SITE_URL}/news/${post.slug?.current || slug}`,
+      url: pageUrl,
       images: [
         {
-          url: post.thumbnail || 'https://picsum.photos/1200/630',
+          url: shareImage,
           width: 1200,
           height: 630,
-          alt: post.title,
+          alt: imageAlt,
         },
       ],
     },
     twitter: {
       card: 'summary_large_image',
-      title: post.title,
+      title: seoTitle,
       description,
-      images: [post.thumbnail || 'https://picsum.photos/1200/630'],
+      images: [shareImage],
     },
     alternates: {
-      canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/news/${post.slug?.current || slug}`,
+      canonical,
     },
   };
 }
@@ -81,29 +96,41 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
     notFound();
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.com';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in';
   const canonicalUrl = `${baseUrl}/news/${post.slug?.current || slug}`;
   const readingTime = calcReadingTime(post.content);
   const publishedIso = new Date(post.publishDate).toISOString();
   const modifiedIso = post._updatedAt ? new Date(post._updatedAt).toISOString() : publishedIso;
   const isUpdated = post._updatedAt && new Date(post._updatedAt).getTime() - new Date(post.publishDate).getTime() > 60_000;
 
+  const authorName = post.author?.name || post.authorName || 'PHONEOCEAN Staff';
+  const articleSection = post.categoryRef?.title || post.category;
+  const keywords = (post.tags?.map((t: any) => t?.title).filter(Boolean) || []) as string[];
+  const description = post.seo?.metaDescription || post.excerpt || extractPlainText(post.content) || undefined;
+  const heroImage = post.seo?.socialShareImage || post.thumbnail || 'https://picsum.photos/1200/630';
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'NewsArticle',
     headline: post.title,
-    image: [
-      post.thumbnail || 'https://picsum.photos/1200/630'
-    ],
+    ...(description ? { description } : {}),
+    image: {
+      '@type': 'ImageObject',
+      url: heroImage,
+      width: 1200,
+      height: 630,
+    },
     datePublished: publishedIso,
     dateModified: modifiedIso,
+    ...(articleSection ? { articleSection } : {}),
+    ...(keywords.length ? { keywords: keywords.join(', ') } : {}),
     mainEntityOfPage: {
       '@type': 'WebPage',
       '@id': canonicalUrl,
     },
     author: [{
         '@type': 'Person',
-        name: post.authorName || 'PHONEOCEAN Staff',
+        name: authorName,
       }],
     publisher: {
       '@type': 'Organization',
@@ -139,7 +166,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
       <div className="relative w-full h-[40vh] md:h-[60vh] border-b border-gray-900">
         <Image 
           src={post.thumbnail || 'https://picsum.photos/1920/1080'}
-          alt={post.title}
+          alt={post.imageAlt || post.title}
           fill
           className="object-cover"
           priority
@@ -156,7 +183,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
               {post.title}
             </h1>
             <div className="flex flex-wrap items-center text-gray-400 text-xs font-mono gap-4 uppercase tracking-wider">
-              <span>By {post.authorName || 'PHONEOCEAN Staff'}</span>
+              <span>By {authorName}</span>
               <span>•</span>
               <span>{format(new Date(post.publishDate), 'MMMM dd, yyyy')}</span>
               <span>•</span>
