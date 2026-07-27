@@ -61,5 +61,36 @@ export const guide = defineType({
       type: 'datetime',
       initialValue: () => new Date().toISOString(),
     }),
+    defineField({
+      name: 'guideType',
+      title: 'Guide Type',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Redeem Codes', value: 'codes' },
+          { title: 'How-To / Tutorial', value: 'tutorial' },
+          { title: 'Tier List', value: 'tier_list' },
+          { title: 'Walkthrough', value: 'walkthrough' },
+          { title: 'Tips & Tricks', value: 'tips' },
+        ],
+      },
+    }),
+    defineField({
+      name: 'lastVerifiedDate',
+      title: 'Last Verified Date',
+      type: 'datetime',
+      description: 'When the codes / instructions in this guide were last confirmed working.',
+    }),
+    defineField({
+      name: 'tags',
+      title: 'Tags',
+      type: 'array',
+      of: [{ type: 'reference', to: [{ type: 'tag' }] }],
+    }),
+    defineField({
+      name: 'seo',
+      title: 'SEO',
+      type: 'seo',
+    }),
   ],
 })

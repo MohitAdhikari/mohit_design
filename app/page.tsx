@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { getNewsPosts, getInterviews, getGuides, getSiteSettings } from '@/lib/api';
+import { getNewsPosts, getInterviews, getGuides, getSiteSettings, getHomepage } from '@/lib/api';
 import { format } from 'date-fns';
 import Reveal from '@/components/Reveal';
 import StatsBand from '@/components/StatsBand';
@@ -9,15 +9,17 @@ import GamesMarquee from '@/components/GamesMarquee';
 export const revalidate = 60;
 
 export default async function Home() {
-  const [news, interviews, guides, settings] = await Promise.all([
+  const [news, interviews, guides, settings, homepage] = await Promise.all([
     getNewsPosts(),
     getInterviews(),
     getGuides(),
     getSiteSettings(),
+    getHomepage(),
   ]);
 
-  const featured = news[0];
-  const latestNews = news.slice(1, 4);
+  // Homepage Manager overrides (fall back to automatic latest content when unset)
+  const featured = homepage.heroArticle || news[0];
+  const latestNews = homepage.trendingArticles.length ? homepage.trendingArticles.slice(0, 3) : news.slice(1, 4);
   const feedNews = news.length > 3 ? news.slice(1) : news;
 
   return (

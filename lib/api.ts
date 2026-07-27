@@ -246,6 +246,39 @@ export async function getSiteSettings(): Promise<{
   return { ...defaults, ...(data || {}) };
 }
 
+export async function getHomepage(): Promise<{
+  heroArticle: any | null;
+  featuredArticles: any[];
+  trendingArticles: any[];
+  editorsPicks: any[];
+}> {
+  const empty = {
+    heroArticle: null,
+    featuredArticles: [],
+    trendingArticles: [],
+    editorsPicks: [],
+  };
+  if (!projectId) return empty;
+  const articleProjection = `{
+    _id, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, authorName
+  }`;
+  const query = `*[_type == "homepage"][0] {
+    "heroArticle": heroArticle->${articleProjection},
+    "featuredArticles": featuredArticles[]->${articleProjection},
+    "trendingArticles": trendingArticles[]->${articleProjection},
+    "editorsPicks": editorsPicks[]->${articleProjection}
+  }`;
+  const data = await client.fetch(query);
+  return {
+    ...empty,
+    ...(data || {}),
+    // strip any null refs that were deleted
+    featuredArticles: (data?.featuredArticles || []).filter(Boolean),
+    trendingArticles: (data?.trendingArticles || []).filter(Boolean),
+    editorsPicks: (data?.editorsPicks || []).filter(Boolean),
+  };
+}
+
 export async function getAllVideos(): Promise<any[]> {
   if (!projectId) {
     const videoPosts = mockData.newsPosts.filter((p: any) => p.youtubeUrl || p.instagramUrl).map((p: any) => ({...p, _type: 'newsPost', date: p.publishDate}));
