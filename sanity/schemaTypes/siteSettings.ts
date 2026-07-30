@@ -61,15 +61,15 @@ export const siteSettings = defineType({
     }),
     defineField({
       name: 'logoTextVertical',
-      title: 'Text Overlap Direction',
+      title: 'Overlap Layer',
       type: 'string',
       initialValue: 'below',
       description:
-        'When spacing is negative (text overlaps the logo), controls whether the text sits above or below the logo centre.',
+        'When spacing is negative and text overlaps the logo, controls which element appears on top.',
       options: {
         list: [
-          { title: 'Below logo centre', value: 'below' },
-          { title: 'Above logo centre', value: 'above' },
+          { title: 'Text on top of logo', value: 'above' },
+          { title: 'Logo on top of text', value: 'below' },
         ],
         layout: 'radio',
       },

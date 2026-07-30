@@ -36,19 +36,18 @@ function DiscordIcon({ className }: { className?: string }) {
   );
 }
 
-function getLogoTextStyle(
-  spacing: number,
-  vertical: 'above' | 'below',
-): React.CSSProperties {
+function getLogoTextStyle(spacing: number, vertical: 'above' | 'below'): React.CSSProperties {
   if (spacing < 0) {
-    const shift = Math.min(Math.abs(spacing) * 0.4, 20);
-    return {
-      marginLeft: spacing,
-      position: 'relative',
-      top: vertical === 'above' ? -shift : shift,
-    };
+    return { marginLeft: spacing, position: 'relative', zIndex: vertical === 'above' ? 2 : 1 };
   }
   return { marginLeft: spacing };
+}
+
+function getLogoImageStyle(spacing: number, vertical: 'above' | 'below'): React.CSSProperties {
+  if (spacing < 0) {
+    return { position: 'relative', zIndex: vertical === 'above' ? 1 : 2 };
+  }
+  return {};
 }
 
 export default function Footer({ settings }: { settings: SiteSettings }) {
@@ -77,6 +76,7 @@ export default function Footer({ settings }: { settings: SiteSettings }) {
                 width={48}
                 height={48}
                 className="w-11 h-11 md:w-12 md:h-12 object-contain flex-shrink-0"
+                style={getLogoImageStyle(settings.logoTextSpacing, settings.logoTextVertical)}
                 {...(settings.logoUrl ? { unoptimized: true } : {})}
               />
               <span
