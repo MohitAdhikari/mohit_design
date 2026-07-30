@@ -12,7 +12,7 @@ interface SiteSettings {
   instagramUrl: string;
   contactEmail: string;
   logoTextSpacing: number;
-  logoTextVertical: 'above' | 'below';
+  logoOnTop: boolean;
 }
 
 const navLinks = [
@@ -36,22 +36,22 @@ function DiscordIcon({ className }: { className?: string }) {
   );
 }
 
-function getLogoTextStyle(spacing: number, vertical: 'above' | 'below'): React.CSSProperties {
+function getLogoTextStyle(spacing: number, logoOnTop: boolean): React.CSSProperties {
   if (spacing < 0) {
-    return { marginLeft: spacing, position: 'relative', zIndex: vertical === 'above' ? 2 : 1 };
+    return { marginLeft: spacing, position: 'relative', zIndex: logoOnTop ? 1 : 2 };
   }
   return { marginLeft: spacing };
 }
 
-function getLogoImageStyle(spacing: number, vertical: 'above' | 'below'): React.CSSProperties {
+function getLogoImageStyle(spacing: number, logoOnTop: boolean): React.CSSProperties {
   if (spacing < 0) {
-    return { position: 'relative', zIndex: vertical === 'above' ? 1 : 2 };
+    return { position: 'relative', zIndex: logoOnTop ? 2 : 1 };
   }
   return {};
 }
 
 export default function Footer({ settings }: { settings: SiteSettings }) {
-  const textStyle = getLogoTextStyle(settings.logoTextSpacing, settings.logoTextVertical);
+  const textStyle = getLogoTextStyle(settings.logoTextSpacing, settings.logoOnTop);
   const socialLinks = [
     settings.twitterUrl && { icon: <Twitter className="w-4 h-4" />, href: settings.twitterUrl, label: 'Twitter' },
     settings.youtubeUrl && { icon: <Youtube className="w-4 h-4" />, href: settings.youtubeUrl, label: 'YouTube' },
@@ -76,7 +76,7 @@ export default function Footer({ settings }: { settings: SiteSettings }) {
                 width={48}
                 height={48}
                 className="w-11 h-11 md:w-12 md:h-12 object-contain flex-shrink-0"
-                style={getLogoImageStyle(settings.logoTextSpacing, settings.logoTextVertical)}
+                style={getLogoImageStyle(settings.logoTextSpacing, settings.logoOnTop)}
                 {...(settings.logoUrl ? { unoptimized: true } : {})}
               />
               <span

@@ -4,6 +4,13 @@ export const siteSettings = defineType({
   name: 'siteSettings',
   title: 'Site Settings',
   type: 'document',
+  fieldsets: [
+    {
+      name: 'logoTextLayout',
+      title: 'Logo → Text Spacing',
+      options: { collapsible: false },
+    },
+  ],
   fields: [
     defineField({
       name: 'logo',
@@ -51,28 +58,21 @@ export const siteSettings = defineType({
     }),
     defineField({
       name: 'logoTextSpacing',
-      title: 'Logo → Text Spacing (px)',
+      title: 'Spacing (px)',
       type: 'number',
+      fieldset: 'logoTextLayout',
       initialValue: 8,
-      description:
-        'Horizontal distance (px) between the logo icon and the site name. Default is 8 (current gap). Negative values overlap the text onto the logo. Range: −48 to 16.',
+      description: 'Gap between logo and site name. Negative values overlap text onto the logo. Range: −48 to 16.',
       validation: (Rule) =>
         Rule.min(-48).max(16).warning('Keep between −48 and 16 px.'),
     }),
     defineField({
-      name: 'logoTextVertical',
-      title: 'Overlap Layer',
-      type: 'string',
-      initialValue: 'below',
-      description:
-        'When spacing is negative and text overlaps the logo, controls which element appears on top.',
-      options: {
-        list: [
-          { title: 'Text on top of logo', value: 'above' },
-          { title: 'Logo on top of text', value: 'below' },
-        ],
-        layout: 'radio',
-      },
+      name: 'logoOnTop',
+      title: 'Logo on top of text when overlapping',
+      type: 'boolean',
+      fieldset: 'logoTextLayout',
+      initialValue: true,
+      description: 'On (default): logo sits in front of text. Off: text sits in front of the logo.',
     }),
   ],
 })

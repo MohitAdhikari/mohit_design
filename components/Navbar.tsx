@@ -11,25 +11,25 @@ interface NavbarProps {
   logoUrl?: string;
   siteName?: string;
   logoTextSpacing?: number;
-  logoTextVertical?: 'above' | 'below';
+  logoOnTop?: boolean;
 }
 
-function getLogoTextStyle(spacing: number, vertical: 'above' | 'below'): React.CSSProperties {
+function getLogoTextStyle(spacing: number, logoOnTop: boolean): React.CSSProperties {
   if (spacing < 0) {
-    return { marginLeft: spacing, position: 'relative', zIndex: vertical === 'above' ? 2 : 1 };
+    return { marginLeft: spacing, position: 'relative', zIndex: logoOnTop ? 1 : 2 };
   }
   return { marginLeft: spacing };
 }
 
-function getLogoImageStyle(spacing: number, vertical: 'above' | 'below'): React.CSSProperties {
+function getLogoImageStyle(spacing: number, logoOnTop: boolean): React.CSSProperties {
   if (spacing < 0) {
-    return { position: 'relative', zIndex: vertical === 'above' ? 1 : 2 };
+    return { position: 'relative', zIndex: logoOnTop ? 2 : 1 };
   }
   return {};
 }
 
-export default function Navbar({ logoUrl, siteName, logoTextSpacing = 8, logoTextVertical = 'below' }: NavbarProps) {
-  const textStyle = getLogoTextStyle(logoTextSpacing, logoTextVertical);
+export default function Navbar({ logoUrl, siteName, logoTextSpacing = 8, logoOnTop = true }: NavbarProps) {
+  const textStyle = getLogoTextStyle(logoTextSpacing, logoOnTop);
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [query, setQuery] = useState('');
@@ -81,7 +81,7 @@ export default function Navbar({ logoUrl, siteName, logoTextSpacing = 8, logoTex
                 width={56}
                 height={56}
                 className="w-12 h-12 lg:w-[52px] lg:h-[52px] object-contain flex-shrink-0"
-                style={getLogoImageStyle(logoTextSpacing, logoTextVertical)}
+                style={getLogoImageStyle(logoTextSpacing, logoOnTop)}
                 priority
                 {...(logoUrl ? { unoptimized: true } : {})}
               />

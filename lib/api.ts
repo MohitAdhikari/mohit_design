@@ -238,7 +238,7 @@ export async function getSiteSettings(): Promise<{
   instagramUrl: string;
   contactEmail: string;
   logoTextSpacing: number;
-  logoTextVertical: 'above' | 'below';
+  logoOnTop: boolean;
 }> {
   const DEFAULT_CONTACT_EMAIL = 'phoneoceanlive@gmail.com';
   const defaults = {
@@ -250,14 +250,14 @@ export async function getSiteSettings(): Promise<{
     instagramUrl: '',
     contactEmail: DEFAULT_CONTACT_EMAIL,
     logoTextSpacing: 8,
-    logoTextVertical: 'below' as const,
+    logoOnTop: true,
   };
   if (!projectId) return defaults;
   const query = `*[_type == "siteSettings"][0] {
     "logoUrl": logo.asset->url,
     siteName,
     discordUrl, twitterUrl, youtubeUrl, instagramUrl, contactEmail,
-    logoTextSpacing, logoTextVertical
+    logoTextSpacing, logoOnTop
   }`;
   const data = await client.fetch(query);
   return {
@@ -266,7 +266,7 @@ export async function getSiteSettings(): Promise<{
     // Always fall back to the default when the CMS field is empty/null.
     contactEmail: data?.contactEmail || DEFAULT_CONTACT_EMAIL,
     logoTextSpacing: data?.logoTextSpacing ?? 8,
-    logoTextVertical: (data?.logoTextVertical === 'above' ? 'above' : 'below') as 'above' | 'below',
+    logoOnTop: data?.logoOnTop !== false,
   };
 }
 

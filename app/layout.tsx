@@ -86,7 +86,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
             logoUrl={settings.logoUrl}
             siteName={settings.siteName}
             logoTextSpacing={settings.logoTextSpacing}
-            logoTextVertical={settings.logoTextVertical}
+            logoOnTop={settings.logoOnTop}
           />
           <div className="pt-20">
             <BreakingTicker items={tickerItems} />
