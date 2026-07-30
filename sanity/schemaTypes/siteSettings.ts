@@ -49,5 +49,30 @@ export const siteSettings = defineType({
       validation: (Rule) =>
         Rule.email().warning('Enter a valid email address.'),
     }),
+    defineField({
+      name: 'logoTextSpacing',
+      title: 'Logo → Text Spacing (px)',
+      type: 'number',
+      initialValue: 8,
+      description:
+        'Horizontal distance (px) between the logo icon and the site name. Default is 8 (current gap). Negative values overlap the text onto the logo. Range: −48 to 16.',
+      validation: (Rule) =>
+        Rule.min(-48).max(16).warning('Keep between −48 and 16 px.'),
+    }),
+    defineField({
+      name: 'logoTextVertical',
+      title: 'Text Overlap Direction',
+      type: 'string',
+      initialValue: 'below',
+      description:
+        'When spacing is negative (text overlaps the logo), controls whether the text sits above or below the logo centre.',
+      options: {
+        list: [
+          { title: 'Below logo centre', value: 'below' },
+          { title: 'Above logo centre', value: 'above' },
+        ],
+        layout: 'radio',
+      },
+    }),
   ],
 })

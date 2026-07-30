@@ -82,7 +82,12 @@ export default async function RootLayout({children}: {children: React.ReactNode}
         />
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={true}>
           <AmbientBackground />
-          <Navbar logoUrl={settings.logoUrl} siteName={settings.siteName} />
+          <Navbar
+            logoUrl={settings.logoUrl}
+            siteName={settings.siteName}
+            logoTextSpacing={settings.logoTextSpacing}
+            logoTextVertical={settings.logoTextVertical}
+          />
           <div className="pt-20">
             <BreakingTicker items={tickerItems} />
           </div>

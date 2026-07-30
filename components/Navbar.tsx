@@ -10,9 +10,27 @@ import { Search as SearchIcon } from 'lucide-react';
 interface NavbarProps {
   logoUrl?: string;
   siteName?: string;
+  logoTextSpacing?: number;
+  logoTextVertical?: 'above' | 'below';
 }
 
-export default function Navbar({ logoUrl, siteName }: NavbarProps) {
+function getLogoTextStyle(
+  spacing: number,
+  vertical: 'above' | 'below',
+): React.CSSProperties {
+  if (spacing < 0) {
+    const shift = Math.min(Math.abs(spacing) * 0.4, 20);
+    return {
+      marginLeft: spacing,
+      position: 'relative',
+      top: vertical === 'above' ? -shift : shift,
+    };
+  }
+  return { marginLeft: spacing };
+}
+
+export default function Navbar({ logoUrl, siteName, logoTextSpacing = 8, logoTextVertical = 'below' }: NavbarProps) {
+  const textStyle = getLogoTextStyle(logoTextSpacing, logoTextVertical);
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [query, setQuery] = useState('');
@@ -57,17 +75,20 @@ export default function Navbar({ logoUrl, siteName }: NavbarProps) {
       <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           <div className="flex-shrink-0 flex items-center pr-8 lg:pr-12">
-            <Link href="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
+            <Link href="/" className="flex items-center hover:opacity-90 transition-opacity">
               <Image
                 src={logoUrl || '/logo.svg'}
                 alt={`${siteName || 'PHONEOCEAN'} Logo`}
                 width={56}
                 height={56}
-                className="w-12 h-12 lg:w-[52px] lg:h-[52px] object-contain"
+                className="w-12 h-12 lg:w-[52px] lg:h-[52px] object-contain flex-shrink-0"
                 priority
                 {...(logoUrl ? { unoptimized: true } : {})}
               />
-              <span className="font-sans font-bold text-xl sm:text-[1.35rem] tracking-[0.02em] text-transparent bg-clip-text bg-gradient-to-r from-gray-900 via-blue-600 to-gray-900 dark:from-white dark:via-cyan-400 dark:to-white animate-gradient-x uppercase hidden sm:block">
+              <span
+                style={textStyle}
+                className="font-sans font-bold text-xl sm:text-[1.35rem] tracking-[0.02em] text-transparent bg-clip-text bg-gradient-to-r from-gray-900 via-blue-600 to-gray-900 dark:from-white dark:via-cyan-400 dark:to-white animate-gradient-x uppercase hidden sm:block"
+              >
                 {siteName || 'PHONEOCEAN'}
               </span>
             </Link>

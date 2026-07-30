@@ -1,13 +1,18 @@
+import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Twitter, Youtube, Instagram, Mail } from 'lucide-react';
 
 interface SiteSettings {
+  logoUrl: string;
+  siteName: string;
   discordUrl: string;
   twitterUrl: string;
   youtubeUrl: string;
   instagramUrl: string;
   contactEmail: string;
+  logoTextSpacing: number;
+  logoTextVertical: 'above' | 'below';
 }
 
 const navLinks = [
@@ -31,7 +36,23 @@ function DiscordIcon({ className }: { className?: string }) {
   );
 }
 
+function getLogoTextStyle(
+  spacing: number,
+  vertical: 'above' | 'below',
+): React.CSSProperties {
+  if (spacing < 0) {
+    const shift = Math.min(Math.abs(spacing) * 0.4, 20);
+    return {
+      marginLeft: spacing,
+      position: 'relative',
+      top: vertical === 'above' ? -shift : shift,
+    };
+  }
+  return { marginLeft: spacing };
+}
+
 export default function Footer({ settings }: { settings: SiteSettings }) {
+  const textStyle = getLogoTextStyle(settings.logoTextSpacing, settings.logoTextVertical);
   const socialLinks = [
     settings.twitterUrl && { icon: <Twitter className="w-4 h-4" />, href: settings.twitterUrl, label: 'Twitter' },
     settings.youtubeUrl && { icon: <Youtube className="w-4 h-4" />, href: settings.youtubeUrl, label: 'YouTube' },
@@ -49,16 +70,20 @@ export default function Footer({ settings }: { settings: SiteSettings }) {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-8">
           {/* Brand */}
           <div className="md:col-span-5">
-            <Link href="/" className="inline-flex items-center gap-2 hover:opacity-90 transition-opacity">
+            <Link href="/" className="inline-flex items-center hover:opacity-90 transition-opacity">
               <Image
-                src="/logo.svg"
-                alt="PHONEOCEAN Logo"
+                src={settings.logoUrl || '/logo.svg'}
+                alt={`${settings.siteName || 'PHONEOCEAN'} Logo`}
                 width={48}
                 height={48}
-                className="w-11 h-11 md:w-12 md:h-12 object-contain"
+                className="w-11 h-11 md:w-12 md:h-12 object-contain flex-shrink-0"
+                {...(settings.logoUrl ? { unoptimized: true } : {})}
               />
-              <span className="font-sans font-bold text-xl md:text-[1.35rem] tracking-[0.02em] text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-blue-600 dark:from-white dark:to-cyan-400 uppercase">
-                PHONEOCEAN
+              <span
+                style={textStyle}
+                className="font-sans font-bold text-xl md:text-[1.35rem] tracking-[0.02em] text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-blue-600 dark:from-white dark:to-cyan-400 uppercase"
+              >
+                {settings.siteName || 'PHONEOCEAN'}
               </span>
             </Link>
             <p className="mt-4 text-sm text-gray-600 dark:text-gray-400 font-sans leading-relaxed max-w-md">
