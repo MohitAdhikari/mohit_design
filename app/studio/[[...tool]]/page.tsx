@@ -7,8 +7,8 @@
  * https://github.com/sanity-io/next-sanity
  */
 
-import { NextStudio } from 'next-sanity/studio'
 import config from '../../../sanity.config'
+import { StudioClient } from './StudioClient'
 
 export default function StudioPage() {
   return (
@@ -21,7 +21,7 @@ export default function StudioPage() {
         {' '}then return to this page.
       </div>
       <div style={{ flex: 1, minHeight: 0 }}>
-        <NextStudio config={config} />
+        <StudioClient config={config} />
       </div>
     </div>
   )

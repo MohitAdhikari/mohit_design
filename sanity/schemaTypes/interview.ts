@@ -1,4 +1,5 @@
 import { defineType, defineField } from 'sanity'
+import { TagsInput } from '../components/TagsInput'
 
 export const interview = defineType({
   name: 'interview',
@@ -74,6 +75,7 @@ export const interview = defineType({
       title: 'Tags',
       type: 'array',
       of: [{ type: 'reference', to: [{ type: 'tag' }] }],
+      components: { input: TagsInput },
     }),
     defineField({
       name: 'seo',

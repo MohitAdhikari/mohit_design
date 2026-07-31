@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { getNewsPosts, getInterviews, getGuides } from '@/lib/api';
+import { getNewsPosts, getInterviews, getGuides, getTags } from '@/lib/api';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in';
@@ -7,6 +7,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const posts = await getNewsPosts();
   const interviews = await getInterviews();
   const guides = await getGuides();
+  const tags = await getTags();
 
   const newsUrls = posts.map((post: any) => ({
     url: `${baseUrl}/news/${post.slug.current}`,
@@ -29,6 +30,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
+  const tagUrls = tags.map((tag: any) => ({
+    url: `${baseUrl}/tags/${tag.slug}`,
+    lastModified: new Date(tag.lastUsed || tag._createdAt),
+    changeFrequency: 'weekly' as const,
+    priority: 0.6,
+  }));
+
+  const tagsLastMod = tags.length
+    ? new Date(Math.max(...tags.map((t: any) => new Date(t.lastUsed || t._createdAt).getTime())))
+    : new Date();
+
   return [
     {
       url: baseUrl,
@@ -41,6 +53,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/tags`,
+      lastModified: tagsLastMod,
+      changeFrequency: 'weekly',
+      priority: 0.7,
     },
     {
       url: `${baseUrl}/interviews`,
@@ -86,5 +104,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     ...newsUrls,
     ...guideUrls,
+    ...tagUrls,
   ];
 }

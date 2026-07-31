@@ -1,5 +1,6 @@
 import { defineType, defineField } from 'sanity'
 import { ReadingTimeInput } from '../components/ReadingTimeInput'
+import { TagsInput } from '../components/TagsInput'
 
 export const newsPost = defineType({
   name: 'newsPost',
@@ -160,6 +161,7 @@ export const newsPost = defineType({
       type: 'array',
       group: 'relations',
       of: [{ type: 'reference', to: [{ type: 'tag' }] }],
+      components: { input: TagsInput },
     }),
     defineField({
       name: 'tournament',

@@ -305,6 +305,46 @@ export async function getAppearanceSettings(): Promise<{
   return { ...defaults, ...(data || {}) };
 }
 
+// ---- TAGS ----
+
+export async function getTags(): Promise<any[]> {
+  if (!projectId) {
+    return (mockData.newsPosts as any[])
+      .flatMap((post) => post.tags || [])
+      .filter(Boolean)
+  }
+  const query = `*[_type == "tag"] | order(title asc) {
+    _id, _createdAt, title, "slug": slug.current, description,
+    "seo": { "seoTitle": seo.seoTitle, "metaDescription": seo.metaDescription, "openGraphImage": seo.openGraphImage.asset->url },
+    "articleCount": count(*[_type in ["newsPost", "guide"] && references(^._id)]),
+    "lastUsed": *[_type in ["newsPost", "guide"] && references(^._id)] | order(coalesce(publishDate, _createdAt) desc)[0]{ "lastUsed": coalesce(publishDate, _createdAt) }.lastUsed
+  }`
+  return client.fetch(query)
+}
+
+export async function getTagBySlug(slug: string): Promise<any | null> {
+  if (!projectId) {
+    return null
+  }
+  const query = `*[_type == "tag" && slug.current == $slug][0] {
+    _id, _createdAt, title, "slug": slug.current, description,
+    "seo": { "seoTitle": seo.seoTitle, "metaDescription": seo.metaDescription, "openGraphImage": seo.openGraphImage.asset->url },
+    "articleCount": count(*[_type in ["newsPost", "guide"] && references(^._id)]),
+    "articles": *[_type in ["newsPost", "guide"] && references(^._id)] | order(publishDate desc, _createdAt desc) {
+      _id, _type, _createdAt, title, "slug": slug.current, "thumbnail": thumbnail.asset->url, publishDate, gameName
+    }
+  }`
+  return client.fetch(query, { slug })
+}
+
+export async function getPostsByTagId(tagId: string, limit = 50): Promise<any[]> {
+  if (!projectId) return []
+  const query = `*[_type in ["newsPost", "guide"] && references($tagId)] | order(publishDate desc, _createdAt desc) [0...$limit] {
+    _id, _type, _createdAt, title, "slug": slug.current, "thumbnail": thumbnail.asset->url, publishDate, category, gameName
+  }`
+  return client.fetch(query, { tagId, limit })
+}
+
 /**
  * Resolve the effective Highlights style for a given article/guide,
  * respecting the per-document override when enabled.

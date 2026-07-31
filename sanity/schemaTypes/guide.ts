@@ -1,5 +1,6 @@
 import { defineType, defineField } from 'sanity'
 import { ReadingTimeInput } from '../components/ReadingTimeInput'
+import { TagsInput } from '../components/TagsInput'
 
 export const guide = defineType({
   name: 'guide',
@@ -164,6 +165,7 @@ export const guide = defineType({
       title: 'Tags',
       type: 'array',
       of: [{ type: 'reference', to: [{ type: 'tag' }] }],
+      components: { input: TagsInput },
     }),
     defineField({
       name: 'useGlobalAppearance',

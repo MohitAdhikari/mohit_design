@@ -1,4 +1,7 @@
 import type {StructureResolver} from 'sanity/structure'
+import { TagManager } from './components/TagManager'
+import { TagDashboard } from './components/TagDashboard'
+import { TagIcon } from '@sanity/icons'
 
 // https://www.sanity.io/docs/structure-builder-cheat-sheet
 const HIDDEN_TYPES = [
@@ -42,7 +45,37 @@ export const structure: StructureResolver = (S) =>
       // ---- TAXONOMY ----
       S.documentTypeListItem('author').title('Authors'),
       S.documentTypeListItem('category').title('Categories'),
-      S.documentTypeListItem('tag').title('Tags'),
+      S.listItem()
+        .title('Tag Manager')
+        .id('tag-manager')
+        .icon(TagIcon as any)
+        .child(
+          S.list()
+            .title('Tags')
+            .items([
+              S.listItem()
+                .title('All Tags')
+                .id('all-tags')
+                .child(S.documentTypeList('tag').title('All Tags')),
+              S.listItem()
+                .title('Unused Tags')
+                .id('unused-tags')
+                .child(
+                  S.documentList()
+                    .title('Unused Tags')
+                    .filter('_type == "tag" && count(*[_type in ["newsPost", "guide", "interview"] && references(^._id)]) == 0')
+                    .apiVersion('2023-01-01')
+                ),
+              S.listItem()
+                .title('Tag Dashboard')
+                .id('tag-dashboard')
+                .child(S.component(TagManager).id('tag-manager')),
+              S.listItem()
+                .title('Slug Manager')
+                .id('slug-manager')
+                .child(S.component(TagDashboard).id('slug-manager')),
+            ])
+        ),
 
       S.divider(),
 
