@@ -1,4 +1,5 @@
 import { defineType, defineField } from 'sanity'
+import { ReadingTimeInput } from '../components/ReadingTimeInput'
 
 export const newsPost = defineType({
   name: 'newsPost',
@@ -159,10 +160,46 @@ export const newsPost = defineType({
     // ---- PUBLISHING ----
     defineField({
       name: 'publishDate',
-      title: 'Published Date',
+      title: 'Published At',
       type: 'datetime',
       group: 'publishing',
+      description: 'The official publication date/time shown on the site. Defaults to now — can be backdated or scheduled in the future.',
       initialValue: () => new Date().toISOString(),
+    }),
+    defineField({
+      name: 'updatedAt',
+      title: 'Updated At',
+      type: 'datetime',
+      group: 'publishing',
+      description: 'Only shown on the site when "Show Updated Date" is enabled below. Leave empty to hide.',
+      validation: (Rule) =>
+        Rule.custom((updatedAt, context) => {
+          if (!updatedAt) return true;
+          const doc = context.document as any;
+          const published = doc?.publishDate;
+          if (!published) return true;
+          if (new Date(updatedAt as string) < new Date(published)) {
+            return 'Updated At cannot be earlier than Published At.';
+          }
+          return true;
+        }),
+    }),
+    defineField({
+      name: 'showUpdatedDate',
+      title: 'Show Updated Date',
+      type: 'boolean',
+      group: 'publishing',
+      initialValue: false,
+      description: 'Enable to display "Updated {date}" on the article. Intended for guides, redeem codes, live blogs, and evergreen content — most regular news should leave this off.',
+    }),
+    defineField({
+      name: 'estimatedReadTime',
+      title: 'Estimated Read Time',
+      type: 'string',
+      group: 'publishing',
+      readOnly: true,
+      description: 'Automatically calculated from the article content. Internal editorial reference only — never shown to readers.',
+      components: { input: ReadingTimeInput },
     }),
     defineField({
       name: 'featured',

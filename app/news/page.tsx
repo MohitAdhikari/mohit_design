@@ -56,7 +56,7 @@ export default async function NewsPage() {
               </h3>
               <div className="mt-auto flex items-center justify-between text-[10px] md:text-xs text-gray-600 dark:text-gray-500 font-mono uppercase tracking-wider">
                 <span className="flex items-center gap-2">
-                  <span>{format(new Date(post.publishDate), 'MMM dd, yyyy')}</span>
+                  <span>{format(new Date(post.publishDate || post._createdAt), 'MMM dd, yyyy')}</span>
                   <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700" />
                   <span>{post.authorName || 'PHONEOCEAN'}</span>
                 </span>

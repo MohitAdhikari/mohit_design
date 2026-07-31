@@ -1,4 +1,5 @@
 import { defineType, defineField } from 'sanity'
+import { ReadingTimeInput } from '../components/ReadingTimeInput'
 
 export const guide = defineType({
   name: 'guide',
@@ -56,10 +57,50 @@ export const guide = defineType({
       of: [{ type: 'block' }, { type: 'image' }],
     }),
     defineField({
-      name: 'lastUpdated',
-      title: 'Last Updated',
+      name: 'author',
+      title: 'Author',
+      type: 'reference',
+      to: [{ type: 'author' }],
+    }),
+    defineField({
+      name: 'publishDate',
+      title: 'Published At',
       type: 'datetime',
+      description: 'The official publication date/time shown on the site. Defaults to now — can be backdated or scheduled in the future.',
       initialValue: () => new Date().toISOString(),
+    }),
+    defineField({
+      name: 'lastUpdated',
+      title: 'Updated At',
+      type: 'datetime',
+      description: 'Shown on the site when "Show Updated Date" is enabled. Update this whenever codes/instructions change.',
+      initialValue: () => new Date().toISOString(),
+      validation: (Rule) =>
+        Rule.custom((lastUpdated, context) => {
+          if (!lastUpdated) return true;
+          const doc = context.document as any;
+          const published = doc?.publishDate;
+          if (!published) return true;
+          if (new Date(lastUpdated as string) < new Date(published)) {
+            return 'Updated At cannot be earlier than Published At.';
+          }
+          return true;
+        }),
+    }),
+    defineField({
+      name: 'showUpdatedDate',
+      title: 'Show Updated Date',
+      type: 'boolean',
+      initialValue: true,
+      description: 'Guides and redeem codes typically benefit from showing when they were last verified/updated. Enabled by default for this content type.',
+    }),
+    defineField({
+      name: 'estimatedReadTime',
+      title: 'Estimated Read Time',
+      type: 'string',
+      readOnly: true,
+      description: 'Automatically calculated from the guide content. Internal editorial reference only — never shown to readers.',
+      components: { input: ReadingTimeInput },
     }),
     defineField({
       name: 'guideType',

@@ -172,8 +172,8 @@ export async function getNewsPosts(): Promise<any[]> {
   if (!projectId) {
     return mockData.newsPosts;
   }
-  const query = `*[_type == "newsPost"] | order(publishDate desc) {
-    _id, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, authorName, youtubeUrl, instagramUrl
+  const query = `*[_type == "newsPost"] | order(coalesce(publishDate, _createdAt) desc) {
+    _id, _createdAt, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, authorName, youtubeUrl, instagramUrl
   }`;
   return client.fetch(query);
 }
@@ -183,7 +183,7 @@ export async function getNewsPostBySlug(slug: string): Promise<any> {
     return mockData.newsPosts.find(p => p.slug.current === slug);
   }
   const query = `*[_type == "newsPost" && slug.current == $slug][0] {
-    _id, _updatedAt, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, authorName, content, youtubeUrl, instagramUrl,
+    _id, _createdAt, _updatedAt, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, updatedAt, showUpdatedDate, authorName, content, youtubeUrl, instagramUrl,
     excerpt, imageAlt, imageCaption,
     "author": author->{ name, role },
     "categoryRef": categoryRef->{ title, "slug": slug.current },
@@ -203,8 +203,8 @@ export async function getInterviews(): Promise<any[]> {
   if (!projectId) {
     return mockData.interviews;
   }
-  const query = `*[_type == "interview"] | order(publishDate desc) {
-    _id, playerOrCeoName, eventName, "thumbnail": thumbnail.asset->url, youtubeUrl, instagramUrl, publishDate, keyHighlights
+  const query = `*[_type == "interview"] | order(coalesce(publishDate, _createdAt) desc) {
+    _id, _createdAt, playerOrCeoName, eventName, "thumbnail": thumbnail.asset->url, youtubeUrl, instagramUrl, publishDate, keyHighlights
   }`;
   return client.fetch(query);
 }
@@ -213,8 +213,8 @@ export async function getGuides(): Promise<any[]> {
   if (!projectId) {
     return mockData.guides;
   }
-  const query = `*[_type == "guide"] | order(lastUpdated desc) {
-    _id, title, slug, gameName, "thumbnail": thumbnail.asset->url, lastUpdated, youtubeUrl, instagramUrl
+  const query = `*[_type == "guide"] | order(coalesce(publishDate, _createdAt) desc) {
+    _id, _createdAt, title, slug, gameName, "thumbnail": thumbnail.asset->url, publishDate, lastUpdated, showUpdatedDate, youtubeUrl, instagramUrl
   }`;
   return client.fetch(query);
 }
@@ -224,7 +224,8 @@ export async function getGuideBySlug(slug: string): Promise<any> {
     return mockData.guides.find(g => g.slug.current === slug);
   }
   const query = `*[_type == "guide" && slug.current == $slug][0] {
-    _id, title, slug, gameName, "thumbnail": thumbnail.asset->url, codesList, lastUpdated, content, youtubeUrl, instagramUrl
+    _id, _createdAt, title, slug, gameName, "thumbnail": thumbnail.asset->url, codesList, publishDate, lastUpdated, showUpdatedDate, content, youtubeUrl, instagramUrl,
+    "author": author->{ name, role }
   }`;
   return client.fetch(query, { slug });
 }
@@ -284,7 +285,7 @@ export async function getHomepage(): Promise<{
   };
   if (!projectId) return empty;
   const articleProjection = `{
-    _id, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, authorName
+    _id, _createdAt, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, authorName
   }`;
   const query = `*[_type == "homepage"][0] {
     "heroArticle": heroArticle->${articleProjection},
@@ -316,13 +317,13 @@ export async function getAllVideos(): Promise<any[]> {
     });
   }
   
-  const query = `*[(_type == "newsPost" || _type == "interview" || _type == "guide") && (defined(youtubeUrl) || defined(instagramUrl))] | order(coalesce(publishDate, lastUpdated) desc) {
+  const query = `*[(_type == "newsPost" || _type == "interview" || _type == "guide") && (defined(youtubeUrl) || defined(instagramUrl))] | order(coalesce(publishDate, lastUpdated, _createdAt) desc) {
     _id,
     _type,
     "title": coalesce(title, playerOrCeoName),
     slug,
     "thumbnail": thumbnail.asset->url,
-    "date": coalesce(publishDate, lastUpdated),
+    "date": coalesce(publishDate, lastUpdated, _createdAt),
     youtubeUrl,
     instagramUrl,
     category

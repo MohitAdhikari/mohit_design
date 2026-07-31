@@ -23,12 +23,12 @@ export async function GET() {
 
   // Google News only indexes articles from the last 2 days.
   const cutoff = Date.now() - 1000 * 60 * 60 * 48;
-  const recent = posts.filter((p: any) => new Date(p.publishDate).getTime() >= cutoff);
+  const recent = posts.filter((p: any) => new Date(p.publishDate || p._createdAt).getTime() >= cutoff);
 
   const urls = recent
     .map((post: any) => {
       const loc = `${baseUrl}/news/${post.slug.current}`;
-      const pubDate = new Date(post.publishDate).toISOString();
+      const pubDate = new Date(post.publishDate || post._createdAt).toISOString();
       return `  <url>
     <loc>${escapeXml(loc)}</loc>
     <news:news>

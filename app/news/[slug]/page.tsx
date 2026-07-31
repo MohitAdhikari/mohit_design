@@ -24,12 +24,6 @@ function extractPlainText(content: any, max = 160): string {
   return '';
 }
 
-function calcReadingTime(content: any): number {
-  const full = extractPlainText(content, Number.MAX_SAFE_INTEGER);
-  const words = full.split(/\s+/).filter(Boolean).length;
-  return Math.max(1, Math.round(words / 200));
-}
-
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const post = await getNewsPostBySlug(slug);
@@ -54,6 +48,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     post.seo?.focusKeyword,
     ...(post.tags?.map((t: any) => t?.title).filter(Boolean) || []),
   ].filter(Boolean) as string[];
+  const publishDate = post.publishDate || post._createdAt;
+  const publishedIso = new Date(publishDate).toISOString();
+  const modifiedIso = post.updatedAt ? new Date(post.updatedAt).toISOString() : publishedIso;
 
   return {
     title: seoTitle,
@@ -64,8 +61,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       title: seoTitle,
       description,
       type: 'article',
-      publishedTime: new Date(post.publishDate).toISOString(),
-      modifiedTime: post._updatedAt ? new Date(post._updatedAt).toISOString() : new Date(post.publishDate).toISOString(),
+      publishedTime: publishedIso,
+      modifiedTime: modifiedIso,
       url: pageUrl,
       images: [
         {
@@ -98,10 +95,10 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in';
   const canonicalUrl = `${baseUrl}/news/${post.slug?.current || slug}`;
-  const readingTime = calcReadingTime(post.content);
-  const publishedIso = new Date(post.publishDate).toISOString();
-  const modifiedIso = post._updatedAt ? new Date(post._updatedAt).toISOString() : publishedIso;
-  const isUpdated = post._updatedAt && new Date(post._updatedAt).getTime() - new Date(post.publishDate).getTime() > 60_000;
+  const publishDate = post.publishDate || post._createdAt;
+  const publishedIso = new Date(publishDate).toISOString();
+  const showUpdatedDate = Boolean(post.showUpdatedDate && post.updatedAt);
+  const modifiedIso = post.updatedAt ? new Date(post.updatedAt).toISOString() : publishedIso;
 
   const authorName = post.author?.name || post.authorName || 'PHONEOCEAN Staff';
   const articleSection = post.categoryRef?.title || post.category;
@@ -185,13 +182,11 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
             <div className="flex flex-wrap items-center text-gray-400 text-xs font-mono gap-4 uppercase tracking-wider">
               <span>By {authorName}</span>
               <span>•</span>
-              <span>{format(new Date(post.publishDate), 'MMMM dd, yyyy')}</span>
-              <span>•</span>
-              <span>{readingTime} min read</span>
-              {isUpdated && (
+              <span>{format(new Date(publishDate), 'MMMM dd, yyyy')}</span>
+              {showUpdatedDate && (
                 <>
                   <span>•</span>
-                  <span>Updated {format(new Date(post._updatedAt), 'MMM dd, yyyy')}</span>
+                  <span>Updated {format(new Date(post.updatedAt), 'MMM dd, yyyy')}</span>
                 </>
               )}
             </div>

@@ -10,7 +10,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const newsUrls = posts.map((post: any) => ({
     url: `${baseUrl}/news/${post.slug.current}`,
-    lastModified: new Date(post.publishDate),
+    lastModified: new Date(post.publishDate || post._createdAt),
     changeFrequency: 'weekly' as const,
     priority: 0.8,
   }));
@@ -18,13 +18,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Interviews currently share a single index page; include latest publish date as lastmod
   const interviewsLastMod = interviews.length
     ? new Date(
-        Math.max(...interviews.map((i: any) => new Date(i.publishDate).getTime()))
+        Math.max(...interviews.map((i: any) => new Date(i.publishDate || i._createdAt).getTime()))
       )
     : new Date();
 
   const guideUrls = guides.map((guide: any) => ({
     url: `${baseUrl}/guides/${guide.slug.current}`,
-    lastModified: new Date(guide.lastUpdated),
+    lastModified: new Date(guide.lastUpdated || guide.publishDate || guide._createdAt),
     changeFrequency: 'weekly' as const,
     priority: 0.8,
   }));

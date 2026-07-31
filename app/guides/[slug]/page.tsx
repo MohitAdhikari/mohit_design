@@ -31,6 +31,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 
   const description = extractPlainText(guide.content) || `Comprehensive guide and codes for ${guide.gameName}.`;
+  const publishDate = guide.publishDate || guide._createdAt || guide.lastUpdated;
+  const publishedIso = new Date(publishDate).toISOString();
+  const modifiedIso = guide.lastUpdated ? new Date(guide.lastUpdated).toISOString() : publishedIso;
 
   return {
     title: `${guide.title} | ${guide.gameName} Guide | PHONEOCEAN`,
@@ -39,6 +42,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       title: guide.title,
       description,
       type: 'article',
+      publishedTime: publishedIso,
+      modifiedTime: modifiedIso,
       url: `${process.env.NEXT_PUBLIC_SITE_URL}/guides/${guide.slug?.current || slug}`,
       images: [
         {
@@ -69,6 +74,12 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
     notFound();
   }
 
+  const publishDate = guide.publishDate || guide._createdAt || guide.lastUpdated;
+  const publishedIso = new Date(publishDate).toISOString();
+  const showUpdatedDate = Boolean(guide.showUpdatedDate && guide.lastUpdated);
+  const modifiedIso = guide.lastUpdated ? new Date(guide.lastUpdated).toISOString() : publishedIso;
+  const authorName = guide.author?.name || 'PHONEOCEAN Staff';
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
@@ -76,11 +87,11 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
     image: [
       guide.thumbnail || 'https://picsum.photos/1200/630'
     ],
-    datePublished: new Date(guide.lastUpdated).toISOString(),
-    dateModified: new Date(guide.lastUpdated).toISOString(),
+    datePublished: publishedIso,
+    dateModified: modifiedIso,
     author: [{
-        '@type': 'Organization',
-        name: 'PHONEOCEAN',
+        '@type': 'Person',
+        name: authorName,
       }]
   };
 
@@ -111,7 +122,15 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
               {guide.title}
             </h1>
             <div className="flex flex-wrap items-center text-gray-400 text-xs font-mono gap-4 uppercase tracking-wider">
-              <span>Updated • {format(new Date(guide.lastUpdated), 'MMMM dd, yyyy')}</span>
+              <span>By {authorName}</span>
+              <span>•</span>
+              <span>{format(new Date(publishDate), 'MMMM dd, yyyy')}</span>
+              {showUpdatedDate && (
+                <>
+                  <span>•</span>
+                  <span>Updated {format(new Date(guide.lastUpdated), 'MMM dd, yyyy')}</span>
+                </>
+              )}
             </div>
           </div>
         </div>
