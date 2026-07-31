@@ -8,6 +8,7 @@ import BreakingTicker from '@/components/BreakingTicker';
 import NewsletterCTA from '@/components/NewsletterCTA';
 import AmbientBackground from '@/components/AmbientBackground';
 import { getNewsPosts, getSiteSettings } from '@/lib/api';
+import { optimizedImageUrl } from '@/lib/sanityImage';
 import { GoogleAnalytics } from '@next/third-parties/google';
 
 const spaceGrotesk = Space_Grotesk({
@@ -27,16 +28,22 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const revalidate = 60;
 
-export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in'),
-  title: 'PHONEOCEAN | Gaming News, Esports Updates & Exclusive Interviews',
-  description: 'Professional esports news and content platform featuring latest BGMI updates, roster changes, and Roblox codes.',
-  ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION && {
-    verification: {
-      google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
-    },
-  }),
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  const faviconUrl = optimizedImageUrl(settings.logoUrl, 32, '/logo.svg');
+
+  return {
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in'),
+    title: 'PHONEOCEAN | Gaming News, Esports Updates & Exclusive Interviews',
+    description: 'Professional esports news and content platform featuring latest BGMI updates, roster changes, and Roblox codes.',
+    icons: { icon: faviconUrl },
+    ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION && {
+      verification: {
+        google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+      },
+    }),
+  };
+}
 
 export default async function RootLayout({children}: {children: React.ReactNode}) {
   const [news, settings] = await Promise.all([getNewsPosts(), getSiteSettings()]);
