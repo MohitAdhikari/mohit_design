@@ -188,6 +188,9 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
               <span>•</span>
               <span>{format(new Date(publishDate), 'MMMM dd, yyyy')}</span>
             </div>
+            <div className="mt-6">
+              <ShareButtons title={post.title} url={canonicalUrl} />
+            </div>
           </div>
         </div>
       </div>
