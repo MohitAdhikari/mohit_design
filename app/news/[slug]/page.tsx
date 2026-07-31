@@ -51,7 +51,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   ].filter(Boolean) as string[];
   const publishDate = post.publishDate || post._createdAt;
   const publishedIso = new Date(publishDate).toISOString();
-  const modifiedIso = post.updatedAt ? new Date(post.updatedAt).toISOString() : publishedIso;
 
   return {
     title: seoTitle,
@@ -63,7 +62,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       description,
       type: 'article',
       publishedTime: publishedIso,
-      modifiedTime: modifiedIso,
+      modifiedTime: publishedIso,
       url: pageUrl,
       images: [
         {
@@ -103,8 +102,6 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
   const canonicalUrl = `${baseUrl}/news/${post.slug?.current || slug}`;
   const publishDate = post.publishDate || post._createdAt;
   const publishedIso = new Date(publishDate).toISOString();
-  const showUpdatedDate = Boolean(post.showUpdatedDate && post.updatedAt);
-  const modifiedIso = post.updatedAt ? new Date(post.updatedAt).toISOString() : publishedIso;
 
   const authorName = post.author?.name || post.authorName || 'PHONEOCEAN Staff';
   const articleSection = post.categoryRef?.title || post.category;
@@ -124,7 +121,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
       height: 630,
     },
     datePublished: publishedIso,
-    dateModified: modifiedIso,
+    dateModified: publishedIso,
     ...(articleSection ? { articleSection } : {}),
     ...(keywords.length ? { keywords: keywords.join(', ') } : {}),
     mainEntityOfPage: {
@@ -190,12 +187,6 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
               <span>By {authorName}</span>
               <span>•</span>
               <span>{format(new Date(publishDate), 'MMMM dd, yyyy')}</span>
-              {showUpdatedDate && (
-                <>
-                  <span>•</span>
-                  <span>Updated {format(new Date(post.updatedAt), 'MMM dd, yyyy')}</span>
-                </>
-              )}
             </div>
           </div>
         </div>
