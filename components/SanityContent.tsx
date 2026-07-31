@@ -1,6 +1,6 @@
 import { PortableText } from '@portabletext/react'
 import Image from 'next/image'
-import { optimizedImageUrl } from '@/lib/sanityImage'
+import { contentImageUrl } from '@/lib/sanityImage'
 import HighlightsBlock, { type HighlightsStyle } from '@/components/blocks/HighlightsBlock'
 import CalloutBox from '@/components/blocks/CalloutBox'
 
@@ -14,11 +14,7 @@ return {
       <CalloutBox variant={value?.variant || 'info'} title={value?.title} text={value?.text || ''} />
     ),
     image: ({ value }: any) => {
-      // Resolve the actual Sanity asset (respects hotspot/crop) rather than
-      // relying on a pre-resolved URL that portable text blocks don't carry.
-      const imageUrl = value?.asset
-        ? optimizedImageUrl(value, 1200)
-        : value?.asset?.url || value?.url;
+      const imageUrl = contentImageUrl(value, 1200);
       if (!imageUrl) return null;
       return (
         <figure className="my-8">

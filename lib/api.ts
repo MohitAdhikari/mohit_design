@@ -183,7 +183,15 @@ export async function getNewsPostBySlug(slug: string): Promise<any> {
     return mockData.newsPosts.find(p => p.slug.current === slug);
   }
   const query = `*[_type == "newsPost" && slug.current == $slug][0] {
-    _id, _createdAt, _updatedAt, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, updatedAt, showUpdatedDate, authorName, content, youtubeUrl, instagramUrl,
+    _id, _createdAt, _updatedAt, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, updatedAt, showUpdatedDate, authorName, youtubeUrl, instagramUrl,
+    content[]{
+      ...,
+      _type == "image" => {
+        ...,
+        "assetUrl": asset->url,
+        "assetDimensions": asset->metadata { dimensions }
+      }
+    },
     excerpt, imageAlt, imageCaption, useGlobalAppearance, customHighlightsStyle,
     "author": author->{ name, role },
     "categoryRef": categoryRef->{ title, "slug": slug.current },
@@ -224,7 +232,15 @@ export async function getGuideBySlug(slug: string): Promise<any> {
     return mockData.guides.find(g => g.slug.current === slug);
   }
   const query = `*[_type == "guide" && slug.current == $slug][0] {
-    _id, _createdAt, title, slug, gameName, "thumbnail": thumbnail.asset->url, thumbnailAlt, thumbnailCaption, thumbnailCredit, codesList, publishDate, lastUpdated, showUpdatedDate, content, youtubeUrl, instagramUrl,
+    _id, _createdAt, title, slug, gameName, "thumbnail": thumbnail.asset->url, thumbnailAlt, thumbnailCaption, thumbnailCredit, codesList, publishDate, lastUpdated, showUpdatedDate, youtubeUrl, instagramUrl,
+    content[]{
+      ...,
+      _type == "image" => {
+        ...,
+        "assetUrl": asset->url,
+        "assetDimensions": asset->metadata { dimensions }
+      }
+    },
     useGlobalAppearance, customHighlightsStyle,
     "author": author->{ name, role }
   }`;

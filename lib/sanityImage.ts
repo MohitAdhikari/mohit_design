@@ -35,3 +35,22 @@ export function optimizedImageUrl(
     return typeof source === 'string' ? source : fallback;
   }
 }
+
+/**
+ * Resolve a URL for a portable-text image block without a placeholder fallback.
+ * Prefers an already-expanded asset URL and falls back to building one from the
+ * Sanity image reference. Returns null if the image cannot be resolved.
+ */
+export function contentImageUrl(value: any, width = 1200): string | null {
+  if (!value) return null;
+  const rawUrl = value.assetUrl || value.asset?.url || value.url;
+  if (rawUrl) return rawUrl;
+  if (value.asset) {
+    try {
+      return urlFor(value).width(width).auto('format').fit('max').url();
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
