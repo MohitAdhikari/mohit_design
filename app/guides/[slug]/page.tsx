@@ -31,6 +31,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
   }
 
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in';
   const description = extractPlainText(guide.content) || `Comprehensive guide and codes for ${guide.gameName}.`;
   const publishDate = guide.publishDate || guide._createdAt || guide.lastUpdated;
   const publishedIso = new Date(publishDate).toISOString();
@@ -45,7 +46,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       type: 'article',
       publishedTime: publishedIso,
       modifiedTime: modifiedIso,
-      url: `${process.env.NEXT_PUBLIC_SITE_URL}/guides/${guide.slug?.current || slug}`,
+      url: `${baseUrl}/guides/${guide.slug?.current || slug}`,
       images: [
         {
           url: guide.thumbnail || 'https://picsum.photos/1200/630',
@@ -62,7 +63,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       images: [guide.thumbnail || 'https://picsum.photos/1200/630'],
     },
     alternates: {
-      canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/guides/${guide.slug?.current || slug}`,
+      canonical: `${baseUrl}/guides/${guide.slug?.current || slug}`,
     },
   };
 }
@@ -125,7 +126,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
             <span className="inline-block bg-purple-600 text-white text-[10px] font-mono tracking-widest uppercase px-3 py-1 mb-6 rounded-sm">
               {guide.gameName} Guide
             </span>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black font-space-grotesk tracking-tighter leading-tight mb-6">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black font-space-grotesk tracking-tighter leading-tight mb-6 text-white">
               {guide.title}
             </h1>
             <div className="flex flex-wrap items-center text-gray-400 text-xs font-mono gap-4 uppercase tracking-wider">

@@ -183,7 +183,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
             <span className="inline-block bg-blue-600 text-white text-[10px] font-mono tracking-widest uppercase px-3 py-1 mb-6 rounded-sm">
               {post.category}
             </span>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black font-space-grotesk tracking-tighter leading-tight mb-6">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black font-space-grotesk tracking-tighter leading-tight mb-6 text-white">
               {post.title}
             </h1>
             <div className="flex flex-wrap items-center text-gray-400 text-xs font-mono gap-4 uppercase tracking-wider">
