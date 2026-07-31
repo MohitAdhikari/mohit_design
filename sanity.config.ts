@@ -8,6 +8,7 @@ import { apiVersion, dataset, projectId } from './sanity/env'
 import { schema } from './sanity/schemaTypes'
 import { structure } from './sanity/structure'
 import { SubmitForReviewAction } from './sanity/actions/submitForReview'
+import { PreviewAction } from './sanity/actions/preview'
 import { TagArticlesView } from './sanity/components/TagArticlesView'
 import { TagDeleteAction, TagMergeAction } from './sanity/actions/tagActions'
 
@@ -56,11 +57,11 @@ export default defineConfig({
 
       // Editorial workflow for newsPost / guide / interview
       if (!WORKFLOW_TYPES.includes(context?.schemaType)) return prev
-      if (!isWriter) return prev
+      if (!isWriter) return [...prev, PreviewAction]
       const filtered = prev.filter(
         (action) => !WRITER_BLOCKED_ACTIONS.includes((action.action as string) ?? '')
       )
-      return [...filtered, SubmitForReviewAction]
+      return [...filtered, SubmitForReviewAction, PreviewAction]
     },
   },
   plugins: [

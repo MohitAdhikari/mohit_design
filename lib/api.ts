@@ -1,12 +1,7 @@
-import { createClient } from 'next-sanity'
-import { apiVersion, dataset, projectId } from '../sanity/env'
-
-export const client = createClient({
-  projectId: projectId || 'nlydr3l6',
-  dataset: dataset || 'production',
-  apiVersion: apiVersion || '2024-04-28',
-  useCdn: process.env.NODE_ENV === 'production',
-})
+import { draftMode } from 'next/headers'
+import { projectId } from '../sanity/env'
+import { client } from './sanityClient'
+import { previewClient } from './sanityServer'
 
 // Mock Data
 export const mockData = {
@@ -182,6 +177,8 @@ export async function getNewsPostBySlug(slug: string): Promise<any> {
   if (!projectId) {
     return mockData.newsPosts.find(p => p.slug.current === slug);
   }
+  const { isEnabled } = await draftMode();
+  const sanityClient = isEnabled ? previewClient : client;
   const query = `*[_type == "newsPost" && slug.current == $slug][0] {
     _id, _createdAt, _updatedAt, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, authorName, youtubeUrl, instagramUrl,
     content[]{
@@ -204,7 +201,7 @@ export async function getNewsPostBySlug(slug: string): Promise<any> {
       "socialShareImage": seo.socialShareImage.asset->url
     }
   }`;
-  return client.fetch(query, { slug });
+  return sanityClient.fetch(query, { slug });
 }
 
 export async function getInterviews(): Promise<any[]> {
@@ -231,6 +228,8 @@ export async function getGuideBySlug(slug: string): Promise<any> {
   if (!projectId) {
     return mockData.guides.find(g => g.slug.current === slug);
   }
+  const { isEnabled } = await draftMode();
+  const sanityClient = isEnabled ? previewClient : client;
   const query = `*[_type == "guide" && slug.current == $slug][0] {
     _id, _createdAt, title, slug, gameName, "thumbnail": thumbnail.asset->url, thumbnailAlt, thumbnailCaption, thumbnailCredit, codesList, publishDate, lastUpdated, showUpdatedDate, youtubeUrl, instagramUrl,
     content[]{
@@ -244,7 +243,7 @@ export async function getGuideBySlug(slug: string): Promise<any> {
     useGlobalAppearance, customHighlightsStyle,
     "author": author->{ name, role }
   }`;
-  return client.fetch(query, { slug });
+  return sanityClient.fetch(query, { slug });
 }
 
 export async function getSiteSettings(): Promise<{
@@ -260,7 +259,7 @@ export async function getSiteSettings(): Promise<{
 }> {
   const DEFAULT_CONTACT_EMAIL = 'phoneoceanlive@gmail.com';
   const defaults = {
-    logoUrl: '',
+    logoUrl: '/logo_phoneocean.png',
     siteName: '',
     discordUrl: '',
     twitterUrl: '',
@@ -281,7 +280,8 @@ export async function getSiteSettings(): Promise<{
   return {
     ...defaults,
     ...(data || {}),
-    // Always fall back to the default when the CMS field is empty/null.
+    // Always fall back to defaults when CMS fields are empty/null.
+    logoUrl: data?.logoUrl || defaults.logoUrl,
     contactEmail: data?.contactEmail || DEFAULT_CONTACT_EMAIL,
     logoTextSpacing: data?.logoTextSpacing ?? 8,
     logoOnTop: data?.logoOnTop !== false,

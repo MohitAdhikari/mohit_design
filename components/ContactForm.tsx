@@ -21,12 +21,18 @@ export default function ContactForm() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setStatus('submitting');
-    
-    // Simulate form submission to the configured contact email (phoneoceanlive@gmail.com)
-    setTimeout(() => {
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      if (!res.ok) throw new Error();
       setStatus('success');
       setFormData({ name: '', email: '', subject: '', message: '' });
-    }, 1500);
+    } catch {
+      setStatus('error');
+    }
   };
 
   if (status === 'success') {
@@ -116,6 +122,10 @@ export default function ContactForm() {
           className="w-full bg-gray-50 dark:bg-[#0B0B0F] border border-gray-200 dark:border-gray-800 focus:border-blue-600 dark:focus:border-[#00E5FF] text-gray-900 dark:text-white px-4 py-3 rounded-xl outline-none transition-colors resize-none"
         />
       </div>
+
+      {status === 'error' && (
+        <p className="text-sm text-red-500 font-mono">Something went wrong. Please try again.</p>
+      )}
 
       <button
         type="submit"

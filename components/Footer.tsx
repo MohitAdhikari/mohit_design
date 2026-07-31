@@ -53,11 +53,11 @@ function getLogoImageStyle(spacing: number, logoOnTop: boolean): React.CSSProper
 export default function Footer({ settings }: { settings: SiteSettings }) {
   const textStyle = getLogoTextStyle(settings.logoTextSpacing, settings.logoOnTop);
   const socialLinks = [
-    settings.twitterUrl && { icon: <Twitter className="w-4 h-4" />, href: settings.twitterUrl, label: 'Twitter' },
     settings.youtubeUrl && { icon: <Youtube className="w-4 h-4" />, href: settings.youtubeUrl, label: 'YouTube' },
     settings.instagramUrl && { icon: <Instagram className="w-4 h-4" />, href: settings.instagramUrl, label: 'Instagram' },
-    settings.discordUrl && { icon: <DiscordIcon className="w-4 h-4" />, href: settings.discordUrl, label: 'Discord' },
+    settings.twitterUrl && { icon: <Twitter className="w-4 h-4" />, href: settings.twitterUrl, label: 'Twitter' },
     settings.contactEmail && { icon: <Mail className="w-4 h-4" />, href: `mailto:${settings.contactEmail}`, label: 'Email' },
+    settings.discordUrl && { icon: <DiscordIcon className="w-4 h-4" />, href: settings.discordUrl, label: 'Discord' },
   ].filter(Boolean) as { icon: React.ReactNode; href: string; label: string }[];
 
   return (

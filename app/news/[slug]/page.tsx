@@ -49,7 +49,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     post.seo?.focusKeyword,
     ...(post.tags?.map((t: any) => t?.title).filter(Boolean) || []),
   ].filter(Boolean) as string[];
-  const publishDate = post.publishDate || post._createdAt;
+  const publishDate = post.publishDate || post._createdAt || new Date().toISOString();
   const publishedIso = new Date(publishDate).toISOString();
 
   return {
@@ -100,7 +100,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in';
   const canonicalUrl = `${baseUrl}/news/${post.slug?.current || slug}`;
-  const publishDate = post.publishDate || post._createdAt;
+  const publishDate = post.publishDate || post._createdAt || new Date().toISOString();
   const publishedIso = new Date(publishDate).toISOString();
 
   const authorName = post.author?.name || post.authorName || 'PHONEOCEAN Staff';

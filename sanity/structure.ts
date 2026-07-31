@@ -14,6 +14,8 @@ const HIDDEN_TYPES = [
   'tournament',
   'team',
   'player',
+  'subscriber',
+  'contactMessage',
   'homepage',
   'siteSettings',
   'appearanceSettings',
@@ -27,6 +29,12 @@ export const structure: StructureResolver = (S) =>
       S.documentTypeListItem('newsPost').title('News Posts'),
       S.documentTypeListItem('interview').title('Interviews'),
       S.documentTypeListItem('guide').title('Guides / Codes'),
+
+      S.divider(),
+
+      // ---- FORM SUBMISSIONS ----
+      S.documentTypeListItem('subscriber').title('Subscribers'),
+      S.documentTypeListItem('contactMessage').title('Contact Messages'),
 
       S.divider(),
 

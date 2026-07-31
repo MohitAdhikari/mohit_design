@@ -11,11 +11,20 @@ export default function NewsletterCTA() {
     e.preventDefault();
     if (!email.trim()) return;
     setStatus('submitting');
-    // Simulate API call — replace with real endpoint when ready
-    await new Promise((r) => setTimeout(r, 900));
-    setStatus('success');
-    setEmail('');
-    setTimeout(() => setStatus('idle'), 4000);
+    try {
+      const res = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      if (!res.ok) throw new Error();
+      setStatus('success');
+      setEmail('');
+      setTimeout(() => setStatus('idle'), 4000);
+    } catch {
+      setStatus('error');
+      setTimeout(() => setStatus('idle'), 5000);
+    }
   };
 
   return (
@@ -80,6 +89,11 @@ export default function NewsletterCTA() {
                       {status === 'submitting' ? 'Subscribing…' : 'Subscribe'}
                     </button>
                   </div>
+                  {status === 'error' && (
+                    <p className="text-[11px] text-red-500 font-mono">
+                      Something went wrong. Please try again.
+                    </p>
+                  )}
                   <p className="text-[11px] text-gray-500 dark:text-gray-500 font-mono">
                     By subscribing, you agree to our{' '}
                     <a href="/privacy-policy" className="underline underline-offset-4 hover:text-gray-900 dark:hover:text-gray-300">

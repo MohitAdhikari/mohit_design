@@ -8,7 +8,6 @@ import BreakingTicker from '@/components/BreakingTicker';
 import NewsletterCTA from '@/components/NewsletterCTA';
 import AmbientBackground from '@/components/AmbientBackground';
 import { getNewsPosts, getSiteSettings } from '@/lib/api';
-import { optimizedImageUrl } from '@/lib/sanityImage';
 import { GoogleAnalytics } from '@next/third-parties/google';
 
 const spaceGrotesk = Space_Grotesk({
@@ -30,7 +29,7 @@ export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
-  const faviconUrl = optimizedImageUrl(settings.logoUrl, 32, '/logo.svg');
+  const faviconUrl = settings.logoUrl?.trim() ? settings.logoUrl : '/logo_phoneocean.png';
 
   return {
     metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in'),

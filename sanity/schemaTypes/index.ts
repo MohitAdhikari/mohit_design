@@ -13,6 +13,8 @@ import { tag } from './tag'
 import { tournament } from './tournament'
 import { team } from './team'
 import { player } from './player'
+import { subscriber } from './subscriber'
+import { contactMessage } from './contactMessage'
 import { homepage } from './homepage'
 
 export const schema: { types: SchemaTypeDefinition[] } = {
@@ -32,6 +34,10 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     tournament,
     team,
     player,
+    // Form submissions
+    subscriber,
+    contactMessage,
+
     // Singletons
     homepage,
     siteSettings,

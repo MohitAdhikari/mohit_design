@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in';
   const description = extractPlainText(guide.content) || `Comprehensive guide and codes for ${guide.gameName}.`;
-  const publishDate = guide.publishDate || guide._createdAt || guide.lastUpdated;
+  const publishDate = guide.publishDate || guide._createdAt || guide.lastUpdated || new Date().toISOString();
   const publishedIso = new Date(publishDate).toISOString();
   const modifiedIso = guide.lastUpdated ? new Date(guide.lastUpdated).toISOString() : publishedIso;
 
@@ -81,7 +81,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
 
   const highlightsStyle = resolveHighlightsStyle(guide, appearance);
 
-  const publishDate = guide.publishDate || guide._createdAt || guide.lastUpdated;
+  const publishDate = guide.publishDate || guide._createdAt || guide.lastUpdated || new Date().toISOString();
   const publishedIso = new Date(publishDate).toISOString();
   const showUpdatedDate = Boolean(guide.showUpdatedDate && guide.lastUpdated);
   const modifiedIso = guide.lastUpdated ? new Date(guide.lastUpdated).toISOString() : publishedIso;
