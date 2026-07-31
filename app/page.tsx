@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { getNewsPosts, getInterviews, getGuides, getSiteSettings, getHomepage } from '@/lib/api';
+import { optimizedImageUrl } from '@/lib/sanityImage';
 import { format } from 'date-fns';
 import Reveal from '@/components/Reveal';
 import StatsBand from '@/components/StatsBand';
@@ -36,7 +37,7 @@ export default async function Home() {
               <Link href={`/news/${featured.slug.current}`} className="sheen-parent block relative w-full h-full">
                 <div className="absolute inset-0 overflow-hidden">
                   <Image
-                    src={featured.thumbnail}
+                    src={optimizedImageUrl(featured.thumbnail, 1600)}
                     alt={featured.title}
                     fill
                     sizes="(max-width: 1024px) 100vw, 66vw"
@@ -110,7 +111,7 @@ export default async function Home() {
                   {/* Thumbnail (Mobile only) */}
                   <div className="relative aspect-video rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800/60 shadow-sm dark:shadow-md mb-4 lg:hidden">
                     <Image 
-                      src={post.thumbnail} 
+                      src={optimizedImageUrl(post.thumbnail, 640)} 
                       alt={post.title} 
                       fill 
                       sizes="(max-width: 1024px) 100vw, 30vw"
@@ -186,7 +187,7 @@ export default async function Home() {
                 <Link href={`/news/${post.slug.current}`} key={post._id} className="group flex flex-col sm:flex-row gap-4 sm:gap-6 bg-white dark:bg-[#111116] p-4 sm:p-5 rounded-2xl border border-gray-200 dark:border-gray-800/60 hover:border-[#00E5FF]/40 transition-all duration-300 shadow-sm dark:shadow-md hover:shadow-md dark:hover:shadow-[0_4px_20px_rgba(0,229,255,0.05)] hover:-translate-y-1">
                   <div className="relative aspect-video sm:w-56 sm:aspect-[4/3] rounded-xl overflow-hidden flex-shrink-0 border border-gray-200 dark:border-gray-800">
                     <Image 
-                      src={post.thumbnail} 
+                      src={optimizedImageUrl(post.thumbnail, 800)} 
                       alt={post.title} 
                       fill 
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -235,8 +236,8 @@ export default async function Home() {
                 <Link href="/interviews" key={interview._id} className="group flex flex-col bg-white dark:bg-[#111116] border border-gray-200 dark:border-gray-800/60 rounded-2xl overflow-hidden shadow-sm hover:shadow-md dark:shadow-md dark:hover:shadow-[0_4px_20px_rgba(157,0,255,0.05)] hover:border-[#9D00FF]/40 dark:hover:border-[#9D00FF]/40 transition-all hover:-translate-y-1 h-full">
                   <div className="relative aspect-video w-full overflow-hidden border-b border-gray-200 dark:border-gray-800/60">
                     <Image 
-                      src={interview.thumbnail} 
-                      alt={`Interview with ${interview.playerOrCeoName}`} 
+                      src={optimizedImageUrl(interview.thumbnail, 700)} 
+                      alt={interview.thumbnailAlt || `Interview with ${interview.playerOrCeoName}`} 
                       fill 
                       sizes="(max-width: 640px) 100vw, 50vw"
                       loading="lazy"
@@ -280,7 +281,7 @@ export default async function Home() {
             {guides.map((guide) => (
               <Link href={`/guides/${guide.slug.current}`} key={guide._id} className="flex flex-col sm:flex-row lg:flex-row gap-4 group items-center bg-white dark:bg-[#111116] p-4 lg:p-5 rounded-2xl border border-gray-200 dark:border-gray-800/60 hover:border-[#00FF66]/30 dark:hover:border-[#00FF66]/30 transition-colors shadow-sm dark:shadow-none">
                 <div className="relative w-full sm:w-24 lg:w-20 aspect-video sm:aspect-square lg:aspect-square flex-shrink-0 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800">
-                  <Image src={guide.thumbnail} alt={guide.title} fill sizes="(max-width: 640px) 100vw, 150px" loading="lazy" className="object-cover opacity-80 group-hover:opacity-100" referrerPolicy="no-referrer" />
+                  <Image src={optimizedImageUrl(guide.thumbnail, 300)} alt={guide.thumbnailAlt || guide.title} fill sizes="(max-width: 640px) 100vw, 150px" loading="lazy" className="object-cover opacity-80 group-hover:opacity-100" referrerPolicy="no-referrer" />
                 </div>
                 <div className="flex flex-col w-full">
                   <span className="text-[10px] text-[#00FF66] font-black font-sans tracking-widest uppercase mb-1.5">{guide.gameName}</span>

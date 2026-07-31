@@ -1,15 +1,38 @@
 import { PortableText } from '@portabletext/react'
 import Image from 'next/image'
+import { optimizedImageUrl } from '@/lib/sanityImage'
 
 const components = {
   types: {
     image: ({ value }: any) => {
-      // Very basic image handling for the mock/sanity setup
-      const imageUrl = value?.asset?.url || value?.url || 'https://picsum.photos/800/400';
+      // Resolve the actual Sanity asset (respects hotspot/crop) rather than
+      // relying on a pre-resolved URL that portable text blocks don't carry.
+      const imageUrl = value?.asset
+        ? optimizedImageUrl(value, 1200)
+        : value?.asset?.url || value?.url;
+      if (!imageUrl) return null;
       return (
-        <div className="relative w-full aspect-video my-8">
-          <Image src={imageUrl} alt={value.alt || 'Article Image'} fill className="object-cover rounded-sm" referrerPolicy="no-referrer" />
-        </div>
+        <figure className="my-8">
+          <div className="relative w-full aspect-video">
+            <Image
+              src={imageUrl}
+              alt={value.alt || 'Article Image'}
+              fill
+              sizes="(max-width: 768px) 100vw, 768px"
+              loading="lazy"
+              className="object-cover rounded-sm"
+              referrerPolicy="no-referrer"
+            />
+          </div>
+          {(value.caption || value.credit) && (
+            <figcaption className="mt-2 text-sm text-gray-500 dark:text-gray-400 font-sans">
+              {value.caption}
+              {value.credit && (
+                <span className="italic"> — {value.credit}</span>
+              )}
+            </figcaption>
+          )}
+        </figure>
       )
     },
   },

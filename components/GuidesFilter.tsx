@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import Reveal from '@/components/Reveal';
+import { optimizedImageUrl } from '@/lib/sanityImage';
 
 interface Guide {
   _id: string;
@@ -12,6 +13,7 @@ interface Guide {
   slug: { current: string };
   gameName: string;
   thumbnail: string;
+  thumbnailAlt?: string;
   lastUpdated: string;
 }
 
@@ -73,8 +75,8 @@ export default function GuidesFilter({ guides, games }: Props) {
             >
               <div className="relative aspect-video overflow-hidden border-b border-gray-200 dark:border-gray-800/60">
                 <Image
-                  src={guide.thumbnail}
-                  alt={guide.title}
+                  src={optimizedImageUrl(guide.thumbnail, 800)}
+                  alt={guide.thumbnailAlt || guide.title}
                   fill
                   sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   className="object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"

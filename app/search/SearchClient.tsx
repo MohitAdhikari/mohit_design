@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { optimizedImageUrl } from '@/lib/sanityImage';
 import { Search as SearchIcon } from 'lucide-react';
 
 type Doc = {
@@ -92,7 +93,7 @@ export default function SearchClient({ documents }: { documents: Doc[] }) {
               className="group flex gap-4 bg-white dark:bg-[#111116] p-4 rounded-2xl border border-gray-200 dark:border-gray-800/60 hover:border-blue-500/40 dark:hover:border-[#00E5FF]/40 transition-colors shadow-sm"
             >
               <div className="relative w-28 sm:w-40 aspect-video rounded-xl overflow-hidden flex-shrink-0 border border-gray-200 dark:border-gray-800">
-                <Image src={r.thumbnail} alt={r.title} fill sizes="160px" className="object-cover" referrerPolicy="no-referrer" />
+                <Image src={optimizedImageUrl(r.thumbnail, 320)} alt={r.title} fill sizes="160px" loading="lazy" className="object-cover" referrerPolicy="no-referrer" />
               </div>
               <div className="flex-1 min-w-0">
                 <span className="inline-block text-[10px] font-bold tracking-widest uppercase text-blue-600 dark:text-[#00E5FF] mb-2">

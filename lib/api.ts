@@ -1,7 +1,7 @@
 import { createClient } from 'next-sanity'
 import { apiVersion, dataset, projectId } from '../sanity/env'
 
-const client = createClient({
+export const client = createClient({
   projectId: projectId || 'nlydr3l6',
   dataset: dataset || 'production',
   apiVersion: apiVersion || '2024-04-28',
@@ -204,7 +204,7 @@ export async function getInterviews(): Promise<any[]> {
     return mockData.interviews;
   }
   const query = `*[_type == "interview"] | order(coalesce(publishDate, _createdAt) desc) {
-    _id, _createdAt, playerOrCeoName, eventName, "thumbnail": thumbnail.asset->url, youtubeUrl, instagramUrl, publishDate, keyHighlights
+    _id, _createdAt, playerOrCeoName, eventName, "thumbnail": thumbnail.asset->url, thumbnailAlt, thumbnailCaption, thumbnailCredit, youtubeUrl, instagramUrl, publishDate, keyHighlights
   }`;
   return client.fetch(query);
 }
@@ -214,7 +214,7 @@ export async function getGuides(): Promise<any[]> {
     return mockData.guides;
   }
   const query = `*[_type == "guide"] | order(coalesce(publishDate, _createdAt) desc) {
-    _id, _createdAt, title, slug, gameName, "thumbnail": thumbnail.asset->url, publishDate, lastUpdated, showUpdatedDate, youtubeUrl, instagramUrl
+    _id, _createdAt, title, slug, gameName, "thumbnail": thumbnail.asset->url, thumbnailAlt, publishDate, lastUpdated, showUpdatedDate, youtubeUrl, instagramUrl
   }`;
   return client.fetch(query);
 }
@@ -224,7 +224,7 @@ export async function getGuideBySlug(slug: string): Promise<any> {
     return mockData.guides.find(g => g.slug.current === slug);
   }
   const query = `*[_type == "guide" && slug.current == $slug][0] {
-    _id, _createdAt, title, slug, gameName, "thumbnail": thumbnail.asset->url, codesList, publishDate, lastUpdated, showUpdatedDate, content, youtubeUrl, instagramUrl,
+    _id, _createdAt, title, slug, gameName, "thumbnail": thumbnail.asset->url, thumbnailAlt, thumbnailCaption, thumbnailCredit, codesList, publishDate, lastUpdated, showUpdatedDate, content, youtubeUrl, instagramUrl,
     "author": author->{ name, role }
   }`;
   return client.fetch(query, { slug });

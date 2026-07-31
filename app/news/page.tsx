@@ -1,6 +1,7 @@
 import { getNewsPosts } from '@/lib/api';
 import Image from 'next/image';
 import Link from 'next/link';
+import { optimizedImageUrl } from '@/lib/sanityImage';
 import { format } from 'date-fns';
 import PageHeader from '@/components/PageHeader';
 import Reveal from '@/components/Reveal';
@@ -38,7 +39,7 @@ export default async function NewsPage() {
           >
             <div className="relative aspect-video overflow-hidden border-b border-gray-200 dark:border-gray-800/60">
               <Image
-                src={post.thumbnail}
+                src={optimizedImageUrl(post.thumbnail, 800)}
                 alt={post.title}
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"

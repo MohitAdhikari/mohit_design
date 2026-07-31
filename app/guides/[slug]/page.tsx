@@ -1,5 +1,6 @@
 import { getGuideBySlug } from '@/lib/api';
 import Image from 'next/image';
+import { optimizedImageUrl } from '@/lib/sanityImage';
 import { format } from 'date-fns';
 import { notFound } from 'next/navigation';
 import SanityContent from '@/components/SanityContent';
@@ -104,9 +105,10 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
       {/* HERO BANNER */}
       <div className="relative w-full h-[40vh] md:h-[50vh] border-b border-gray-900 border-b-purple-500/30">
         <Image 
-          src={guide.thumbnail || 'https://picsum.photos/1920/1080'}
-          alt={guide.title}
+          src={optimizedImageUrl(guide.thumbnail, 1920, 'https://picsum.photos/1920/1080')}
+          alt={guide.thumbnailAlt || guide.title}
           fill
+          sizes="100vw"
           className="object-cover"
           priority
           referrerPolicy="no-referrer"

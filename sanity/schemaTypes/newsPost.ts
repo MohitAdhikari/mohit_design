@@ -43,7 +43,24 @@ export const newsPost = defineType({
       title: 'Content',
       type: 'array',
       group: 'content',
-      of: [{ type: 'block' }, { type: 'image' }],
+      of: [
+        { type: 'block' },
+        {
+          type: 'image',
+          options: { hotspot: true },
+          fields: [
+            defineField({
+              name: 'alt',
+              title: 'Alt Text',
+              type: 'string',
+              description: 'Required for accessibility and SEO.',
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({ name: 'caption', title: 'Caption', type: 'string' }),
+            defineField({ name: 'credit', title: 'Image Credit', type: 'string' }),
+          ],
+        },
+      ],
     }),
 
     // ---- MEDIA ----
@@ -59,15 +76,21 @@ export const newsPost = defineType({
       title: 'Featured Image Alt Text',
       type: 'string',
       group: 'media',
-      description: 'Describe the image for accessibility & SEO.',
-      validation: (Rule) =>
-        Rule.warning('Alt text is strongly recommended for accessibility and SEO.'),
+      description: 'Describe the image for accessibility & SEO. Required.',
+      validation: (Rule) => Rule.required().error('Alt text is required for the featured image.'),
     }),
     defineField({
       name: 'imageCaption',
       title: 'Image Caption',
       type: 'string',
       group: 'media',
+    }),
+    defineField({
+      name: 'imageCredit',
+      title: 'Image Credit',
+      type: 'string',
+      group: 'media',
+      description: 'Optional attribution, e.g. "Photo: Riot Games".',
     }),
     defineField({
       name: 'youtubeUrl',

@@ -33,6 +33,24 @@ export const guide = defineType({
       options: { hotspot: true },
     }),
     defineField({
+      name: 'thumbnailAlt',
+      title: 'Thumbnail Alt Text',
+      type: 'string',
+      description: 'Describe the image for accessibility & SEO. Required.',
+      validation: (Rule) => Rule.required().error('Alt text is required for the thumbnail image.'),
+    }),
+    defineField({
+      name: 'thumbnailCaption',
+      title: 'Thumbnail Caption',
+      type: 'string',
+    }),
+    defineField({
+      name: 'thumbnailCredit',
+      title: 'Thumbnail Credit',
+      type: 'string',
+      description: 'Optional attribution, e.g. "Photo: Riot Games".',
+    }),
+    defineField({
       name: 'youtubeUrl',
       title: 'YouTube video URL',
       type: 'url',
@@ -54,7 +72,24 @@ export const guide = defineType({
       name: 'content',
       title: 'Guide Content',
       type: 'array',
-      of: [{ type: 'block' }, { type: 'image' }],
+      of: [
+        { type: 'block' },
+        {
+          type: 'image',
+          options: { hotspot: true },
+          fields: [
+            defineField({
+              name: 'alt',
+              title: 'Alt Text',
+              type: 'string',
+              description: 'Required for accessibility and SEO.',
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({ name: 'caption', title: 'Caption', type: 'string' }),
+            defineField({ name: 'credit', title: 'Image Credit', type: 'string' }),
+          ],
+        },
+      ],
     }),
     defineField({
       name: 'author',

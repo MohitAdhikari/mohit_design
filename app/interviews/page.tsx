@@ -1,5 +1,6 @@
 import { getInterviews } from '@/lib/api';
 import Image from 'next/image';
+import { optimizedImageUrl } from '@/lib/sanityImage';
 import { format } from 'date-fns';
 import VideoEmbed from '@/components/VideoEmbed';
 import PageHeader from '@/components/PageHeader';
@@ -45,8 +46,8 @@ export default async function InterviewsPage() {
               ) : (
                 <div className="relative aspect-video overflow-hidden">
                   <Image
-                    src={interview.thumbnail}
-                    alt={interview.playerOrCeoName}
+                    src={optimizedImageUrl(interview.thumbnail, 800)}
+                    alt={interview.thumbnailAlt || interview.playerOrCeoName}
                     fill
                     sizes="(max-width: 768px) 100vw, 50vw"
                     className="object-cover opacity-90 group-hover:opacity-100 group-hover:scale-[1.03] transition-all duration-500"

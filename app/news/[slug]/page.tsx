@@ -1,5 +1,6 @@
 import { getNewsPostBySlug } from '@/lib/api';
 import Image from 'next/image';
+import { optimizedImageUrl } from '@/lib/sanityImage';
 import { format } from 'date-fns';
 import { notFound } from 'next/navigation';
 import SanityContent from '@/components/SanityContent';
@@ -162,9 +163,10 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
       {/* HERO BANNER */}
       <div className="relative w-full h-[40vh] md:h-[60vh] border-b border-gray-900">
         <Image 
-          src={post.thumbnail || 'https://picsum.photos/1920/1080'}
+          src={optimizedImageUrl(post.thumbnail, 1920, 'https://picsum.photos/1920/1080')}
           alt={post.imageAlt || post.title}
           fill
+          sizes="100vw"
           className="object-cover"
           priority
           referrerPolicy="no-referrer"

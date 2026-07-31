@@ -23,6 +23,24 @@ export const interview = defineType({
       options: { hotspot: true },
     }),
     defineField({
+      name: 'thumbnailAlt',
+      title: 'Thumbnail Alt Text',
+      type: 'string',
+      description: 'Describe the image for accessibility & SEO. Required.',
+      validation: (Rule) => Rule.required().error('Alt text is required for the thumbnail image.'),
+    }),
+    defineField({
+      name: 'thumbnailCaption',
+      title: 'Thumbnail Caption',
+      type: 'string',
+    }),
+    defineField({
+      name: 'thumbnailCredit',
+      title: 'Thumbnail Credit',
+      type: 'string',
+      description: 'Optional attribution, e.g. "Photo: Riot Games".',
+    }),
+    defineField({
       name: 'youtubeUrl',
       title: 'YouTube Video URL',
       type: 'url',
