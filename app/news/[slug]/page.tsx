@@ -1,4 +1,4 @@
-import { getNewsPostBySlug } from '@/lib/api';
+import { getNewsPostBySlug, getAppearanceSettings, resolveHighlightsStyle } from '@/lib/api';
 import Image from 'next/image';
 import { optimizedImageUrl } from '@/lib/sanityImage';
 import { format } from 'date-fns';
@@ -88,11 +88,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function NewsArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const post = await getNewsPostBySlug(slug);
+  const [post, appearance] = await Promise.all([
+    getNewsPostBySlug(slug),
+    getAppearanceSettings(),
+  ]);
 
   if (!post) {
     notFound();
   }
+
+  const highlightsStyle = resolveHighlightsStyle(post, appearance);
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in';
   const canonicalUrl = `${baseUrl}/news/${post.slug?.current || slug}`;
@@ -203,7 +208,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
           </div>
         )}
 
-        <SanityContent content={post.content} />
+        <SanityContent content={post.content} highlightsStyle={highlightsStyle} />
         
         <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-900 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <span className="text-sm font-mono text-gray-500 uppercase tracking-widest">Share this article</span>

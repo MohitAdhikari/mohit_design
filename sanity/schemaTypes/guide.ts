@@ -89,6 +89,7 @@ export const guide = defineType({
             defineField({ name: 'credit', title: 'Image Credit', type: 'string' }),
           ],
         },
+        { type: 'highlightsBlock' },
       ],
     }),
     defineField({
@@ -162,6 +163,28 @@ export const guide = defineType({
       title: 'Tags',
       type: 'array',
       of: [{ type: 'reference', to: [{ type: 'tag' }] }],
+    }),
+    defineField({
+      name: 'useGlobalAppearance',
+      title: 'Use Global Settings',
+      type: 'boolean',
+      initialValue: true,
+      description: 'Use the site-wide Appearance settings. Turn off to override the Highlights style for this guide only.',
+    }),
+    defineField({
+      name: 'customHighlightsStyle',
+      title: 'Custom Highlights Style',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Premium', value: 'premium' },
+          { title: 'Minimal', value: 'minimal' },
+          { title: 'Plain', value: 'plain' },
+        ],
+        layout: 'radio',
+      },
+      hidden: ({ document }) => document?.useGlobalAppearance !== false,
+      description: 'Only used when "Use Global Settings" is off.',
     }),
     defineField({
       name: 'seo',

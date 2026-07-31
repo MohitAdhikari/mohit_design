@@ -1,9 +1,14 @@
 import { PortableText } from '@portabletext/react'
 import Image from 'next/image'
 import { optimizedImageUrl } from '@/lib/sanityImage'
+import HighlightsBlock, { type HighlightsStyle } from '@/components/blocks/HighlightsBlock'
 
-const components = {
+function getComponents(highlightsStyle: HighlightsStyle) {
+return {
   types: {
+    highlightsBlock: ({ value }: any) => (
+      <HighlightsBlock title={value?.title} items={value?.items || []} style={highlightsStyle} />
+    ),
     image: ({ value }: any) => {
       // Resolve the actual Sanity asset (respects hotspot/crop) rather than
       // relying on a pre-resolved URL that portable text blocks don't carry.
@@ -60,12 +65,19 @@ const components = {
     number: ({ children }: any) => <ol className="list-decimal pl-5 mb-6 text-gray-700 dark:text-gray-300 space-y-2">{children}</ol>,
   },
 }
+}
 
-export default function SanityContent({ content }: { content: any }) {
+export default function SanityContent({
+  content,
+  highlightsStyle = 'premium',
+}: {
+  content: any;
+  highlightsStyle?: HighlightsStyle;
+}) {
   if (!content) return null;
   return (
     <div className="max-w-3xl mx-auto">
-      <PortableText value={content} components={components} />
+      <PortableText value={content} components={getComponents(highlightsStyle)} />
     </div>
   )
 }

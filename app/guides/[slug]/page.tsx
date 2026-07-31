@@ -1,4 +1,4 @@
-import { getGuideBySlug } from '@/lib/api';
+import { getGuideBySlug, getAppearanceSettings, resolveHighlightsStyle } from '@/lib/api';
 import Image from 'next/image';
 import { optimizedImageUrl } from '@/lib/sanityImage';
 import { format } from 'date-fns';
@@ -69,11 +69,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function GuidePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const guide = await getGuideBySlug(slug);
+  const [guide, appearance] = await Promise.all([
+    getGuideBySlug(slug),
+    getAppearanceSettings(),
+  ]);
 
   if (!guide) {
     notFound();
   }
+
+  const highlightsStyle = resolveHighlightsStyle(guide, appearance);
 
   const publishDate = guide.publishDate || guide._createdAt || guide.lastUpdated;
   const publishedIso = new Date(publishDate).toISOString();
@@ -163,7 +168,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
           </div>
         )}
 
-        <SanityContent content={guide.content} />
+        <SanityContent content={guide.content} highlightsStyle={highlightsStyle} />
         
       </div>
     </article>

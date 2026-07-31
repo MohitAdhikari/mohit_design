@@ -3,7 +3,9 @@ import { newsPost } from './newsPost'
 import { interview } from './interview'
 import { guide } from './guide'
 import { siteSettings } from './siteSettings'
+import { appearanceSettings } from './appearanceSettings'
 import { seo } from './objects/seo'
+import { highlightsBlock } from './objects/highlightsBlock'
 import { author } from './author'
 import { category } from './category'
 import { tag } from './tag'
@@ -16,6 +18,7 @@ export const schema: { types: SchemaTypeDefinition[] } = {
   types: [
     // Objects
     seo,
+    highlightsBlock,
     // Content
     newsPost,
     interview,
@@ -30,5 +33,6 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     // Singletons
     homepage,
     siteSettings,
+    appearanceSettings,
   ],
 }

@@ -13,6 +13,7 @@ const HIDDEN_TYPES = [
   'player',
   'homepage',
   'siteSettings',
+  'appearanceSettings',
 ]
 
 export const structure: StructureResolver = (S) =>
@@ -60,6 +61,10 @@ export const structure: StructureResolver = (S) =>
       // siteSettings kept as a regular type: the existing document uses an
       // auto-generated id, so forcing a fixed-id singleton would open the wrong doc.
       S.documentTypeListItem('siteSettings').title('Site Settings'),
+      S.listItem()
+        .title('Appearance')
+        .id('appearanceSettings')
+        .child(S.document().schemaType('appearanceSettings').documentId('appearanceSettings')),
 
       // Any future/unlisted types
       ...S.documentTypeListItems().filter(

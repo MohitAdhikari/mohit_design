@@ -184,7 +184,7 @@ export async function getNewsPostBySlug(slug: string): Promise<any> {
   }
   const query = `*[_type == "newsPost" && slug.current == $slug][0] {
     _id, _createdAt, _updatedAt, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, updatedAt, showUpdatedDate, authorName, content, youtubeUrl, instagramUrl,
-    excerpt, imageAlt, imageCaption,
+    excerpt, imageAlt, imageCaption, useGlobalAppearance, customHighlightsStyle,
     "author": author->{ name, role },
     "categoryRef": categoryRef->{ title, "slug": slug.current },
     "tags": tags[]->{ title, "slug": slug.current },
@@ -225,6 +225,7 @@ export async function getGuideBySlug(slug: string): Promise<any> {
   }
   const query = `*[_type == "guide" && slug.current == $slug][0] {
     _id, _createdAt, title, slug, gameName, "thumbnail": thumbnail.asset->url, thumbnailAlt, thumbnailCaption, thumbnailCredit, codesList, publishDate, lastUpdated, showUpdatedDate, content, youtubeUrl, instagramUrl,
+    useGlobalAppearance, customHighlightsStyle,
     "author": author->{ name, role }
   }`;
   return client.fetch(query, { slug });
@@ -269,6 +270,53 @@ export async function getSiteSettings(): Promise<{
     logoTextSpacing: data?.logoTextSpacing ?? 8,
     logoOnTop: data?.logoOnTop !== false,
   };
+}
+
+export type HighlightsStyleValue = 'premium' | 'minimal' | 'plain';
+
+export async function getAppearanceSettings(): Promise<{
+  highlightsEnabled: boolean;
+  highlightsDefaultStyle: HighlightsStyleValue;
+  infoBoxEnabled: boolean;
+  warningBoxEnabled: boolean;
+  successBoxEnabled: boolean;
+  importantBoxEnabled: boolean;
+  tipBoxEnabled: boolean;
+  quoteStyle: 'modern' | 'classic';
+  dividerStyle: 'standard' | 'gradient' | 'none';
+}> {
+  const defaults = {
+    highlightsEnabled: true,
+    highlightsDefaultStyle: 'premium' as HighlightsStyleValue,
+    infoBoxEnabled: true,
+    warningBoxEnabled: true,
+    successBoxEnabled: true,
+    importantBoxEnabled: true,
+    tipBoxEnabled: true,
+    quoteStyle: 'modern' as const,
+    dividerStyle: 'standard' as const,
+  };
+  if (!projectId) return defaults;
+  const query = `*[_type == "appearanceSettings"][0] {
+    highlightsEnabled, highlightsDefaultStyle, infoBoxEnabled, warningBoxEnabled,
+    successBoxEnabled, importantBoxEnabled, tipBoxEnabled, quoteStyle, dividerStyle
+  }`;
+  const data = await client.fetch(query);
+  return { ...defaults, ...(data || {}) };
+}
+
+/**
+ * Resolve the effective Highlights style for a given article/guide,
+ * respecting the per-document override when enabled.
+ */
+export function resolveHighlightsStyle(
+  doc: { useGlobalAppearance?: boolean; customHighlightsStyle?: HighlightsStyleValue } | null | undefined,
+  appearance: { highlightsDefaultStyle: HighlightsStyleValue }
+): HighlightsStyleValue {
+  if (doc?.useGlobalAppearance === false && doc.customHighlightsStyle) {
+    return doc.customHighlightsStyle;
+  }
+  return appearance.highlightsDefaultStyle;
 }
 
 export async function getHomepage(): Promise<{

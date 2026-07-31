@@ -10,6 +10,7 @@ export const newsPost = defineType({
     { name: 'media', title: 'Media' },
     { name: 'relations', title: 'Relations' },
     { name: 'publishing', title: 'Publishing' },
+    { name: 'appearance', title: 'Appearance' },
     { name: 'seo', title: 'SEO' },
     { name: 'advanced', title: 'Advanced' },
   ],
@@ -60,6 +61,7 @@ export const newsPost = defineType({
             defineField({ name: 'credit', title: 'Image Credit', type: 'string' }),
           ],
         },
+        { type: 'highlightsBlock' },
       ],
     }),
 
@@ -244,6 +246,32 @@ export const newsPost = defineType({
       type: 'boolean',
       group: 'publishing',
       initialValue: false,
+    }),
+
+    // ---- APPEARANCE ----
+    defineField({
+      name: 'useGlobalAppearance',
+      title: 'Use Global Settings',
+      type: 'boolean',
+      group: 'appearance',
+      initialValue: true,
+      description: 'Use the site-wide Appearance settings. Turn off to override the Highlights style for this article only.',
+    }),
+    defineField({
+      name: 'customHighlightsStyle',
+      title: 'Custom Highlights Style',
+      type: 'string',
+      group: 'appearance',
+      options: {
+        list: [
+          { title: 'Premium', value: 'premium' },
+          { title: 'Minimal', value: 'minimal' },
+          { title: 'Plain', value: 'plain' },
+        ],
+        layout: 'radio',
+      },
+      hidden: ({ document }) => document?.useGlobalAppearance !== false,
+      description: 'Only used when "Use Global Settings" is off.',
     }),
 
     // ---- SEO ----
