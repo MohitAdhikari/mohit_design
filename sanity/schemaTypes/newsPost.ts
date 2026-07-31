@@ -62,6 +62,7 @@ export const newsPost = defineType({
           ],
         },
         { type: 'highlightsBlock' },
+        { type: 'calloutBox' },
       ],
     }),
 

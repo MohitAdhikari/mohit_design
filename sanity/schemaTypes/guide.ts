@@ -90,6 +90,7 @@ export const guide = defineType({
           ],
         },
         { type: 'highlightsBlock' },
+        { type: 'calloutBox' },
       ],
     }),
     defineField({

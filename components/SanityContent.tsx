@@ -2,12 +2,16 @@ import { PortableText } from '@portabletext/react'
 import Image from 'next/image'
 import { optimizedImageUrl } from '@/lib/sanityImage'
 import HighlightsBlock, { type HighlightsStyle } from '@/components/blocks/HighlightsBlock'
+import CalloutBox from '@/components/blocks/CalloutBox'
 
 function getComponents(highlightsStyle: HighlightsStyle) {
 return {
   types: {
     highlightsBlock: ({ value }: any) => (
       <HighlightsBlock title={value?.title} items={value?.items || []} style={highlightsStyle} />
+    ),
+    calloutBox: ({ value }: any) => (
+      <CalloutBox variant={value?.variant || 'info'} title={value?.title} text={value?.text || ''} />
     ),
     image: ({ value }: any) => {
       // Resolve the actual Sanity asset (respects hotspot/crop) rather than
