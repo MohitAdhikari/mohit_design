@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useClient } from 'sanity'
 import { Card, Stack, Text, Box, Inline, Button, Flex } from '@sanity/ui'
 import { useRouter } from 'sanity/router'
+import { sortByTimestamp } from '../../lib/sortUtils'
 
 interface Article {
   _id: string
@@ -32,7 +33,7 @@ export function TagArticlesView(props: { document: { displayed: { _id: string } 
           _id, _type, title, slug, publishDate, _createdAt
         }
       }`, { tagId })
-      setArticles(data.articles || [])
+      setArticles(sortByTimestamp(data.articles || []))
       setCount(data.count || 0)
     }
     load()

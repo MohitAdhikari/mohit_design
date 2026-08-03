@@ -2,6 +2,7 @@ import { draftMode } from 'next/headers'
 import { projectId } from '../sanity/env'
 import { client } from './sanityClient'
 import { previewClient } from './sanityServer'
+import { sortByTimestamp } from './sortUtils'
 
 // Mock Data
 export const mockData = {
@@ -165,12 +166,13 @@ export const mockData = {
 
 export async function getNewsPosts(): Promise<any[]> {
   if (!projectId) {
-    return mockData.newsPosts;
+    return sortByTimestamp(mockData.newsPosts);
   }
   const query = `*[_type == "newsPost"] | order(dateTime(coalesce(publishDate, _createdAt)) desc) {
     _id, _createdAt, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, authorName, youtubeUrl, instagramUrl
   }`;
-  return client.fetch(query);
+  const posts = await client.fetch(query);
+  return sortByTimestamp(posts);
 }
 
 export async function getNewsPostBySlug(slug: string): Promise<any> {
@@ -206,22 +208,24 @@ export async function getNewsPostBySlug(slug: string): Promise<any> {
 
 export async function getInterviews(): Promise<any[]> {
   if (!projectId) {
-    return mockData.interviews;
+    return sortByTimestamp(mockData.interviews, 'publishDate');
   }
   const query = `*[_type == "interview"] | order(dateTime(coalesce(publishDate, _createdAt)) desc) {
     _id, _createdAt, playerOrCeoName, eventName, "thumbnail": thumbnail.asset->url, thumbnailAlt, thumbnailCaption, thumbnailCredit, youtubeUrl, instagramUrl, publishDate, keyHighlights
   }`;
-  return client.fetch(query);
+  const interviews = await client.fetch(query);
+  return sortByTimestamp(interviews, 'publishDate');
 }
 
 export async function getGuides(): Promise<any[]> {
   if (!projectId) {
-    return mockData.guides;
+    return sortByTimestamp(mockData.guides, 'lastUpdated');
   }
   const query = `*[_type == "guide"] | order(dateTime(coalesce(publishDate, _createdAt)) desc) {
     _id, _createdAt, title, slug, gameName, "thumbnail": thumbnail.asset->url, thumbnailAlt, publishDate, lastUpdated, showUpdatedDate, youtubeUrl, instagramUrl
   }`;
-  return client.fetch(query);
+  const guides = await client.fetch(query);
+  return sortByTimestamp(guides, 'publishDate');
 }
 
 export async function getGuideBySlug(slug: string): Promise<any> {
@@ -349,16 +353,19 @@ export async function getTagBySlug(slug: string): Promise<any | null> {
     "articles": *[_type in ["newsPost", "guide"] && references(^._id)] | order(dateTime(coalesce(publishDate, _createdAt)) desc) {
       _id, _type, _createdAt, title, "slug": slug.current, "thumbnail": thumbnail.asset->url, publishDate, gameName
     }
-  }`
-  return client.fetch(query, { slug })
+  }`;
+  const tag = await client.fetch(query, { slug })
+  if (tag?.articles) tag.articles = sortByTimestamp(tag.articles);
+  return tag;
 }
 
 export async function getPostsByTagId(tagId: string, limit = 50): Promise<any[]> {
   if (!projectId) return []
   const query = `*[_type in ["newsPost", "guide"] && references($tagId)] | order(dateTime(coalesce(publishDate, _createdAt)) desc) [0...$limit] {
     _id, _type, _createdAt, title, "slug": slug.current, "thumbnail": thumbnail.asset->url, publishDate, category, gameName
-  }`
-  return client.fetch(query, { tagId, limit })
+  }`;
+  const posts = await client.fetch(query, { tagId, limit });
+  return sortByTimestamp(posts);
 }
 
 /**
@@ -427,11 +434,13 @@ export async function getAllVideos(): Promise<any[]> {
     "title": coalesce(title, playerOrCeoName),
     slug,
     "thumbnail": thumbnail.asset->url,
+    _createdAt,
     "date": dateTime(coalesce(publishDate, lastUpdated, _createdAt)),
     youtubeUrl,
     instagramUrl,
     category
   }`;
-  return client.fetch(query);
+  const videos = await client.fetch(query);
+  return sortByTimestamp(videos, 'date');
 }
 
