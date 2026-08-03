@@ -30,12 +30,46 @@ export const revalidate = 60;
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
   const faviconUrl = settings.logoUrl?.trim() ? settings.logoUrl : '/logo_phoneocean.png';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in';
+  const siteName = settings.siteName || 'PHONEOCEAN';
+  const title = 'PHONEOCEAN | Gaming News, Esports Updates & Exclusive Interviews';
+  const description = 'Professional esports news and content platform featuring latest BGMI updates, roster changes, and Roblox codes.';
+  const ogImage = `${baseUrl}/logo_phoneocean.png`;
 
   return {
-    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in'),
-    title: 'PHONEOCEAN | Gaming News, Esports Updates & Exclusive Interviews',
-    description: 'Professional esports news and content platform featuring latest BGMI updates, roster changes, and Roblox codes.',
+    metadataBase: new URL(baseUrl),
+    title,
+    description,
     icons: { icon: faviconUrl },
+    alternates: {
+      canonical: '/',
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-snippet': -1,
+        'max-image-preview': 'large',
+        'max-video-preview': -1,
+      },
+    },
+    openGraph: {
+      type: 'website',
+      locale: 'en_US',
+      url: '/',
+      siteName,
+      title,
+      description,
+      images: [{ url: ogImage, width: 1200, height: 630, alt: siteName }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [ogImage],
+    },
     ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION && {
       verification: {
         google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
