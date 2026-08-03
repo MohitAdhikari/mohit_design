@@ -231,7 +231,7 @@ export async function getGuideBySlug(slug: string): Promise<any> {
   const { isEnabled } = await draftMode();
   const sanityClient = isEnabled ? previewClient : client;
   const query = `*[_type == "guide" && slug.current == $slug][0] {
-    _id, _createdAt, title, slug, gameName, "thumbnail": thumbnail.asset->url, thumbnailAlt, thumbnailCaption, thumbnailCredit, codesList, publishDate, lastUpdated, showUpdatedDate, youtubeUrl, instagramUrl,
+    _id, _createdAt, title, slug, gameName, "thumbnail": thumbnail.asset->url, thumbnailAlt, thumbnailCaption, thumbnailCredit, codesList, codeEntries, publishDate, lastUpdated, showUpdatedDate, youtubeUrl, instagramUrl,
     content[]{
       ...,
       _type == "image" => {

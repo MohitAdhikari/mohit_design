@@ -63,6 +63,9 @@ export const newsPost = defineType({
         },
         { type: 'highlightsBlock' },
         { type: 'calloutBox' },
+        { type: 'videoEmbedBlock' },
+        { type: 'codeCopyBlock' },
+        { type: 'scheduleBlock' },
       ],
     }),
 
@@ -139,6 +142,14 @@ export const newsPost = defineType({
       type: 'reference',
       group: 'relations',
       to: [{ type: 'category' }],
+    }),
+    defineField({
+      name: 'subCategory',
+      title: 'Sub Category',
+      type: 'reference',
+      group: 'relations',
+      to: [{ type: 'subCategory' }],
+      description: 'Optional child category, e.g. a specific Roblox game under the main Roblox category.',
     }),
     defineField({
       name: 'author',

@@ -3,15 +3,60 @@ import Image from 'next/image'
 import { contentImageUrl } from '@/lib/sanityImage'
 import HighlightsBlock, { type HighlightsStyle } from '@/components/blocks/HighlightsBlock'
 import CalloutBox from '@/components/blocks/CalloutBox'
+import VideoEmbed from '@/components/VideoEmbed'
+import CodeCopyBox from '@/components/blocks/CodeCopyBox'
+import ScheduleBlock from '@/components/blocks/ScheduleBlock'
 
 function getComponents(highlightsStyle: HighlightsStyle) {
 return {
   types: {
     highlightsBlock: ({ value }: any) => (
-      <HighlightsBlock title={value?.title} items={value?.items || []} style={highlightsStyle} />
+      <HighlightsBlock
+        title={value?.title}
+        titleLevel={value?.titleLevel || 'h2'}
+        items={value?.items || []}
+        style={value?.style || highlightsStyle}
+        bulletStyle={value?.bulletStyle || 'bullet'}
+        desktopOnly={value?.desktopOnly || false}
+      />
     ),
     calloutBox: ({ value }: any) => (
       <CalloutBox variant={value?.variant || 'info'} title={value?.title} text={value?.text || ''} />
+    ),
+    videoEmbedBlock: ({ value }: any) => (
+      <figure className="my-8">
+        <VideoEmbed
+          youtubeUrl={value?.youtubeUrl}
+          instagramUrl={value?.instagramUrl}
+          title={value?.caption || 'Embedded video'}
+        />
+        {value?.caption && (
+          <figcaption className="mt-2 text-sm text-center text-gray-500 dark:text-gray-400 font-sans">
+            {value.caption}
+          </figcaption>
+        )}
+      </figure>
+    ),
+    codeCopyBlock: ({ value }: any) => (
+      <div className="my-6">
+        <CodeCopyBox
+          code={value?.code}
+          reward={value?.reward}
+          showReward={value?.showReward ?? true}
+          isNew={value?.isNew}
+          isExpired={value?.isExpired}
+          expiresAt={value?.expiresAt}
+        />
+      </div>
+    ),
+    scheduleBlock: ({ value }: any) => (
+      <ScheduleBlock
+        title={value?.title}
+        titleLevel={value?.titleLevel || 'h2'}
+        style={value?.style || 'premium'}
+        desktopOnly={value?.desktopOnly || false}
+        days={value?.days || []}
+      />
     ),
     image: ({ value }: any) => {
       const imageUrl = contentImageUrl(value, 1200);

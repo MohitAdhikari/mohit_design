@@ -28,6 +28,13 @@ export const guide = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'subCategory',
+      title: 'Sub Category',
+      type: 'reference',
+      to: [{ type: 'subCategory' }],
+      description: 'Optional child category for this guide, e.g. a specific Roblox game.',
+    }),
+    defineField({
       name: 'thumbnail',
       title: 'Thumbnail Image',
       type: 'image',
@@ -64,10 +71,17 @@ export const guide = defineType({
     }),
     defineField({
       name: 'codesList',
-      title: 'Codes List',
+      title: 'Codes List (legacy)',
       type: 'array',
       of: [{ type: 'string' }],
-      description: 'List of active codes for this game/guide.',
+      description: 'Legacy plain-text codes. Use "Code Entries" below for expiry/new badges and sorting.',
+    }),
+    defineField({
+      name: 'codeEntries',
+      title: 'Code Entries',
+      type: 'array',
+      of: [{ type: 'codeCopyBlock' }],
+      description: 'Full-featured codes with expiry, new badge and reward text. Working codes sort first, expired last.',
     }),
     defineField({
       name: 'content',
@@ -92,6 +106,9 @@ export const guide = defineType({
         },
         { type: 'highlightsBlock' },
         { type: 'calloutBox' },
+        { type: 'videoEmbedBlock' },
+        { type: 'codeCopyBlock' },
+        { type: 'scheduleBlock' },
       ],
     }),
     defineField({

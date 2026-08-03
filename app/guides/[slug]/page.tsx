@@ -6,7 +6,8 @@ import { notFound } from 'next/navigation';
 import SanityContent from '@/components/SanityContent';
 import VideoEmbed from '@/components/VideoEmbed';
 import { Metadata } from 'next';
-import CopyButton from '@/components/CopyButton';
+import ShareButtons from '@/components/ShareButtons';
+import CodeCopyBox, { sortCodeEntries } from '@/components/blocks/CodeCopyBox';
 
 function extractPlainText(content: any, max = 160): string {
   if (!content) return '';
@@ -81,6 +82,8 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
 
   const highlightsStyle = resolveHighlightsStyle(guide, appearance);
 
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in';
+  const canonicalUrl = `${baseUrl}/guides/${guide.slug?.current || slug}`;
   const publishDate = guide.publishDate || guide._createdAt || guide.lastUpdated || new Date().toISOString();
   const publishedIso = new Date(publishDate).toISOString();
   const showUpdatedDate = Boolean(guide.showUpdatedDate && guide.lastUpdated);
@@ -140,6 +143,9 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
                 </>
               )}
             </div>
+            <div className="mt-6">
+              <ShareButtons title={guide.title} url={canonicalUrl} />
+            </div>
           </div>
         </div>
       </div>
@@ -152,25 +158,42 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
           </div>
         )}
 
-        {guide.codesList && guide.codesList.length > 0 && (
-          <div className="mb-12 p-8 bg-white dark:bg-[#0a0a0a] border border-purple-300 dark:border-purple-500/30 rounded-2xl shadow-sm dark:shadow-[0_0_30px_rgba(157,0,255,0.05)]">
-            <h2 className="text-2xl font-bold font-space-grotesk mb-6 flex items-center gap-3 text-gray-900 dark:text-white">
-              <span className="text-purple-600 dark:text-purple-400 font-mono tracking-tighter">{"//"}</span>
-              Active Codes
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {guide.codesList.map((code: string, idx: number) => (
-                <div key={idx} className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] hover:border-purple-500/50 transition-colors rounded-xl">
-                  <span className="font-mono text-gray-900 dark:text-white tracking-widest text-lg">{code}</span>
-                  <CopyButton value={code} />
-                </div>
-              ))}
+        {(() => {
+          const entries = (guide.codeEntries && guide.codeEntries.length > 0)
+            ? guide.codeEntries
+            : (guide.codesList || []).map((code: string) => ({ code }));
+          if (entries.length === 0) return null;
+          const sorted = sortCodeEntries(entries);
+          return (
+            <div className="mb-12 p-6 sm:p-8 bg-white dark:bg-[#0a0a0a] border border-purple-300 dark:border-purple-500/30 rounded-2xl shadow-sm dark:shadow-[0_0_30px_rgba(157,0,255,0.05)]">
+              <h2 className="text-2xl font-bold font-space-grotesk mb-6 flex items-center gap-3 text-gray-900 dark:text-white">
+                <span className="text-purple-600 dark:text-purple-400 font-mono tracking-tighter">{"//"}</span>
+                Active Codes
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {sorted.map((entry: any, idx: number) => (
+                  <CodeCopyBox
+                    key={idx}
+                    code={entry.code}
+                    reward={entry.reward}
+                    showReward={entry.showReward ?? true}
+                    isNew={entry.isNew}
+                    isExpired={entry.isExpired}
+                    expiresAt={entry.expiresAt}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         <SanityContent content={guide.content} highlightsStyle={highlightsStyle} />
         
+        <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-900 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <span className="text-sm font-mono text-gray-500 uppercase tracking-widest">Share this guide</span>
+          <ShareButtons title={guide.title} url={canonicalUrl} />
+        </div>
+
       </div>
     </article>
   );
