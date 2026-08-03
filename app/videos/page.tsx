@@ -1,7 +1,19 @@
 import { getAllVideos } from '@/lib/api';
 import { format } from 'date-fns';
+import { Metadata } from 'next';
 import VideoEmbed from '@/components/VideoEmbed';
 import Reveal from '@/components/Reveal';
+
+export const metadata: Metadata = {
+  title: 'Videos | PHONEOCEAN',
+  description: 'Watch the latest esports highlights, interviews, tournament coverage, and gaming videos on PHONEOCEAN.',
+  openGraph: {
+    title: 'Videos | PHONEOCEAN',
+    description: 'The latest esports highlights, interviews, and gaming video content.',
+    url: 'https://phoneocean.in/videos',
+  },
+  alternates: { canonical: 'https://phoneocean.in/videos' },
+};
 
 export const revalidate = 60;
 
