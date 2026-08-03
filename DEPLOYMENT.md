@@ -46,7 +46,7 @@ NEXT_PUBLIC_SANITY_API_VERSION=2024-04-28
 SANITY_API_READ_TOKEN=            # only needed to preview drafts
 
 # --- SEO / canonical URLs (sitemap.xml, robots.txt, OG tags) ---
-NEXT_PUBLIC_SITE_URL=https://your-domain.com
+NEXT_PUBLIC_SITE_URL=https://phoneocean.in
 
 # --- Analytics (optional) ---
 NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
@@ -80,8 +80,9 @@ Project → **Settings → Environment Variables** → add each key for **Produc
 - **Rollback:** Deployments → a previous healthy build → **Promote to Production** (instant, zero rebuild).
 
 ### Custom domain
-1. Project → **Domains** → add your domain and follow the DNS records shown.
+1. Project → **Domains** → add both `phoneocean.in` and `www.phoneocean.in`, then follow the DNS records shown.
 2. Set `NEXT_PUBLIC_SITE_URL` to the final URL and redeploy (so `sitemap.xml` / OG tags are correct).
+3. Keep `phoneocean.in` as the primary/canonical domain. The app redirects `www.phoneocean.in` to `https://phoneocean.in`, but Vercel still needs to issue a certificate for `www.phoneocean.in` before browsers will stop showing SSL warnings.
 
 ---
 
@@ -114,7 +115,7 @@ Edit `lib/api.ts` → the `mockData` object (news, interviews, guides). Change t
 
 - Add `NEXT_PUBLIC_GA_MEASUREMENT_ID` to enable Google Analytics.
 - Add `NEXT_PUBLIC_SITE_URL` so `sitemap.xml`, `robots.txt`, and Open Graph tags resolve correctly.
-- Submit `https://your-domain.com/sitemap.xml` in Google Search Console; verify with `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`.
+- Submit `https://phoneocean.in/sitemap.xml` in Google Search Console; verify with `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`.
 - Article pages already emit JSON-LD structured data.
 
 ---
