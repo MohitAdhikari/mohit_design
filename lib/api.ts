@@ -167,7 +167,7 @@ export async function getNewsPosts(): Promise<any[]> {
   if (!projectId) {
     return mockData.newsPosts;
   }
-  const query = `*[_type == "newsPost"] | order(coalesce(publishDate, _createdAt) desc) {
+  const query = `*[_type == "newsPost"] | order(dateTime(coalesce(publishDate, _createdAt)) desc) {
     _id, _createdAt, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, authorName, youtubeUrl, instagramUrl
   }`;
   return client.fetch(query);
@@ -208,7 +208,7 @@ export async function getInterviews(): Promise<any[]> {
   if (!projectId) {
     return mockData.interviews;
   }
-  const query = `*[_type == "interview"] | order(coalesce(publishDate, _createdAt) desc) {
+  const query = `*[_type == "interview"] | order(dateTime(coalesce(publishDate, _createdAt)) desc) {
     _id, _createdAt, playerOrCeoName, eventName, "thumbnail": thumbnail.asset->url, thumbnailAlt, thumbnailCaption, thumbnailCredit, youtubeUrl, instagramUrl, publishDate, keyHighlights
   }`;
   return client.fetch(query);
@@ -218,7 +218,7 @@ export async function getGuides(): Promise<any[]> {
   if (!projectId) {
     return mockData.guides;
   }
-  const query = `*[_type == "guide"] | order(coalesce(publishDate, _createdAt) desc) {
+  const query = `*[_type == "guide"] | order(dateTime(coalesce(publishDate, _createdAt)) desc) {
     _id, _createdAt, title, slug, gameName, "thumbnail": thumbnail.asset->url, thumbnailAlt, publishDate, lastUpdated, showUpdatedDate, youtubeUrl, instagramUrl
   }`;
   return client.fetch(query);
@@ -333,7 +333,7 @@ export async function getTags(): Promise<any[]> {
     _id, _createdAt, title, "slug": slug.current, description,
     "seo": { "seoTitle": seo.seoTitle, "metaDescription": seo.metaDescription, "openGraphImage": seo.openGraphImage.asset->url },
     "articleCount": count(*[_type in ["newsPost", "guide"] && references(^._id)]),
-    "lastUsed": *[_type in ["newsPost", "guide"] && references(^._id)] | order(coalesce(publishDate, _createdAt) desc)[0]{ "lastUsed": coalesce(publishDate, _createdAt) }.lastUsed
+    "lastUsed": *[_type in ["newsPost", "guide"] && references(^._id)] | order(dateTime(coalesce(publishDate, _createdAt)) desc)[0]{ "lastUsed": coalesce(publishDate, _createdAt) }.lastUsed
   }`
   return client.fetch(query)
 }
@@ -346,7 +346,7 @@ export async function getTagBySlug(slug: string): Promise<any | null> {
     _id, _createdAt, title, "slug": slug.current, description,
     "seo": { "seoTitle": seo.seoTitle, "metaDescription": seo.metaDescription, "openGraphImage": seo.openGraphImage.asset->url },
     "articleCount": count(*[_type in ["newsPost", "guide"] && references(^._id)]),
-    "articles": *[_type in ["newsPost", "guide"] && references(^._id)] | order(publishDate desc, _createdAt desc) {
+    "articles": *[_type in ["newsPost", "guide"] && references(^._id)] | order(dateTime(coalesce(publishDate, _createdAt)) desc) {
       _id, _type, _createdAt, title, "slug": slug.current, "thumbnail": thumbnail.asset->url, publishDate, gameName
     }
   }`
@@ -355,7 +355,7 @@ export async function getTagBySlug(slug: string): Promise<any | null> {
 
 export async function getPostsByTagId(tagId: string, limit = 50): Promise<any[]> {
   if (!projectId) return []
-  const query = `*[_type in ["newsPost", "guide"] && references($tagId)] | order(publishDate desc, _createdAt desc) [0...$limit] {
+  const query = `*[_type in ["newsPost", "guide"] && references($tagId)] | order(dateTime(coalesce(publishDate, _createdAt)) desc) [0...$limit] {
     _id, _type, _createdAt, title, "slug": slug.current, "thumbnail": thumbnail.asset->url, publishDate, category, gameName
   }`
   return client.fetch(query, { tagId, limit })
@@ -421,13 +421,13 @@ export async function getAllVideos(): Promise<any[]> {
     });
   }
   
-  const query = `*[(_type == "newsPost" || _type == "interview" || _type == "guide") && (defined(youtubeUrl) || defined(instagramUrl))] | order(coalesce(publishDate, lastUpdated, _createdAt) desc) {
+  const query = `*[(_type == "newsPost" || _type == "interview" || _type == "guide") && (defined(youtubeUrl) || defined(instagramUrl))] | order(dateTime(coalesce(publishDate, lastUpdated, _createdAt)) desc) {
     _id,
     _type,
     "title": coalesce(title, playerOrCeoName),
     slug,
     "thumbnail": thumbnail.asset->url,
-    "date": coalesce(publishDate, lastUpdated, _createdAt),
+    "date": dateTime(coalesce(publishDate, lastUpdated, _createdAt)),
     youtubeUrl,
     instagramUrl,
     category

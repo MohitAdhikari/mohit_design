@@ -54,7 +54,7 @@ export function TagManager() {
     const data = await client.fetch<Tag[]>(`*[_type == "tag"] | order(title asc) {
       _id, _createdAt, title, "slug": slug.current, description,
       "articleCount": count(*[_type in ["newsPost", "guide", "interview"] && references(^._id)]),
-      "lastUsed": *[_type in ["newsPost", "guide", "interview"] && references(^._id)] | order(coalesce(publishDate, _createdAt) desc)[0]{ "lastUsed": coalesce(publishDate, _createdAt) }.lastUsed
+      "lastUsed": *[_type in ["newsPost", "guide", "interview"] && references(^._id)] | order(dateTime(coalesce(publishDate, _createdAt)) desc)[0]{ "lastUsed": coalesce(publishDate, _createdAt) }.lastUsed
     }`)
     setRawTags(data || [])
     setLoading(false)

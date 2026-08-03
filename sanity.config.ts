@@ -8,6 +8,7 @@ import { apiVersion, dataset, projectId } from './sanity/env'
 import { schema } from './sanity/schemaTypes'
 import { structure } from './sanity/structure'
 import { SubmitForReviewAction } from './sanity/actions/submitForReview'
+import { PreviewAction } from './sanity/actions/preview'
 import { TagArticlesView } from './sanity/components/TagArticlesView'
 import { TagDeleteAction, TagMergeAction } from './sanity/actions/tagActions'
 
@@ -56,33 +57,14 @@ export default defineConfig({
 
       // Editorial workflow for newsPost / guide / interview
       if (!WORKFLOW_TYPES.includes(context?.schemaType)) return prev
-      if (!isWriter) return prev
+
+      // Add live Preview for newsPost / guide documents.
+      if (!isWriter) return [...prev, PreviewAction]
+
       const filtered = prev.filter(
         (action) => !WRITER_BLOCKED_ACTIONS.includes((action.action as string) ?? '')
       )
-      return [...filtered, SubmitForReviewAction]
-    },
-    // Preview button for News Posts and Guides.
-    // Builds a URL that enables Next.js Draft Mode before redirecting to the article.
-    productionUrl: async (prev, context) => {
-      const doc = context?.document as
-        | { _type?: string; slug?: { current?: string } }
-        | undefined
-      const type = doc?._type
-      const slug = doc?.slug?.current
-
-      if (!slug || (type !== 'newsPost' && type !== 'guide')) {
-        return prev
-      }
-
-      const baseUrl =
-        process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in'
-      const secret = process.env.NEXT_PUBLIC_SANITY_PREVIEW_SECRET
-      const path = type === 'newsPost' ? `/news/${slug}` : `/guides/${slug}`
-      const query = new URLSearchParams({ type, slug })
-      if (secret) query.set('secret', secret)
-
-      return `${baseUrl}/api/preview?${query.toString()}`
+      return [...filtered, SubmitForReviewAction, PreviewAction]
     },
   },
   plugins: [

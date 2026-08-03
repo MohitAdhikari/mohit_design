@@ -28,7 +28,7 @@ export function TagArticlesView(props: { document: { displayed: { _id: string } 
         count: number
       }>(`{
         "count": count(*[_type in ["newsPost", "guide", "interview"] && references($tagId)]),
-        "articles": *[_type in ["newsPost", "guide", "interview"] && references(^._id)] | order(publishDate desc, _createdAt desc)[0...50] {
+        "articles": *[_type in ["newsPost", "guide", "interview"] && references(^._id)] | order(dateTime(coalesce(publishDate, _createdAt)) desc)[0...50] {
           _id, _type, title, slug, publishDate, _createdAt
         }
       }`, { tagId })
