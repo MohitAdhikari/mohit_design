@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const title = tag.seo?.seoTitle || `${tag.title} | PHONEOCEAN Tags`
   const description = tag.seo?.metaDescription || tag.description || `Articles tagged with ${tag.title} on PHONEOCEAN.`
-  const ogImage = tag.seo?.openGraphImage || `${baseUrl}/opengraph-image.png`
+  const ogImage = tag.seo?.openGraphImage || `${baseUrl}/logo_phoneocean.png`
 
   return {
     title,

@@ -8,10 +8,10 @@ const contentSecurityPolicy = [
   "object-src 'none'",
   "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://cdn.sanity.io https://picsum.photos https://www.google-analytics.com",
+  "img-src 'self' data: blob: https://cdn.sanity.io https://picsum.photos https://www.google-analytics.com https://img.youtube.com https://*.instagram.com",
   "font-src 'self' data:",
   "connect-src 'self' https://*.sanity.io https://*.apicdn.sanity.io https://www.google-analytics.com https://region1.google-analytics.com",
-  "frame-src 'self'",
+  "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com",
   "upgrade-insecure-requests",
 ].join('; ');
 
