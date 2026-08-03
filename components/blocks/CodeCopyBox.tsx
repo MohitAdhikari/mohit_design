@@ -1,21 +1,9 @@
 'use client';
 
 import CopyButton from '@/components/CopyButton';
+import { isExpiredNow, type CodeEntry } from '@/lib/codeEntries';
 
-interface CodeCopyBoxProps {
-  code: string;
-  reward?: string;
-  showReward?: boolean;
-  isNew?: boolean;
-  isExpired?: boolean;
-  expiresAt?: string;
-}
-
-function isExpiredNow(isExpired?: boolean, expiresAt?: string): boolean {
-  if (isExpired) return true;
-  if (expiresAt && new Date(expiresAt) < new Date()) return true;
-  return false;
-}
+interface CodeCopyBoxProps extends CodeEntry {}
 
 export default function CodeCopyBox({
   code,
@@ -60,15 +48,4 @@ export default function CodeCopyBox({
       <CopyButton value={code} label="Copy code" />
     </div>
   );
-}
-
-export function sortCodeEntries(entries: CodeCopyBoxProps[] = []): CodeCopyBoxProps[] {
-  return [...entries].sort((a, b) => {
-    const aExpired = isExpiredNow(a.isExpired, a.expiresAt) ? 1 : 0;
-    const bExpired = isExpiredNow(b.isExpired, b.expiresAt) ? 1 : 0;
-    if (aExpired !== bExpired) return aExpired - bExpired;
-    const aNew = a.isNew ? 0 : 1;
-    const bNew = b.isNew ? 0 : 1;
-    return aNew - bNew;
-  });
 }

@@ -7,7 +7,8 @@ import SanityContent from '@/components/SanityContent';
 import VideoEmbed from '@/components/VideoEmbed';
 import { Metadata } from 'next';
 import ShareButtons from '@/components/ShareButtons';
-import CodeCopyBox, { sortCodeEntries } from '@/components/blocks/CodeCopyBox';
+import CodeCopyBox from '@/components/blocks/CodeCopyBox';
+import { sortCodeEntries } from '@/lib/codeEntries';
 
 function extractPlainText(content: any, max = 160): string {
   if (!content) return '';
