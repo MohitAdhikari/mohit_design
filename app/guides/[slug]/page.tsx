@@ -96,14 +96,37 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
     '@type': 'Article',
     headline: guide.title,
     image: [
-      guide.thumbnail || 'https://picsum.photos/1200/630'
+      guide.thumbnail || `${baseUrl}/logo_phoneocean.png`,
     ],
     datePublished: publishedIso,
     dateModified: modifiedIso,
     author: [{
         '@type': 'Person',
         name: authorName,
-      }]
+      }],
+    publisher: {
+      '@type': 'Organization',
+      name: 'PHONEOCEAN',
+      url: baseUrl,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${baseUrl}/logo_phoneocean.png`,
+      },
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': canonicalUrl,
+    },
+  };
+
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: baseUrl },
+      { '@type': 'ListItem', position: 2, name: 'Guides', item: `${baseUrl}/guides` },
+      { '@type': 'ListItem', position: 3, name: guide.title, item: canonicalUrl },
+    ],
   };
 
   return (
@@ -111,6 +134,10 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       {/* HERO BANNER */}
       <div className="relative w-full h-[40vh] md:h-[50vh] border-b border-gray-900 border-b-purple-500/30">
