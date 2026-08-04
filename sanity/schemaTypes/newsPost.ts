@@ -118,9 +118,14 @@ export const newsPost = defineType({
       title: 'Category (legacy label)',
       type: 'string',
       group: 'relations',
-      description: 'Existing text category used by the current site. Kept for backward compatibility.',
+      description:
+        'Existing text category used by the current site. Kept for backward compatibility. ' +
+        'This is a fixed list — to add a brand-new category (not listed here), use the ' +
+        '"Category" reference field below instead, which supports unlimited custom categories ' +
+        'managed directly in the Studio sidebar under "Categories" — no code changes needed.',
       options: {
         list: [
+          { title: 'News', value: 'News' },
           { title: 'BGMI News', value: 'BGMI News' },
           { title: 'Tournament', value: 'Tournament' },
           { title: 'Roster Changes', value: 'Roster Changes' },
@@ -142,6 +147,10 @@ export const newsPost = defineType({
       type: 'reference',
       group: 'relations',
       to: [{ type: 'category' }],
+      description:
+        'Preferred way to categorize new articles. Unlike the legacy label above, you can create ' +
+        'as many categories as you need here — click "Create new" in this field, or manage them ' +
+        'under Content → Categories in the Studio sidebar.',
     }),
     defineField({
       name: 'subCategory',

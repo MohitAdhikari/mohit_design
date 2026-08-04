@@ -1,27 +1,34 @@
 import type { MetadataRoute } from 'next';
 
+// Next.js automatically serves this file's return value at
+// /manifest.webmanifest — no additional route or config needed.
 export default function manifest(): MetadataRoute.Manifest {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in';
-
   return {
     name: 'PHONEOCEAN',
     short_name: 'PHONEOCEAN',
-    description: 'Gaming news, esports updates and exclusive interviews.',
+    description:
+      "India's trusted gaming and esports news platform covering BGMI, Valorant, PUBG Mobile, Free Fire, esports tournaments, guides and gaming updates.",
     start_url: '/',
     display: 'standalone',
-    background_color: '#0B0B0F',
-    theme_color: '#00E5FF',
-    orientation: 'portrait-primary',
+    background_color: '#ffffff',
+    theme_color: '#0f172a',
+    orientation: 'portrait',
+    categories: ['news', 'games', 'esports'],
     icons: [
       {
-        src: `${baseUrl}/logo_phoneocean.png`,
-        sizes: 'any',
+        src: '/icon-192.png',
+        sizes: '192x192',
         type: 'image/png',
       },
       {
-        src: `${baseUrl}/logo.svg`,
-        sizes: 'any',
-        type: 'image/svg+xml',
+        src: '/icon-512.png',
+        sizes: '512x512',
+        type: 'image/png',
+      },
+      {
+        src: '/apple-touch-icon.png',
+        sizes: '180x180',
+        type: 'image/png',
       },
     ],
   };

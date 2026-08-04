@@ -9,6 +9,7 @@ import { Metadata } from 'next';
 import ShareButtons from '@/components/ShareButtons';
 import CodeCopyBox from '@/components/blocks/CodeCopyBox';
 import { sortCodeEntries } from '@/lib/codeEntries';
+import { calculateReadingTime } from '@/lib/readingTime';
 
 function extractPlainText(content: any, max = 160): string {
   if (!content) return '';
@@ -90,6 +91,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
   const showUpdatedDate = Boolean(guide.showUpdatedDate && guide.lastUpdated);
   const modifiedIso = guide.lastUpdated ? new Date(guide.lastUpdated).toISOString() : publishedIso;
   const authorName = guide.author?.name || 'PHONEOCEAN Staff';
+  const readingTimeMinutes = calculateReadingTime(guide.content);
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -163,7 +165,9 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
             <div className="flex flex-wrap items-center text-gray-400 text-xs font-mono gap-4 uppercase tracking-wider">
               <span>By {authorName}</span>
               <span>•</span>
-              <span>{format(new Date(publishDate), 'MMMM dd, yyyy')}</span>
+              <span>{format(new Date(publishDate), "MMMM dd, yyyy 'at' h:mm a")}</span>
+              <span>•</span>
+              <span>{readingTimeMinutes} min read</span>
               {showUpdatedDate && (
                 <>
                   <span>•</span>

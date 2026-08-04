@@ -7,6 +7,7 @@ import SanityContent from '@/components/SanityContent';
 import VideoEmbed from '@/components/VideoEmbed';
 import ShareButtons from '@/components/ShareButtons';
 import { Metadata } from 'next';
+import { calculateReadingTime } from '@/lib/readingTime';
 
 function extractPlainText(content: any, max = 160): string {
   if (!content) return '';
@@ -108,6 +109,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
   const keywords = (post.tags?.map((t: any) => t?.title).filter(Boolean) || []) as string[];
   const description = post.seo?.metaDescription || post.excerpt || extractPlainText(post.content) || undefined;
   const heroImage = post.seo?.socialShareImage || post.thumbnail || 'https://picsum.photos/1200/630';
+  const readingTimeMinutes = calculateReadingTime(post.content);
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -186,7 +188,9 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
             <div className="flex flex-wrap items-center text-gray-400 text-xs font-mono gap-4 uppercase tracking-wider">
               <span>By {authorName}</span>
               <span>•</span>
-              <span>{format(new Date(publishDate), 'MMMM dd, yyyy')}</span>
+              <span>{format(new Date(publishDate), "MMMM dd, yyyy 'at' h:mm a")}</span>
+              <span>•</span>
+              <span>{readingTimeMinutes} min read</span>
             </div>
             <div className="mt-6">
               <ShareButtons title={post.title} url={canonicalUrl} />

@@ -154,7 +154,7 @@ export const guide = defineType({
       title: 'Estimated Read Time',
       type: 'string',
       readOnly: true,
-      description: 'Automatically calculated from the guide content. Internal editorial reference only — never shown to readers.',
+      description: 'Automatically calculated from the guide content. The same calculation is shown to readers on the published guide page.',
       components: { input: ReadingTimeInput },
     }),
     defineField({

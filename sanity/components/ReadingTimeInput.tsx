@@ -1,29 +1,16 @@
 import { useFormValue } from 'sanity'
-
-function extractPlainText(content: any): string {
-  if (!Array.isArray(content)) return ''
-  return content
-    .map((block: any) =>
-      (block?.children || []).map((c: any) => c?.text || '').join(' ')
-    )
-    .join(' ')
-    .trim()
-}
-
-function calcReadingTime(content: any): number {
-  const text = extractPlainText(content)
-  const words = text.split(/\s+/).filter(Boolean).length
-  return Math.max(1, Math.round(words / 200))
-}
+import { calculateReadingTime } from '../../lib/readingTime'
 
 /**
  * Read-only Studio widget that derives estimated reading time live from the
- * sibling `content` field. Nothing is persisted to the dataset — this is a
- * purely internal editorial aid and must never be surfaced on the frontend.
+ * sibling `content` field, using the same calculation as the public article
+ * pages (see lib/readingTime.ts). Nothing is persisted to the dataset —
+ * this is an internal editorial aid; the frontend recalculates it directly
+ * from the published content.
  */
 export function ReadingTimeInput() {
   const content = useFormValue(['content']) as any
-  const minutes = calcReadingTime(content)
+  const minutes = calculateReadingTime(content)
 
   return (
     <div

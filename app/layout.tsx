@@ -40,7 +40,10 @@ export async function generateMetadata(): Promise<Metadata> {
     metadataBase: new URL(baseUrl),
     title,
     description,
-    icons: { icon: faviconUrl },
+    icons: {
+      icon: faviconUrl,
+      apple: settings.logoUrl?.trim() ? settings.logoUrl : '/apple-touch-icon.png',
+    },
     alternates: {
       canonical: '/',
     },
