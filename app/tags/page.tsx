@@ -4,6 +4,15 @@ import { Metadata } from 'next'
 
 export const revalidate = 60
 
+const pathSegment = (value: string) =>
+  value
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .slice(0, 96)
+
 export async function generateMetadata(): Promise<Metadata> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in'
   return {
@@ -43,7 +52,7 @@ export default async function TagsIndexPage() {
             {tags.map((tag) => (
               <Link
                 key={tag._id}
-                href={`/tags/${tag.slug}`}
+                href={`/tags/${pathSegment(tag.pathSlug || tag.slug)}`}
                 className="group inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#111116] text-sm font-medium text-gray-900 dark:text-gray-100 hover:border-blue-500 dark:hover:border-[#00E5FF] transition-colors"
               >
                 <span>{tag.title}</span>

@@ -327,6 +327,16 @@ export async function getAppearanceSettings(): Promise<{
 
 // ---- TAGS ----
 
+function slugifyTag(value: string) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .slice(0, 96)
+}
+
 export async function getTags(): Promise<any[]> {
   if (!projectId) {
     return (mockData.newsPosts as any[])
@@ -339,14 +349,18 @@ export async function getTags(): Promise<any[]> {
     "articleCount": count(*[_type in ["newsPost", "guide"] && references(^._id)]),
     "lastUsed": *[_type in ["newsPost", "guide"] && references(^._id)] | order(dateTime(coalesce(publishDate, _createdAt)) desc)[0]{ "lastUsed": coalesce(publishDate, _createdAt) }.lastUsed
   }`
-  return client.fetch(query)
+  const tags = await client.fetch(query)
+  return tags.map((tag: any) => ({
+    ...tag,
+    pathSlug: slugifyTag(tag.slug || tag.title || ''),
+  }))
 }
 
 export async function getTagBySlug(slug: string): Promise<any | null> {
   if (!projectId) {
     return null
   }
-  const query = `*[_type == "tag" && slug.current == $slug][0] {
+  const query = `*[_type == "tag"] | order(title asc) {
     _id, _createdAt, title, "slug": slug.current, description,
     "seo": { "seoTitle": seo.seoTitle, "metaDescription": seo.metaDescription, "openGraphImage": seo.openGraphImage.asset->url },
     "articleCount": count(*[_type in ["newsPost", "guide"] && references(^._id)]),
@@ -354,9 +368,11 @@ export async function getTagBySlug(slug: string): Promise<any | null> {
       _id, _type, _createdAt, title, "slug": slug.current, "thumbnail": thumbnail.asset->url, publishDate, gameName
     }
   }`;
-  const tag = await client.fetch(query, { slug })
+  const tags = await client.fetch(query)
+  const wanted = slugifyTag(slug)
+  const tag = tags?.find((t: any) => slugifyTag(t.slug) === wanted)
   if (tag?.articles) tag.articles = sortByTimestamp(tag.articles);
-  return tag;
+  return tag || null;
 }
 
 export async function getPostsByTagId(tagId: string, limit = 50): Promise<any[]> {

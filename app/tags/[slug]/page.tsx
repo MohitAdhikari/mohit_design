@@ -8,8 +8,18 @@ import { Metadata } from 'next'
 
 export const revalidate = 60
 
+const pathSegment = (value: string) =>
+  value
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .slice(0, 96)
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const { slug } = await params
+  const { slug: rawSlug } = await params
+  const slug = decodeURIComponent(rawSlug)
   const tag = await getTagBySlug(slug)
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in'
 
@@ -20,6 +30,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const title = tag.seo?.seoTitle || `${tag.title} | PHONEOCEAN Tags`
   const description = tag.seo?.metaDescription || tag.description || `Articles tagged with ${tag.title} on PHONEOCEAN.`
   const ogImage = tag.seo?.openGraphImage || `${baseUrl}/logo_phoneocean.png`
+  const tagUrl = `${baseUrl}/tags/${pathSegment(tag.pathSlug || tag.slug)}`
 
   return {
     title,
@@ -27,17 +38,18 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     openGraph: {
       title,
       description,
-      url: `${baseUrl}/tags/${tag.slug}`,
+      url: tagUrl,
       images: ogImage ? [{ url: ogImage, width: 1200, height: 630 }] : undefined,
     },
     alternates: {
-      canonical: `${baseUrl}/tags/${tag.slug}`,
+      canonical: tagUrl,
     },
   }
 }
 
 export default async function TagPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params
+  const { slug: rawSlug } = await params
+  const slug = decodeURIComponent(rawSlug)
   const tag = await getTagBySlug(slug)
 
   if (!tag) {

@@ -1,6 +1,15 @@
 import { MetadataRoute } from 'next';
 import { getNewsPosts, getInterviews, getGuides, getTags } from '@/lib/api';
 
+const pathSegment = (value: string) =>
+  value
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .slice(0, 96);
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in';
 
@@ -31,7 +40,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const tagUrls = tags.map((tag: any) => ({
-    url: `${baseUrl}/tags/${tag.slug}`,
+    url: `${baseUrl}/tags/${pathSegment(tag.pathSlug || tag.slug)}`,
     lastModified: new Date(tag.lastUsed || tag._createdAt),
     changeFrequency: 'weekly' as const,
     priority: 0.6,
