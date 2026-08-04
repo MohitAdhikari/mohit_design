@@ -294,6 +294,23 @@ export const newsPost = defineType({
       group: 'advanced',
       description: 'Feedback from an editor when requesting changes or rejecting.',
     }),
+    defineField({
+      name: 'dashboardOwnerId',
+      title: 'Dashboard Owner ID',
+      type: 'string',
+      group: 'advanced',
+      readOnly: true,
+      description:
+        'Internal: Supabase user ID of the dashboard user who created this article. Set automatically by the dashboard API — do not edit manually.',
+    }),
+    defineField({
+      name: 'dashboardOwnerEmail',
+      title: 'Dashboard Owner Email',
+      type: 'string',
+      group: 'advanced',
+      readOnly: true,
+      description: 'Internal: email of the dashboard user who created this article, for display only.',
+    }),
   ],
   preview: {
     select: { title: 'title', subtitle: 'status', media: 'thumbnail' },

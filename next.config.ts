@@ -10,7 +10,7 @@ const contentSecurityPolicy = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://cdn.sanity.io https://picsum.photos https://www.google-analytics.com https://img.youtube.com https://*.instagram.com",
   "font-src 'self' data:",
-  "connect-src 'self' https://*.sanity.io https://*.apicdn.sanity.io https://www.google-analytics.com https://region1.google-analytics.com",
+  "connect-src 'self' https://*.sanity.io https://*.apicdn.sanity.io https://www.google-analytics.com https://region1.google-analytics.com https://*.supabase.co",
   "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com",
   "upgrade-insecure-requests",
 ].join('; ');
