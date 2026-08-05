@@ -14,6 +14,7 @@ import { author } from './author'
 import { category } from './category'
 import { tag } from './tag'
 import { tournament } from './tournament'
+import { tournamentEdition } from './tournamentEdition'
 import { team } from './team'
 import { player } from './player'
 import { subscriber } from './subscriber'
@@ -40,6 +41,7 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     subCategory,
     tag,
     tournament,
+    tournamentEdition,
     team,
     player,
     // Form submissions
