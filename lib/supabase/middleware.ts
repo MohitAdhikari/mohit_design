@@ -35,25 +35,14 @@ export async function updateSupabaseSession(request: NextRequest) {
   const isDashboardRoute = request.nextUrl.pathname.startsWith('/dashboard');
   const isLoginRoute = request.nextUrl.pathname === '/dashboard/login';
 
-  // Redirects must carry over any cookies Supabase just refreshed on
-  // `response` above — otherwise the browser keeps a stale session cookie
-  // and the next request flips back to "unauthenticated", bouncing forever
-  // between /dashboard and /dashboard/login.
-  function withRefreshedCookies(redirectResponse: NextResponse) {
-    response.cookies.getAll().forEach((cookie) => {
-      redirectResponse.cookies.set(cookie.name, cookie.value);
-    });
-    return redirectResponse;
-  }
-
   if (isDashboardRoute && !isLoginRoute && !user) {
     const redirectUrl = new URL('/dashboard/login', request.url);
     redirectUrl.searchParams.set('next', request.nextUrl.pathname);
-    return withRefreshedCookies(NextResponse.redirect(redirectUrl));
+    return NextResponse.redirect(redirectUrl);
   }
 
   if (isLoginRoute && user) {
-    return withRefreshedCookies(NextResponse.redirect(new URL('/dashboard', request.url)));
+    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
   return response;
