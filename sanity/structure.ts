@@ -1,17 +1,17 @@
-import type {StructureResolver} from 'sanity/structure'
+import type { StructureResolver } from 'sanity/structure'
 import { TagManager } from './components/TagManager'
 import { TagDashboard } from './components/TagDashboard'
-import { TagIcon } from '@sanity/icons'
 
-// https://www.sanity.io/docs/structure-builder-cheat-sheet
 const HIDDEN_TYPES = [
   'newsPost',
   'interview',
   'guide',
   'author',
   'category',
+  'subCategory',
   'tag',
   'tournament',
+  'tournamentEdition',
   'team',
   'player',
   'subscriber',
@@ -23,91 +23,168 @@ const HIDDEN_TYPES = [
 
 export const structure: StructureResolver = (S) =>
   S.list()
-    .title('PhoneOcean CMS')
+    .title('Studio')
     .items([
-      // ---- CONTENT ----
-      S.documentTypeListItem('newsPost').title('News Posts'),
-      S.documentTypeListItem('interview').title('Interviews'),
-      S.documentTypeListItem('guide').title('Guides / Codes'),
 
-      S.divider(),
-
-      // ---- FORM SUBMISSIONS ----
-      S.documentTypeListItem('subscriber').title('Subscribers'),
-      S.documentTypeListItem('contactMessage').title('Contact Messages'),
-
-      S.divider(),
-
-      // ---- EDITORIAL WORKFLOW ----
+      // ─────────────────────────────────────────
+      // 📰 CONTENT
+      // ─────────────────────────────────────────
       S.listItem()
-        .title('Approval Queue')
-        .child(
-          S.documentList()
-            .title('Approval Queue')
-            .filter('_type == "newsPost" && status == "in_review"')
-            .apiVersion('2023-01-01')
-        ),
-
-      S.divider(),
-
-      // ---- TAXONOMY ----
-      S.documentTypeListItem('author').title('Authors'),
-      S.documentTypeListItem('category').title('Categories'),
-      S.listItem()
-        .title('Tag Manager')
-        .id('tag-manager')
-        .icon(TagIcon as any)
+        .title('📰 Content')
         .child(
           S.list()
-            .title('Tags')
+            .title('Content')
             .items([
-              S.listItem()
-                .title('All Tags')
-                .id('all-tags')
-                .child(S.documentTypeList('tag').title('All Tags')),
-              S.listItem()
-                .title('Unused Tags')
-                .id('unused-tags')
-                .child(
-                  S.documentList()
-                    .title('Unused Tags')
-                    .filter('_type == "tag" && count(*[_type in ["newsPost", "guide", "interview"] && references(^._id)]) == 0')
-                    .apiVersion('2023-01-01')
-                ),
-              S.listItem()
-                .title('Tag Dashboard')
-                .id('tag-dashboard')
-                .child(S.component(TagManager).id('tag-manager')),
-              S.listItem()
-                .title('Slug Manager')
-                .id('slug-manager')
-                .child(S.component(TagDashboard).id('slug-manager')),
+              S.documentTypeListItem('newsPost').title('News Posts'),
+              S.documentTypeListItem('interview').title('Interviews'),
+              S.documentTypeListItem('guide').title('Guides / Codes'),
             ])
         ),
 
       S.divider(),
 
-      // ---- ESPORTS ENTITIES ----
-      S.documentTypeListItem('tournament').title('Tournaments'),
-      S.documentTypeListItem('team').title('Teams'),
-      S.documentTypeListItem('player').title('Players'),
+      // ─────────────────────────────────────────
+      // 🏆 ESPORTS
+      // ─────────────────────────────────────────
+      S.listItem()
+        .title('🏆 Esports')
+        .child(
+          S.list()
+            .title('Esports')
+            .items([
+              S.documentTypeListItem('tournament').title('Tournaments'),
+              S.documentTypeListItem('tournamentEdition').title('Tournament Editions'),
+              S.documentTypeListItem('team').title('Teams'),
+              S.documentTypeListItem('player').title('Players'),
+            ])
+        ),
 
       S.divider(),
 
-      // ---- SINGLETONS ----
+      // ─────────────────────────────────────────
+      // 🗂️ TAXONOMY
+      // ─────────────────────────────────────────
       S.listItem()
-        .title('Homepage Manager')
-        .id('homepage')
-        .child(S.document().schemaType('homepage').documentId('homepage')),
-      // siteSettings kept as a regular type: the existing document uses an
-      // auto-generated id, so forcing a fixed-id singleton would open the wrong doc.
-      S.documentTypeListItem('siteSettings').title('Site Settings'),
-      S.listItem()
-        .title('Appearance')
-        .id('appearanceSettings')
-        .child(S.document().schemaType('appearanceSettings').documentId('appearanceSettings')),
+        .title('🗂️ Taxonomy')
+        .child(
+          S.list()
+            .title('Taxonomy')
+            .items([
+              S.documentTypeListItem('author').title('Authors'),
+              S.documentTypeListItem('category').title('Categories'),
+              S.documentTypeListItem('subCategory').title('Sub Categories'),
 
-      // Any future/unlisted types
+              // Tag Manager (custom grouped view)
+              S.listItem()
+                .title('Tag Manager')
+                .child(
+                  S.list()
+                    .title('Tag Manager')
+                    .items([
+                      S.documentTypeListItem('tag').title('All Tags'),
+
+                      S.listItem()
+                        .title('Unused Tags')
+                        .child(
+                          S.documentList()
+                            .title('Unused Tags')
+                            .schemaType('tag')
+                            .filter('_type == "tag" && count(*[_type in ["newsPost", "guide", "interview"] && references(^._id)]) == 0')
+                        ),
+
+                      S.listItem()
+                        .title('Dashboard')
+                        .child(
+                          S.component()
+                            .title('Tag Dashboard')
+                            .component(TagManager)
+                        ),
+
+                      S.listItem()
+                        .title('Slug Manager')
+                        .child(
+                          S.component()
+                            .title('Slug Manager')
+                            .component(TagDashboard)
+                        ),
+                    ])
+                ),
+            ])
+        ),
+
+      S.divider(),
+
+      // ─────────────────────────────────────────
+      // 📬 FORM SUBMISSIONS
+      // ─────────────────────────────────────────
+      S.listItem()
+        .title('📬 Form Submissions')
+        .child(
+          S.list()
+            .title('Form Submissions')
+            .items([
+              S.documentTypeListItem('subscriber').title('Subscribers'),
+              S.documentTypeListItem('contactMessage').title('Contact Messages'),
+            ])
+        ),
+
+      S.divider(),
+
+      // ─────────────────────────────────────────
+      // ⏳ APPROVAL QUEUE
+      // ─────────────────────────────────────────
+      S.listItem()
+        .title('⏳ Approval Queue')
+        .child(
+          S.list()
+            .title('Approval Queue')
+            .items([
+              S.listItem()
+                .title('News Posts in Review')
+                .child(
+                  S.documentList()
+                    .title('News Posts in Review')
+                    .schemaType('newsPost')
+                    .filter('_type == "newsPost" && status == "in_review"')
+                ),
+            ])
+        ),
+
+      S.divider(),
+
+      // ─────────────────────────────────────────
+      // ⚙️ SINGLETONS
+      // ─────────────────────────────────────────
+      S.listItem()
+        .title('⚙️ Singletons')
+        .child(
+          S.list()
+            .title('Singletons')
+            .items([
+              S.listItem()
+                .title('Homepage Manager')
+                .child(
+                  S.document()
+                    .schemaType('homepage')
+                    .documentId('homepage')
+                ),
+
+              // siteSettings uses an auto-generated document id, so keep it as a list rather than forcing a singleton id.
+              S.documentTypeListItem('siteSettings').title('Site Settings'),
+
+              S.listItem()
+                .title('Appearance')
+                .child(
+                  S.document()
+                    .schemaType('appearanceSettings')
+                    .documentId('appearanceSettings')
+                ),
+            ])
+        ),
+
+      S.divider(),
+
+      // Catch-all for any future/unlisted types
       ...S.documentTypeListItems().filter(
         (item) => item.getId() && !HIDDEN_TYPES.includes(item.getId()!)
       ),

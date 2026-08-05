@@ -22,11 +22,11 @@ const GAMES = [
 export default function GamesMarquee() {
   const loop = [...GAMES, ...GAMES];
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800/60 bg-white/60 dark:bg-[#0E0E12]/60 backdrop-blur-sm py-5">
+    <div className="relative overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800/60 bg-white/60 dark:bg-[#0E0E12]/60 backdrop-blur-sm py-5">
       {/* edge fades */}
       <div className="pointer-events-none absolute left-0 top-0 h-full w-16 bg-gradient-to-r from-white dark:from-[#0B0B0F] to-transparent z-10" />
       <div className="pointer-events-none absolute right-0 top-0 h-full w-16 bg-gradient-to-l from-white dark:from-[#0B0B0F] to-transparent z-10" />
-      <div className="animate-marquee-slow flex whitespace-nowrap items-center">
+      <div className="animate-marquee-slow flex whitespace-nowrap items-center pl-20">
         {loop.map((g, i) => (
           <Link
             key={i}
