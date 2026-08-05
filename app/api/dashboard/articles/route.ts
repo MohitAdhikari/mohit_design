@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireRole } from '@/lib/dashboard/session';
 import { listArticlesForUser, createArticleForUser } from '@/lib/dashboard/sanityDashboard';
+import { logActivity } from '@/lib/dashboard/activityLog';
 
 export async function GET() {
   const user = await requireRole(['admin', 'editor']);
@@ -29,6 +30,8 @@ export async function POST(req: NextRequest) {
     tags: body.tags,
     seo: body.seo,
   });
+
+  await logActivity({ userId: user.id, userEmail: user.email, action: 'article.created', targetId: doc._id, targetTitle: body.title });
 
   return NextResponse.json({ article: doc }, { status: 201 });
 }

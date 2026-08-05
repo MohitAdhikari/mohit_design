@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireRole } from '@/lib/dashboard/session';
 import { createSupabaseAdminClient } from '@/lib/supabase/server';
 import type { DashboardRole } from '@/lib/dashboard/roles';
+import { logActivity } from '@/lib/dashboard/activityLog';
 
 const VALID_ROLES: DashboardRole[] = ['admin', 'editor'];
 
@@ -55,6 +56,8 @@ export async function POST(req: NextRequest) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
+
+  await logActivity({ userId: user.id, userEmail: user.email, action: 'user.invited', meta: { invitedEmail: email, role } });
 
   return NextResponse.json({ user: data.user }, { status: 201 });
 }

@@ -1,12 +1,8 @@
 import type {Metadata} from 'next';
 import { Space_Grotesk, Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
 import { ThemeProvider } from '@/components/ThemeProvider';
-import BreakingTicker from '@/components/BreakingTicker';
-import NewsletterCTA from '@/components/NewsletterCTA';
-import AmbientBackground from '@/components/AmbientBackground';
+import ClientLayoutShell from '@/components/ClientLayoutShell';
 import { getNewsPosts, getSiteSettings } from '@/lib/api';
 import { GoogleAnalytics } from '@next/third-parties/google';
 
@@ -124,21 +120,16 @@ export default async function RootLayout({children}: {children: React.ReactNode}
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={true}>
-          <AmbientBackground />
-          <Navbar
+          <ClientLayoutShell
+            tickerItems={tickerItems}
+            settings={settings}
             logoUrl={settings.logoUrl}
             siteName={settings.siteName}
             logoTextSpacing={settings.logoTextSpacing}
             logoOnTop={settings.logoOnTop}
-          />
-          <div className="pt-20">
-            <BreakingTicker items={tickerItems} />
-          </div>
-          <main className="flex-grow">
+          >
             {children}
-          </main>
-          <NewsletterCTA />
-          <Footer settings={settings} />
+          </ClientLayoutShell>
         </ThemeProvider>
       </body>
       {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (

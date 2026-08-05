@@ -40,3 +40,18 @@ export async function POST(req: NextRequest) {
     image: { _type: 'image', asset: { _type: 'reference', _ref: asset._id } },
   });
 }
+
+export async function DELETE(req: NextRequest) {
+  const user = await requireRole(['admin', 'editor']);
+  if (user instanceof Response) return user;
+
+  const body = await req.json().catch(() => null);
+  if (!body?.assetId) return NextResponse.json({ error: 'assetId required.' }, { status: 400 });
+
+  try {
+    await writeClient.delete(body.assetId);
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json({ error: 'Failed to delete asset.' }, { status: 500 });
+  }
+}

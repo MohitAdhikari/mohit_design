@@ -1,14 +1,8 @@
 import { redirect, notFound } from 'next/navigation';
 import { getDashboardUser } from '@/lib/dashboard/session';
 import { getArticleForUser } from '@/lib/dashboard/sanityDashboard';
+import { blocksToEditorText } from '@/lib/dashboard/portableText';
 import ArticleForm from '@/components/dashboard/ArticleForm';
-
-function blocksToPlainText(content: any[] = []): string {
-  return content
-    .filter((block) => block._type === 'block')
-    .map((block) => (block.children || []).map((c: any) => c.text).join(''))
-    .join('\n\n');
-}
 
 export default async function EditArticlePage({
   params,
@@ -29,10 +23,11 @@ export default async function EditArticlePage({
         articleId={article._id}
         initialStatus={article.status}
         initialThumbnailUrl={article.thumbnail}
+        userRole={user.role}
         initialValues={{
           title: article.title || '',
           excerpt: article.excerpt || '',
-          body: blocksToPlainText(article.content),
+          body: blocksToEditorText(article.content),
           categoryRef: article.categoryRef?._id || '',
           tags: (article.tags || []).map((t: any) => t._id),
           seoTitle: article.seo?.seoTitle || '',

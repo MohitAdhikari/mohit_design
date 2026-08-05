@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Fixed, decorative animated background layer.
  * Renders behind all content (z-[-1]) and is purely presentational.

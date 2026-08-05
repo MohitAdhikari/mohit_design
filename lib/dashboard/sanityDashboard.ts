@@ -94,7 +94,7 @@ export async function createArticleForUser(user: DashboardUser, input: ArticleIn
 export async function updateArticleForUser(
   user: DashboardUser,
   id: string,
-  input: Partial<ArticleInput> & { status?: 'draft' | 'in_review' }
+  input: Partial<ArticleInput> & { status?: string }
 ) {
   const existing = await getArticleForUser(user, id);
   if (!existing) return null;
@@ -120,12 +120,21 @@ export async function updateArticleForUser(
   // which is enforced by never accepting those values here regardless of
   // the request body — this route never calls a "publish" path.
   if (input.status !== undefined) {
-    const allowedForEditor = ['draft', 'in_review'];
-    if (user.role === 'admin' || allowedForEditor.includes(input.status)) {
+    const EDITOR_STATUSES = ['draft', 'in_review'];
+    const ADMIN_STATUSES = ['draft', 'in_review', 'changes_requested', 'approved', 'scheduled', 'published'];
+    const allowed = user.role === 'admin' ? ADMIN_STATUSES : EDITOR_STATUSES;
+    if (allowed.includes(input.status)) {
       patch.status = input.status;
+      if (input.status === 'published') {
+        patch.publishDate = new Date().toISOString();
+      }
     }
   }
 
   const doc = await writeClient.patch(id).set(patch).commit();
   return doc;
+}
+
+export async function deleteArticle(id: string) {
+  return writeClient.delete(id);
 }
