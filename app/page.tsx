@@ -115,7 +115,7 @@ export default async function Home() {
                       alt={post.title}
                       fill
                       sizes="96px"
-                      loading="lazy"
+                      loading="eager"
                       className="object-cover opacity-90 group-hover:scale-105 transition-transform duration-500"
                       referrerPolicy="no-referrer"
                     />
