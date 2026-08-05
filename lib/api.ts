@@ -164,11 +164,33 @@ export const mockData = {
   ]
 }
 
+// Only public-facing queries should include these filters.
+// Dashboard/admin routes in sanityDashboard.ts intentionally fetch all statuses.
+const PUBLISHED_NEWSPOST_FILTER = `(status in ["published", "scheduled"] || !defined(status)) && (!defined(publishDate) || dateTime(publishDate) <= dateTime(now()))`;
+const PUBLISHED_GUIDE_FILTER = `(!defined(publishDate) || dateTime(publishDate) <= dateTime(now()))`;
+const PUBLISHED_INTERVIEW_FILTER = `(!defined(publishDate) || dateTime(publishDate) <= dateTime(now()))`;
+const PUBLISHED_CONTENT_FILTER = `(
+  (_type == "newsPost" && ${PUBLISHED_NEWSPOST_FILTER}) ||
+  (_type == "guide" && ${PUBLISHED_GUIDE_FILTER}) ||
+  (_type == "interview" && ${PUBLISHED_INTERVIEW_FILTER})
+)`;
+
+function isPublishedDoc(doc: any): boolean {
+  if (!doc) return false;
+  if (
+    doc._type === 'newsPost' &&
+    doc.status &&
+    !['published', 'scheduled'].includes(doc.status)
+  ) return false;
+  if (doc.publishDate && new Date(doc.publishDate).getTime() > Date.now()) return false;
+  return true;
+}
+
 export async function getNewsPosts(): Promise<any[]> {
   if (!projectId) {
     return sortByTimestamp(mockData.newsPosts);
   }
-  const query = `*[_type == "newsPost"] | order(dateTime(coalesce(publishDate, _createdAt)) desc) {
+  const query = `*[_type == "newsPost" && ${PUBLISHED_NEWSPOST_FILTER}] | order(dateTime(coalesce(publishDate, _createdAt)) desc) {
     _id, _createdAt, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, authorName, youtubeUrl, instagramUrl
   }`;
   const posts = await client.fetch(query);
@@ -181,7 +203,8 @@ export async function getNewsPostBySlug(slug: string): Promise<any> {
   }
   const { isEnabled } = await draftMode();
   const sanityClient = isEnabled ? previewClient : client;
-  const query = `*[_type == "newsPost" && slug.current == $slug][0] {
+  const publishedConstraint = isEnabled ? '' : ` && ${PUBLISHED_NEWSPOST_FILTER}`;
+  const query = `*[_type == "newsPost" && slug.current == $slug${publishedConstraint}][0] {
     _id, _createdAt, _updatedAt, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, authorName, youtubeUrl, instagramUrl,
     content[]{
       ...,
@@ -210,7 +233,7 @@ export async function getInterviews(): Promise<any[]> {
   if (!projectId) {
     return sortByTimestamp(mockData.interviews, 'publishDate');
   }
-  const query = `*[_type == "interview"] | order(dateTime(coalesce(publishDate, _createdAt)) desc) {
+  const query = `*[_type == "interview" && ${PUBLISHED_INTERVIEW_FILTER}] | order(dateTime(coalesce(publishDate, _createdAt)) desc) {
     _id, _createdAt, playerOrCeoName, eventName, "thumbnail": thumbnail.asset->url, thumbnailAlt, thumbnailCaption, thumbnailCredit, youtubeUrl, instagramUrl, publishDate, keyHighlights
   }`;
   const interviews = await client.fetch(query);
@@ -221,7 +244,7 @@ export async function getGuides(): Promise<any[]> {
   if (!projectId) {
     return sortByTimestamp(mockData.guides, 'lastUpdated');
   }
-  const query = `*[_type == "guide"] | order(dateTime(coalesce(publishDate, _createdAt)) desc) {
+  const query = `*[_type == "guide" && ${PUBLISHED_GUIDE_FILTER}] | order(dateTime(coalesce(publishDate, _createdAt)) desc) {
     _id, _createdAt, title, slug, gameName, "thumbnail": thumbnail.asset->url, thumbnailAlt, publishDate, lastUpdated, showUpdatedDate, youtubeUrl, instagramUrl
   }`;
   const guides = await client.fetch(query);
@@ -234,7 +257,8 @@ export async function getGuideBySlug(slug: string): Promise<any> {
   }
   const { isEnabled } = await draftMode();
   const sanityClient = isEnabled ? previewClient : client;
-  const query = `*[_type == "guide" && slug.current == $slug][0] {
+  const publishedConstraint = isEnabled ? '' : ` && ${PUBLISHED_GUIDE_FILTER}`;
+  const query = `*[_type == "guide" && slug.current == $slug${publishedConstraint}][0] {
     _id, _createdAt, title, slug, gameName, "thumbnail": thumbnail.asset->url, thumbnailAlt, thumbnailCaption, thumbnailCredit, codesList, codeEntries, publishDate, lastUpdated, showUpdatedDate, youtubeUrl, instagramUrl,
     content[]{
       ...,
@@ -336,8 +360,8 @@ export async function getTags(): Promise<any[]> {
   const query = `*[_type == "tag"] | order(title asc) {
     _id, _createdAt, title, "slug": slug.current, description,
     "seo": { "seoTitle": seo.seoTitle, "metaDescription": seo.metaDescription, "openGraphImage": seo.openGraphImage.asset->url },
-    "articleCount": count(*[_type in ["newsPost", "guide"] && references(^._id)]),
-    "lastUsed": *[_type in ["newsPost", "guide"] && references(^._id)] | order(dateTime(coalesce(publishDate, _createdAt)) desc)[0]{ "lastUsed": coalesce(publishDate, _createdAt) }.lastUsed
+    "articleCount": count(*[_type in ["newsPost", "guide"] && references(^._id) && ((_type == "newsPost" && ${PUBLISHED_NEWSPOST_FILTER}) || (_type == "guide" && ${PUBLISHED_GUIDE_FILTER}))]),
+    "lastUsed": *[_type in ["newsPost", "guide"] && references(^._id) && ((_type == "newsPost" && ${PUBLISHED_NEWSPOST_FILTER}) || (_type == "guide" && ${PUBLISHED_GUIDE_FILTER}))] | order(dateTime(coalesce(publishDate, _createdAt)) desc)[0]{ "lastUsed": coalesce(publishDate, _createdAt) }.lastUsed
   }`
   return client.fetch(query)
 }
@@ -349,8 +373,8 @@ export async function getTagBySlug(slug: string): Promise<any | null> {
   const query = `*[_type == "tag" && slug.current == $slug][0] {
     _id, _createdAt, title, "slug": slug.current, description,
     "seo": { "seoTitle": seo.seoTitle, "metaDescription": seo.metaDescription, "openGraphImage": seo.openGraphImage.asset->url },
-    "articleCount": count(*[_type in ["newsPost", "guide"] && references(^._id)]),
-    "articles": *[_type in ["newsPost", "guide"] && references(^._id)] | order(dateTime(coalesce(publishDate, _createdAt)) desc) {
+    "articleCount": count(*[_type in ["newsPost", "guide"] && references(^._id) && ((_type == "newsPost" && ${PUBLISHED_NEWSPOST_FILTER}) || (_type == "guide" && ${PUBLISHED_GUIDE_FILTER}))]),
+    "articles": *[_type in ["newsPost", "guide"] && references(^._id) && ((_type == "newsPost" && ${PUBLISHED_NEWSPOST_FILTER}) || (_type == "guide" && ${PUBLISHED_GUIDE_FILTER}))] | order(dateTime(coalesce(publishDate, _createdAt)) desc) {
       _id, _type, _createdAt, title, "slug": slug.current, "thumbnail": thumbnail.asset->url, publishDate, gameName
     }
   }`;
@@ -361,7 +385,7 @@ export async function getTagBySlug(slug: string): Promise<any | null> {
 
 export async function getPostsByTagId(tagId: string, limit = 50): Promise<any[]> {
   if (!projectId) return []
-  const query = `*[_type in ["newsPost", "guide"] && references($tagId)] | order(dateTime(coalesce(publishDate, _createdAt)) desc) [0...$limit] {
+  const query = `*[_type in ["newsPost", "guide"] && references($tagId) && ((_type == "newsPost" && ${PUBLISHED_NEWSPOST_FILTER}) || (_type == "guide" && ${PUBLISHED_GUIDE_FILTER}))] | order(dateTime(coalesce(publishDate, _createdAt)) desc) [0...$limit] {
     _id, _type, _createdAt, title, "slug": slug.current, "thumbnail": thumbnail.asset->url, publishDate, category, gameName
   }`;
   const posts = await client.fetch(query, { tagId, limit });
@@ -396,7 +420,7 @@ export async function getHomepage(): Promise<{
   };
   if (!projectId) return empty;
   const articleProjection = `{
-    _id, _createdAt, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, authorName
+    _id, _type, _createdAt, status, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, authorName
   }`;
   const query = `*[_type == "homepage"][0] {
     "heroArticle": heroArticle->${articleProjection},
@@ -407,11 +431,11 @@ export async function getHomepage(): Promise<{
   const data = await client.fetch(query);
   return {
     ...empty,
-    ...(data || {}),
-    // strip any null refs that were deleted
-    featuredArticles: (data?.featuredArticles || []).filter(Boolean),
-    trendingArticles: (data?.trendingArticles || []).filter(Boolean),
-    editorsPicks: (data?.editorsPicks || []).filter(Boolean),
+    heroArticle: isPublishedDoc(data?.heroArticle) ? data.heroArticle : null,
+    // strip any null refs that were deleted and enforce publish timing
+    featuredArticles: (data?.featuredArticles || []).filter(isPublishedDoc),
+    trendingArticles: (data?.trendingArticles || []).filter(isPublishedDoc),
+    editorsPicks: (data?.editorsPicks || []).filter(isPublishedDoc),
   };
 }
 
@@ -428,7 +452,7 @@ export async function getAllVideos(): Promise<any[]> {
     });
   }
   
-  const query = `*[(_type == "newsPost" || _type == "interview" || _type == "guide") && (defined(youtubeUrl) || defined(instagramUrl))] | order(dateTime(coalesce(publishDate, lastUpdated, _createdAt)) desc) {
+  const query = `*[(defined(youtubeUrl) || defined(instagramUrl)) && ${PUBLISHED_CONTENT_FILTER}] | order(dateTime(coalesce(publishDate, lastUpdated, _createdAt)) desc) {
     _id,
     _type,
     "title": coalesce(title, playerOrCeoName),
