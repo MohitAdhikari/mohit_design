@@ -131,7 +131,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
             logoTextSpacing={settings.logoTextSpacing}
             logoOnTop={settings.logoOnTop}
           />
-          <div className="pt-20">
+          <div className="pt-16 md:pt-20">
             <BreakingTicker items={tickerItems} />
           </div>
           <main className="flex-grow">
