@@ -1,5 +1,5 @@
 import { getAllVideos } from '@/lib/api';
-import { format } from 'date-fns';
+import { formatDateCompactIST } from '@/utils/formatDate';
 import { Metadata } from 'next';
 import VideoEmbed from '@/components/VideoEmbed';
 import Reveal from '@/components/Reveal';
@@ -70,7 +70,7 @@ export default async function VideosPage() {
                 {featured.title}
               </h2>
               <div className="text-gray-500 text-xs font-mono uppercase tracking-widest flex items-center gap-2 mb-6">
-                <span>{format(new Date(featured.date), 'MMM dd, yyyy')}</span>
+                <span>{formatDateCompactIST(featured.date)}</span>
               </div>
             </div>
           </div>
@@ -105,7 +105,7 @@ export default async function VideosPage() {
                     {video.title}
                   </h3>
                   <div className="mt-auto text-[10px] text-gray-500 font-mono uppercase tracking-wider flex items-center">
-                    {format(new Date(video.date), 'MMM dd, yyyy')}
+                    {formatDateCompactIST(video.date)}
                   </div>
                 </div>
               </div>

@@ -17,7 +17,7 @@ export interface ArticleInput {
 }
 
 const ARTICLE_FIELDS = `
-  _id, _createdAt, title, slug, excerpt, "thumbnail": thumbnail.asset->url, imageAlt,
+  _id, _createdAt, publishDate, title, slug, excerpt, "thumbnail": thumbnail.asset->url, imageAlt,
   status, dashboardOwnerId, dashboardOwnerEmail,
   "categoryRef": categoryRef->{_id, title},
   "tags": tags[]->{_id, title},
@@ -42,8 +42,8 @@ function slugify(title: string): string {
 export async function listArticlesForUser(user: DashboardUser) {
   const isAdmin = user.role === 'admin';
   const query = isAdmin
-    ? `*[_type == "newsPost"] | order(_createdAt desc) { ${ARTICLE_FIELDS} }`
-    : `*[_type == "newsPost" && dashboardOwnerId == $ownerId] | order(_createdAt desc) { ${ARTICLE_FIELDS} }`;
+    ? `*[_type == "newsPost"] | order(dateTime(coalesce(publishDate, _createdAt)) desc) { ${ARTICLE_FIELDS} }`
+    : `*[_type == "newsPost" && dashboardOwnerId == $ownerId] | order(dateTime(coalesce(publishDate, _createdAt)) desc) { ${ARTICLE_FIELDS} }`;
 
   return writeClient.fetch(query, isAdmin ? {} : { ownerId: user.id });
 }

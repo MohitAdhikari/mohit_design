@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { formatDateCompactIST, formatTimeIST } from '@/utils/formatDate';
 import type React from 'react';
 
 export type ScheduleStyle = 'premium' | 'minimal' | 'plain';
@@ -57,7 +57,7 @@ const STYLE_CLASSES: Record<ScheduleStyle, { section: string; heading: string; d
 function formatTime(iso?: string) {
   if (!iso) return '—';
   try {
-    return format(new Date(iso), 'h:mm a');
+    return formatTimeIST(iso);
   } catch {
     return iso;
   }
@@ -66,7 +66,7 @@ function formatTime(iso?: string) {
 function formatDate(iso?: string) {
   if (!iso) return null;
   try {
-    return format(new Date(iso), 'MMM dd, yyyy');
+    return formatDateCompactIST(iso);
   } catch {
     return iso;
   }

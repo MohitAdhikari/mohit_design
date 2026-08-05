@@ -2,7 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getNewsPosts, getInterviews, getGuides, getSiteSettings, getHomepage } from '@/lib/api';
 import { optimizedImageUrl } from '@/lib/sanityImage';
-import { format } from 'date-fns';
+import { formatDateCompactIST, formatDateDayMonthIST } from '@/utils/formatDate';
 import Reveal from '@/components/Reveal';
 import StatsBand from '@/components/StatsBand';
 import GamesMarquee from '@/components/GamesMarquee';
@@ -77,7 +77,7 @@ export default async function Home() {
                     <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-[#00E5FF] to-[#0077FF] border-2 border-[#0B0B0F] shadow-sm flex-shrink-0" />
                     <span className="font-semibold">{featured.authorName || 'PHONEOCEAN'}</span>
                     <span className="text-gray-500 text-[10px] md:text-xs">•</span>
-                    <span className="text-gray-400 text-[10px] md:text-xs">{format(new Date(featured.publishDate || featured._createdAt), 'MMM dd, yyyy')}</span>
+                    <span className="text-gray-400 text-[10px] md:text-xs">{formatDateCompactIST(featured.publishDate || featured._createdAt)}</span>
                     <span className="ml-auto inline-flex items-center gap-1.5 text-[10px] md:text-xs font-mono uppercase tracking-widest text-white/70 group-hover:text-[#00E5FF] transition-colors">
                       Read <span className="text-base leading-none">→</span>
                     </span>
@@ -143,7 +143,7 @@ export default async function Home() {
                     </h3>
                     <div className="flex justify-between items-center mt-auto">
                       <span className="text-gray-600 dark:text-gray-500 text-[10px] font-mono uppercase tracking-wider">{post.category}</span>
-                      <span className="text-gray-600 dark:text-gray-500 text-[10px] font-mono">{format(new Date(post.publishDate || post._createdAt), 'MMM dd')}</span>
+                      <span className="text-gray-600 dark:text-gray-500 text-[10px] font-mono">{formatDateDayMonthIST(post.publishDate || post._createdAt)}</span>
                     </div>
                   </div>
                 </Link>
@@ -218,7 +218,7 @@ export default async function Home() {
                       {post.title}
                     </h3>
                     <div className="mt-auto text-[10px] md:text-xs text-gray-600 dark:text-gray-500 font-mono uppercase tracking-wider flex items-center gap-2">
-                      <span>{format(new Date(post.publishDate || post._createdAt), 'MMM dd, yyyy')}</span>
+                      <span>{formatDateCompactIST(post.publishDate || post._createdAt)}</span>
                       <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700"></span>
                       <span>By {post.authorName || 'PHONEOCEAN'}</span>
                     </div>
@@ -269,7 +269,7 @@ export default async function Home() {
                       Exclusive with {interview.playerOrCeoName}
                     </h3>
                     <div className="mt-auto pt-4 border-t border-gray-200 dark:border-gray-800/40 flex justify-between items-center">
-                      <span className="text-gray-600 dark:text-gray-500 text-[10px] font-mono tracking-widest uppercase">{format(new Date(interview.publishDate || interview._createdAt), 'MMM dd')}</span>
+                      <span className="text-gray-600 dark:text-gray-500 text-[10px] font-mono tracking-widest uppercase">{formatDateDayMonthIST(interview.publishDate || interview._createdAt)}</span>
                       <span className="text-[#9D00FF] text-[10px] font-black uppercase tracking-widest flex items-center gap-1 group-hover:gap-2 transition-all">Watch <span className="text-base leading-none">→</span></span>
                     </div>
                   </div>

@@ -212,6 +212,7 @@ export const newsPost = defineType({
       group: 'publishing',
       description: 'The official publication date/time shown on the site. Defaults to now — can be backdated or scheduled in the future.',
       initialValue: () => new Date().toISOString(),
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'featured',

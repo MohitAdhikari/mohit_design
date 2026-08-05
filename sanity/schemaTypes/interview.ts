@@ -63,6 +63,7 @@ export const interview = defineType({
       title: 'Publish Date',
       type: 'datetime',
       initialValue: () => new Date().toISOString(),
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'categoryRef',
