@@ -125,9 +125,8 @@ export const newsPost = defineType({
         'managed directly in the Studio sidebar under "Categories" — no code changes needed.',
       options: {
         list: [
-          { title: 'News', value: 'News' },
+          { title: 'NEWS', value: 'NEWS' },
           { title: 'BGMI', value: 'BGMI' },
-          { title: 'Custom', value: 'Custom' },
           { title: 'Tournament', value: 'Tournament' },
           { title: 'Roster Changes', value: 'Roster Changes' },
           { title: 'Leaks', value: 'Leaks' },
@@ -141,14 +140,6 @@ export const newsPost = defineType({
           { title: 'Other', value: 'Other' },
         ],
       },
-    }),
-    defineField({
-      name: 'customCategory',
-      title: 'Custom Category Name',
-      type: 'string',
-      group: 'relations',
-      hidden: ({ document }) => document?.category !== 'Custom',
-      description: 'Shown on the site when "Category (legacy label)" is set to Custom.',
     }),
     defineField({
       name: 'categoryRef',

@@ -105,7 +105,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
   const publishedIso = new Date(publishDate).toISOString();
 
   const authorName = post.author?.name || post.authorName || 'PHONEOCEAN Staff';
-  const articleSection = post.categoryRef?.title || post.customCategory || post.category;
+  const articleSection = post.categoryRef?.title || post.category;
   const keywords = (post.tags?.map((t: any) => t?.title).filter(Boolean) || []) as string[];
   const description = post.seo?.metaDescription || post.excerpt || extractPlainText(post.content) || undefined;
   const heroImage = post.seo?.socialShareImage || post.thumbnail || 'https://picsum.photos/1200/630';
@@ -181,7 +181,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
             <div className="flex flex-wrap gap-2 mb-6">
               <span className="inline-block bg-blue-600 text-white text-[10px] font-mono tracking-widest uppercase px-3 py-1 rounded-sm">
-                {post.categoryRef?.title || post.customCategory || post.category}
+                {post.category}
               </span>
               {post.badge && post.badge !== 'None' && (
                 <span className="inline-block bg-[#2A2A32] text-white text-[10px] font-mono tracking-widest uppercase px-3 py-1 rounded-sm">

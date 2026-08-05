@@ -21,10 +21,10 @@ export default async function SearchPage() {
       _id: n._id,
       _type: 'news' as const,
       title: n.title,
-      subtitle: n.categoryRef?.title || n.customCategory || n.category,
+      subtitle: n.category,
       href: `/news/${n.slug.current}`,
       thumbnail: n.thumbnail,
-      tag: n.categoryRef?.title || n.customCategory || n.category,
+      tag: n.category,
     })),
     ...interviews.map((i: any) => ({
       _id: i._id,

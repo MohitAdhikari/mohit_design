@@ -17,11 +17,10 @@ export default async function Home() {
     getHomepage(),
   ]);
 
-  // Only a post marked featured=true may appear in the hero slot.
-  // The homepage manager heroArticle override is respected only if the referenced post is featured.
-  const heroOverride = homepage.heroArticle?.featured ? homepage.heroArticle : null;
-  const firstFeatured = news.find((n) => n.featured);
-  const featured = heroOverride || firstFeatured;
+  // Hero shows the latest post, or the homepage manager override if set.
+  // The featured boolean only controls the FEATURED badge/label on the post.
+  const featured = homepage.heroArticle || news[0];
+  const showFeaturedBadge = featured?.featured === true;
   const latestNews = homepage.trendingArticles.length ? homepage.trendingArticles.slice(0, 3) : news.slice(1, 4);
   const feedNews = news.length > 3 ? news.slice(1) : news;
 
@@ -52,19 +51,20 @@ export default async function Home() {
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0B0B0F] via-[#0B0B0F]/70 to-[#0B0B0F]/10" />
                 <div className="absolute inset-0 bg-[radial-gradient(80%_60%_at_0%_100%,rgba(0,229,255,0.18),transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
 
-                {/* Corner mark */}
-                <div className="absolute top-5 right-5 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-white text-[10px] md:text-xs font-mono uppercase tracking-widest">
-                  <span className="relative inline-flex w-1.5 h-1.5">
-                    <span className="absolute inset-0 rounded-full bg-[#00E5FF] animate-ping opacity-75" />
-                    <span className="relative w-1.5 h-1.5 rounded-full bg-[#00E5FF]" />
-                  </span>
-                  Featured
-                </div>
+                {showFeaturedBadge && (
+                  <div className="absolute top-5 right-5 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-white text-[10px] md:text-xs font-mono uppercase tracking-widest">
+                    <span className="relative inline-flex w-1.5 h-1.5">
+                      <span className="absolute inset-0 rounded-full bg-[#00E5FF] animate-ping opacity-75" />
+                      <span className="relative w-1.5 h-1.5 rounded-full bg-[#00E5FF]" />
+                    </span>
+                    Featured
+                  </div>
+                )}
 
                 <div className="absolute bottom-0 left-0 p-6 md:p-10 w-full lg:w-[85%] animate-rise">
                   <div className="flex flex-wrap items-center gap-2 mb-4">
                     <span className="inline-block bg-[#00E5FF] text-[#0B0B0F] text-[10px] md:text-xs font-black tracking-widest uppercase px-3 py-1.5 rounded-sm">
-                      {featured.categoryRef?.title || featured.customCategory || featured.category}
+                      {featured.category}
                     </span>
                     {featured.badge && featured.badge !== 'None' && (
                       <span className="inline-block bg-[#2A2A32] text-white text-[10px] md:text-xs font-bold tracking-widest uppercase px-3 py-1.5 rounded-sm">
@@ -146,7 +146,7 @@ export default async function Home() {
                       {post.title}
                     </h3>
                     <div className="flex justify-between items-center mt-auto">
-                      <span className="text-gray-600 dark:text-gray-500 text-[10px] font-mono uppercase tracking-wider">{post.categoryRef?.title || post.customCategory || post.category}</span>
+                      <span className="text-gray-600 dark:text-gray-500 text-[10px] font-mono uppercase tracking-wider">{post.category}</span>
                       <span className="text-gray-600 dark:text-gray-500 text-[10px] font-mono">{formatDateDayMonthIST(post.publishDate || post._createdAt)}</span>
                     </div>
                   </div>
@@ -208,11 +208,11 @@ export default async function Home() {
                       referrerPolicy="no-referrer"
                     />
                     <div className="absolute top-2 left-2 bg-[#00E5FF] text-[#0B0B0F] text-[10px] font-black px-2 py-1 uppercase tracking-widest rounded-md sm:hidden shadow-sm">
-                      {post.categoryRef?.title || post.customCategory || post.category}
+                      {post.category}
                     </div>
                   </div>
                   <div className="flex flex-col justify-center py-1">
-                    <span className="hidden sm:inline-block text-[10px] text-[#00E5FF] font-black tracking-widest uppercase mb-3">{post.categoryRef?.title || post.customCategory || post.category}</span>
+                    <span className="hidden sm:inline-block text-[10px] text-[#00E5FF] font-black tracking-widest uppercase mb-3">{post.category}</span>
                     <h3 className="text-lg sm:text-[1.35rem] font-bold font-space-grotesk leading-snug group-hover:text-[#00E5FF] dark:group-hover:text-white text-gray-900 dark:text-gray-200 transition-colors line-clamp-3 mb-3">
                       {post.title}
                     </h3>
