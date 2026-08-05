@@ -17,8 +17,11 @@ export default async function Home() {
     getHomepage(),
   ]);
 
-  // Homepage Manager overrides (fall back to automatic latest content when unset)
-  const featured = homepage.heroArticle || news[0];
+  // Only a post marked featured=true may appear in the hero slot.
+  // The homepage manager heroArticle override is respected only if the referenced post is featured.
+  const heroOverride = homepage.heroArticle?.featured ? homepage.heroArticle : null;
+  const firstFeatured = news.find((n) => n.featured);
+  const featured = heroOverride || firstFeatured;
   const latestNews = homepage.trendingArticles.length ? homepage.trendingArticles.slice(0, 3) : news.slice(1, 4);
   const feedNews = news.length > 3 ? news.slice(1) : news;
 
@@ -61,11 +64,13 @@ export default async function Home() {
                 <div className="absolute bottom-0 left-0 p-6 md:p-10 w-full lg:w-[85%] animate-rise">
                   <div className="flex flex-wrap items-center gap-2 mb-4">
                     <span className="inline-block bg-[#00E5FF] text-[#0B0B0F] text-[10px] md:text-xs font-black tracking-widest uppercase px-3 py-1.5 rounded-sm">
-                      {featured.category}
+                      {featured.categoryRef?.title || featured.customCategory || featured.category}
                     </span>
-                    <span className="inline-block bg-[#2A2A32] text-white text-[10px] md:text-xs font-bold tracking-widest uppercase px-3 py-1.5 rounded-sm">
-                      Exclusive
-                    </span>
+                    {featured.badge && featured.badge !== 'None' && (
+                      <span className="inline-block bg-[#2A2A32] text-white text-[10px] md:text-xs font-bold tracking-widest uppercase px-3 py-1.5 rounded-sm">
+                        {featured.badge === 'CUSTOM' ? featured.badgeCustom : featured.badge}
+                      </span>
+                    )}
                   </div>
                   <h1 className="text-3xl md:text-5xl font-black font-space-grotesk tracking-tighter leading-tight mb-5 text-white transition-colors">
                     <span className="bg-gradient-to-r from-white to-white group-hover:from-white group-hover:to-[#00E5FF] bg-clip-text text-transparent transition-all duration-500">
@@ -141,7 +146,7 @@ export default async function Home() {
                       {post.title}
                     </h3>
                     <div className="flex justify-between items-center mt-auto">
-                      <span className="text-gray-600 dark:text-gray-500 text-[10px] font-mono uppercase tracking-wider">{post.category}</span>
+                      <span className="text-gray-600 dark:text-gray-500 text-[10px] font-mono uppercase tracking-wider">{post.categoryRef?.title || post.customCategory || post.category}</span>
                       <span className="text-gray-600 dark:text-gray-500 text-[10px] font-mono">{formatDateDayMonthIST(post.publishDate || post._createdAt)}</span>
                     </div>
                   </div>
@@ -203,11 +208,11 @@ export default async function Home() {
                       referrerPolicy="no-referrer"
                     />
                     <div className="absolute top-2 left-2 bg-[#00E5FF] text-[#0B0B0F] text-[10px] font-black px-2 py-1 uppercase tracking-widest rounded-md sm:hidden shadow-sm">
-                      {post.category}
+                      {post.categoryRef?.title || post.customCategory || post.category}
                     </div>
                   </div>
                   <div className="flex flex-col justify-center py-1">
-                    <span className="hidden sm:inline-block text-[10px] text-[#00E5FF] font-black tracking-widest uppercase mb-3">{post.category}</span>
+                    <span className="hidden sm:inline-block text-[10px] text-[#00E5FF] font-black tracking-widest uppercase mb-3">{post.categoryRef?.title || post.customCategory || post.category}</span>
                     <h3 className="text-lg sm:text-[1.35rem] font-bold font-space-grotesk leading-snug group-hover:text-[#00E5FF] dark:group-hover:text-white text-gray-900 dark:text-gray-200 transition-colors line-clamp-3 mb-3">
                       {post.title}
                     </h3>

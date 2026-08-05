@@ -63,7 +63,7 @@ export default async function VideosPage() {
                   FEATURED
                 </span>
                 <span className="inline-block bg-gray-100 dark:bg-[#1A1A22] border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-300 text-[10px] font-bold tracking-widest uppercase px-3 py-1.5 rounded-sm">
-                  {featured.category || featured._type}
+                  {featured.categoryRef?.title || featured.customCategory || featured.category || featured._type}
                 </span>
               </div>
               <h2 className="text-2xl md:text-4xl font-black font-space-grotesk leading-tight text-gray-900 dark:text-white mb-4">
@@ -98,7 +98,7 @@ export default async function VideosPage() {
                 <div className="p-5 flex-1 flex flex-col">
                   <div className="flex justify-between items-start mb-3">
                     <span className="text-[10px] text-gray-500 dark:text-gray-400 font-mono tracking-widest uppercase bg-gray-100 dark:bg-[#13131A] px-2 py-1 rounded">
-                      {video.category || video._type}
+                      {video.categoryRef?.title || video.customCategory || video.category || video._type}
                     </span>
                   </div>
                   <h3 className="text-lg font-black font-space-grotesk leading-snug group-hover:text-red-500 dark:group-hover:text-red-400 text-gray-900 dark:text-gray-200 transition-colors line-clamp-3 mb-4">

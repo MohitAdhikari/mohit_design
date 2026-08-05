@@ -70,7 +70,9 @@ export default async function TagPage({ params }: { params: Promise<{ slug: stri
           <div className="grid gap-6">
             {tag.articles.map((article: any) => {
               const href = article._type === 'guide' ? `/guides/${article.slug}` : `/news/${article.slug}`
-              const category = article._type === 'guide' ? `${article.gameName} Guide` : article.category
+              const category = article._type === 'guide'
+                ? `${article.gameName} Guide`
+                : (article.categoryRef?.title || article.customCategory || article.category)
               return (
                 <Link
                   key={article._id}

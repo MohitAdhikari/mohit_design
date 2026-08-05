@@ -191,7 +191,7 @@ export async function getNewsPosts(): Promise<any[]> {
     return sortByTimestamp(mockData.newsPosts);
   }
   const query = `*[_type == "newsPost" && ${PUBLISHED_NEWSPOST_FILTER}] | order(dateTime(coalesce(publishDate, _createdAt)) desc) {
-    _id, _createdAt, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, authorName, youtubeUrl, instagramUrl
+    _id, _createdAt, title, slug, "thumbnail": thumbnail.asset->url, category, customCategory, "categoryRef": categoryRef->{title}, publishDate, authorName, youtubeUrl, instagramUrl, featured, badge, badgeCustom
   }`;
   const posts = await client.fetch(query);
   return sortByTimestamp(posts);
@@ -205,7 +205,7 @@ export async function getNewsPostBySlug(slug: string): Promise<any> {
   const sanityClient = isEnabled ? previewClient : client;
   const publishedConstraint = isEnabled ? '' : ` && ${PUBLISHED_NEWSPOST_FILTER}`;
   const query = `*[_type == "newsPost" && slug.current == $slug${publishedConstraint}][0] {
-    _id, _createdAt, _updatedAt, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, authorName, youtubeUrl, instagramUrl,
+    _id, _createdAt, _updatedAt, title, slug, "thumbnail": thumbnail.asset->url, category, customCategory, publishDate, authorName, youtubeUrl, instagramUrl, featured, badge, badgeCustom,
     content[]{
       ...,
       _type == "image" => {
@@ -375,7 +375,7 @@ export async function getTagBySlug(slug: string): Promise<any | null> {
     "seo": { "seoTitle": seo.seoTitle, "metaDescription": seo.metaDescription, "openGraphImage": seo.openGraphImage.asset->url },
     "articleCount": count(*[_type in ["newsPost", "guide"] && references(^._id) && ((_type == "newsPost" && ${PUBLISHED_NEWSPOST_FILTER}) || (_type == "guide" && ${PUBLISHED_GUIDE_FILTER}))]),
     "articles": *[_type in ["newsPost", "guide"] && references(^._id) && ((_type == "newsPost" && ${PUBLISHED_NEWSPOST_FILTER}) || (_type == "guide" && ${PUBLISHED_GUIDE_FILTER}))] | order(dateTime(coalesce(publishDate, _createdAt)) desc) {
-      _id, _type, _createdAt, title, "slug": slug.current, "thumbnail": thumbnail.asset->url, publishDate, gameName
+      _id, _type, _createdAt, title, "slug": slug.current, "thumbnail": thumbnail.asset->url, publishDate, gameName, category, customCategory, "categoryRef": categoryRef->{title}
     }
   }`;
   const tag = await client.fetch(query, { slug })
@@ -386,7 +386,7 @@ export async function getTagBySlug(slug: string): Promise<any | null> {
 export async function getPostsByTagId(tagId: string, limit = 50): Promise<any[]> {
   if (!projectId) return []
   const query = `*[_type in ["newsPost", "guide"] && references($tagId) && ((_type == "newsPost" && ${PUBLISHED_NEWSPOST_FILTER}) || (_type == "guide" && ${PUBLISHED_GUIDE_FILTER}))] | order(dateTime(coalesce(publishDate, _createdAt)) desc) [0...$limit] {
-    _id, _type, _createdAt, title, "slug": slug.current, "thumbnail": thumbnail.asset->url, publishDate, category, gameName
+    _id, _type, _createdAt, title, "slug": slug.current, "thumbnail": thumbnail.asset->url, publishDate, category, customCategory, "categoryRef": categoryRef->{title}, gameName
   }`;
   const posts = await client.fetch(query, { tagId, limit });
   return sortByTimestamp(posts);
@@ -420,7 +420,7 @@ export async function getHomepage(): Promise<{
   };
   if (!projectId) return empty;
   const articleProjection = `{
-    _id, _type, _createdAt, status, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, authorName
+    _id, _type, _createdAt, status, title, slug, "thumbnail": thumbnail.asset->url, category, customCategory, "categoryRef": categoryRef->{title}, publishDate, authorName, featured, badge, badgeCustom
   }`;
   const query = `*[_type == "homepage"][0] {
     "heroArticle": heroArticle->${articleProjection},
@@ -462,7 +462,9 @@ export async function getAllVideos(): Promise<any[]> {
     "date": dateTime(coalesce(publishDate, lastUpdated, _createdAt)),
     youtubeUrl,
     instagramUrl,
-    category
+    category,
+    customCategory,
+    "categoryRef": categoryRef->{title}
   }`;
   const videos = await client.fetch(query);
   return sortByTimestamp(videos, 'date');

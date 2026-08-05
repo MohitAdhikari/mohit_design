@@ -126,7 +126,8 @@ export const newsPost = defineType({
       options: {
         list: [
           { title: 'News', value: 'News' },
-          { title: 'BGMI News', value: 'BGMI News' },
+          { title: 'BGMI', value: 'BGMI' },
+          { title: 'Custom', value: 'Custom' },
           { title: 'Tournament', value: 'Tournament' },
           { title: 'Roster Changes', value: 'Roster Changes' },
           { title: 'Leaks', value: 'Leaks' },
@@ -142,6 +143,14 @@ export const newsPost = defineType({
       },
     }),
     defineField({
+      name: 'customCategory',
+      title: 'Custom Category Name',
+      type: 'string',
+      group: 'relations',
+      hidden: ({ document }) => document?.category !== 'Custom',
+      description: 'Shown on the site when "Category (legacy label)" is set to Custom.',
+    }),
+    defineField({
       name: 'categoryRef',
       title: 'Category',
       type: 'reference',
@@ -151,6 +160,32 @@ export const newsPost = defineType({
         'Preferred way to categorize new articles. Unlike the legacy label above, you can create ' +
         'as many categories as you need here — click "Create new" in this field, or manage them ' +
         'under Content → Categories in the Studio sidebar.',
+    }),
+    defineField({
+      name: 'badge',
+      title: 'Badge',
+      type: 'string',
+      group: 'relations',
+      initialValue: 'None',
+      options: {
+        list: [
+          { title: 'None', value: 'None' },
+          { title: 'NEWS', value: 'NEWS' },
+          { title: 'PRESS RELEASE', value: 'PRESS RELEASE' },
+          { title: 'EXCLUSIVE', value: 'EXCLUSIVE' },
+          { title: 'TOURNAMENT', value: 'TOURNAMENT' },
+          { title: 'CUSTOM', value: 'CUSTOM' },
+        ],
+      },
+      description: 'Optional label shown on the article. Select "None" to hide the badge.',
+    }),
+    defineField({
+      name: 'badgeCustom',
+      title: 'Custom Badge Label',
+      type: 'string',
+      group: 'relations',
+      hidden: ({ document }) => document?.badge !== 'CUSTOM',
+      description: 'Shown on the site when "Badge" is set to CUSTOM.',
     }),
     defineField({
       name: 'subCategory',

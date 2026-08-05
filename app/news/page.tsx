@@ -48,7 +48,7 @@ export default async function NewsPage() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
               <div className="absolute top-3 left-3 bg-[#00E5FF] text-[#0B0B0F] text-[10px] px-2.5 py-1 uppercase tracking-widest font-black rounded-md shadow-sm">
-                {post.category}
+                {post.categoryRef?.title || post.customCategory || post.category}
               </div>
             </div>
             <div className="flex-1 flex flex-col justify-between p-5">
