@@ -125,8 +125,8 @@ export const newsPost = defineType({
         'managed directly in the Studio sidebar under "Categories" — no code changes needed.',
       options: {
         list: [
-          { title: 'NEWS', value: 'NEWS' },
           { title: 'BGMI', value: 'BGMI' },
+          { title: 'NEWS', value: 'NEWS' },
           { title: 'Tournament', value: 'Tournament' },
           { title: 'Roster Changes', value: 'Roster Changes' },
           { title: 'Leaks', value: 'Leaks' },
