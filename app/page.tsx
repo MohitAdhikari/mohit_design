@@ -4,7 +4,6 @@ import { getNewsPosts, getInterviews, getGuides, getSiteSettings, getHomepage } 
 import { optimizedImageUrl } from '@/lib/sanityImage';
 import { formatDateCompactIST, formatDateDayMonthIST } from '@/utils/formatDate';
 import Reveal from '@/components/Reveal';
-import StatsBand from '@/components/StatsBand';
 import GamesMarquee from '@/components/GamesMarquee';
 
 export const revalidate = 60;
@@ -175,11 +174,6 @@ export default async function Home() {
 
         {/* BOTTOM LEFT (Desktop) / BELOW TRENDING (Mobile): MAIN CONTENT */}
         <div className="min-w-0 lg:col-start-1 lg:row-start-2 flex flex-col gap-10 lg:gap-12">
-
-          {/* STATS BAND */}
-          <Reveal>
-            <StatsBand />
-          </Reveal>
 
           {/* GAMES MARQUEE */}
           <Reveal delay={80}>
