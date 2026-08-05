@@ -107,7 +107,7 @@ Edit `lib/api.ts` → the `mockData` object (news, interviews, guides). Change t
 - **Logo:** replace `public/logo.svg`; favicon is `app/icon.svg`.
 - **Accent colors:** cyan `#00E5FF`, purple `#9D00FF`, green `#00FF66`, red for "live". Search the codebase for these hex values to retheme.
 - **Fonts:** Space Grotesk / Inter / JetBrains Mono — configured in `app/layout.tsx`.
-- **Animations:** all custom motion lives in `app/globals.css` (aurora, reveal, sheen, float, gradient-x, marquee) plus the `components/Reveal.tsx`, `AmbientBackground.tsx`, `StatsBand.tsx`, and `GamesMarquee.tsx` helpers.
+- **Animations:** all custom motion lives in `app/globals.css` (aurora, reveal, sheen, float, gradient-x, marquee) plus the `components/Reveal.tsx`, `AmbientBackground.tsx`, and `GamesMarquee.tsx` helpers.
 
 ---
 
