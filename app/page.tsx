@@ -107,7 +107,20 @@ export default async function Home() {
                 <Link href={`/news/${post.slug.current}`} key={post._id} className="snap-start group flex flex-col lg:flex-row lg:items-start min-w-[280px] sm:min-w-[320px] w-full lg:min-w-0 lg:p-6 lg:border-b lg:border-gray-200 dark:lg:border-gray-800/50 hover:bg-gray-50 dark:hover:bg-[#111116] lg:hover:bg-gray-50 dark:lg:hover:bg-[#15151A] transition-colors rounded-xl lg:rounded-none bg-white dark:bg-[#0E0E12] lg:bg-transparent dark:lg:bg-transparent border border-gray-200 dark:border-gray-800/40 lg:border-transparent p-4 shadow-sm lg:shadow-none">
                   {/* Number indicator (Desktop only) */}
                   <div className="hidden lg:block text-[#00E5FF] text-[10px] font-black font-mono mr-4 tracking-widest mt-1">0{index + 1}</div>
-                  
+
+                  {/* Thumbnail (Desktop only) */}
+                  <div className="hidden lg:block relative w-24 aspect-video rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800/60 flex-shrink-0 mr-4">
+                    <Image
+                      src={optimizedImageUrl(post.thumbnail, 320)}
+                      alt={post.title}
+                      fill
+                      sizes="96px"
+                      loading="lazy"
+                      className="object-cover opacity-90 group-hover:scale-105 transition-transform duration-500"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+
                   {/* Thumbnail (Mobile only) */}
                   <div className="relative aspect-video rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800/60 shadow-sm dark:shadow-md mb-4 lg:hidden">
                     <Image 
