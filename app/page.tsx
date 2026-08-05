@@ -40,7 +40,7 @@ export default async function Home() {
                     alt={featured.title}
                     fill
                     sizes="(max-width: 1024px) 100vw, 66vw"
-                    className="object-cover opacity-90 animate-kenburns will-change-transform group-hover:opacity-100 transition-opacity duration-500"
+                    className="object-cover object-top opacity-90 animate-kenburns will-change-transform group-hover:opacity-100 transition-opacity duration-500"
                     priority
                     referrerPolicy="no-referrer"
                   />
