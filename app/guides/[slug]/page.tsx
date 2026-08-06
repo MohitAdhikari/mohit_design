@@ -152,7 +152,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
           priority
           referrerPolicy="no-referrer"
         />
-        <div className="absolute inset-0 bg-black/70 bg-gradient-to-t from-[#050505] to-transparent" />
+        <div className="absolute inset-0 bg-black/50" />
         
         <div className="absolute bottom-0 left-0 w-full">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">

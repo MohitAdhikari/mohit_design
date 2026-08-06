@@ -9,6 +9,11 @@ function parseRow(line: string): string[] {
     : line.split('\t').map((c) => c.trim())
 }
 
+function isSeparatorLine(line: string): boolean {
+  const cells = parseRow(line)
+  return cells.length > 0 && cells.every((c) => c === '' || /^:?-+:?$/.test(c))
+}
+
 export default function PortableTextTable({ value }: { value: TableValue }) {
   if (!value?.rawText) return null
 
@@ -16,6 +21,7 @@ export default function PortableTextTable({ value }: { value: TableValue }) {
     .trim()
     .split('\n')
     .filter((line) => line.trim() !== '')
+    .filter((line) => !isSeparatorLine(line))
 
   if (lines.length < 2) return null
 
