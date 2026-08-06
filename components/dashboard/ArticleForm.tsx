@@ -355,6 +355,9 @@ Double newline = new paragraph`}
           // eslint-disable-next-line @next/next/no-img-element
           <img src={bodyImagePreview || thumbnailPreview} alt="Body preview" className="mt-2 h-32 rounded-md object-cover" />
         )}
+        {!bodyImagePreview && thumbnailPreview && (
+          <p className="text-[10px] text-white/40 mt-1">Showing featured image fallback.</p>
+        )}
         {bodyImagePreview && (
           <button
             type="button"
