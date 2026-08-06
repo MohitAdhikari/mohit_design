@@ -7,27 +7,22 @@ export const standingsTable = defineType({
   fields: [
     defineField({
       name: 'title',
-      title: 'Title (optional)',
+      title: 'Table Title',
       type: 'string',
-      description: 'Shown above the table, e.g. "Group A Standings".',
+      description: 'e.g. Group A Standings — Match 6 of 12',
     }),
     defineField({
       name: 'rawText',
-      title: 'Table Data',
+      title: 'Paste Table Here',
       type: 'text',
-      rows: 10,
-      validation: (Rule) => Rule.required(),
-      description: 'Paste the table with a header row. Columns can be separated by | or tabs.',
+      description: 'Paste pipe-separated ( | ) or tab-separated table. First line = header.',
+      rows: 12,
     }),
   ],
   preview: {
-    select: { title: 'title', rawText: 'rawText' },
-    prepare({ title, rawText }: { title?: string; rawText?: string }) {
-      const rows = rawText ? rawText.split('\n').filter((l) => l.trim()).length : 0
-      return {
-        title: title || 'Standings Table',
-        subtitle: rows ? `${rows} row(s)` : 'No data',
-      }
+    select: { title: 'title' },
+    prepare({ title }: { title?: string }) {
+      return { title: title || 'Standings Table' }
     },
   },
 })
