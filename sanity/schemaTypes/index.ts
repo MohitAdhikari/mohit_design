@@ -10,6 +10,7 @@ import { calloutBox } from './objects/calloutBox'
 import { videoEmbedBlock } from './objects/videoEmbedBlock'
 import { codeCopyBlock } from './objects/codeCopyBlock'
 import { scheduleBlock } from './objects/scheduleBlock'
+import { standingsTable } from './objects/standingsTable'
 import { author } from './author'
 import { category } from './category'
 import { tag } from './tag'
@@ -31,6 +32,7 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     videoEmbedBlock,
     codeCopyBlock,
     scheduleBlock,
+    standingsTable,
     // Content
     newsPost,
     interview,

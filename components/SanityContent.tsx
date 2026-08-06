@@ -6,6 +6,7 @@ import CalloutBox from '@/components/blocks/CalloutBox'
 import VideoEmbed from '@/components/VideoEmbed'
 import CodeCopyBox from '@/components/blocks/CodeCopyBox'
 import ScheduleBlock from '@/components/blocks/ScheduleBlock'
+import PortableTextTable from '@/components/PortableTextTable'
 
 function getComponents(highlightsStyle: HighlightsStyle) {
 return {
@@ -58,6 +59,7 @@ return {
         days={value?.days || []}
       />
     ),
+    standingsTable: ({ value }: any) => <PortableTextTable value={value} />,
     image: ({ value }: any) => {
       const imageUrl = contentImageUrl(value, 1200);
       if (!imageUrl) return null;

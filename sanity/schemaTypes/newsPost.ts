@@ -66,6 +66,7 @@ export const newsPost = defineType({
         { type: 'videoEmbedBlock' },
         { type: 'codeCopyBlock' },
         { type: 'scheduleBlock' },
+        { type: 'standingsTable' },
       ],
     }),
 
