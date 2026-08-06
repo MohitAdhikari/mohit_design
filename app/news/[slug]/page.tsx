@@ -213,6 +213,30 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
           </div>
         )}
 
+        {(post.bodyImage?.asset?.url || post.thumbnail) && (
+          <figure className="my-8">
+            <div className="relative w-full aspect-video">
+              <Image
+                src={optimizedImageUrl(post.bodyImage?.asset?.url || post.thumbnail, 1200)}
+                alt={post.bodyImage?.alt || post.imageAlt || post.title}
+                fill
+                sizes="(max-width: 768px) 100vw, 768px"
+                loading="lazy"
+                className="object-cover rounded-sm"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+            {(post.bodyImage?.caption || post.bodyImage?.credit) && (
+              <figcaption className="mt-2 text-sm text-gray-500 dark:text-gray-400 font-sans">
+                {post.bodyImage?.caption}
+                {post.bodyImage?.credit && (
+                  <span className="italic"> — {post.bodyImage.credit}</span>
+                )}
+              </figcaption>
+            )}
+          </figure>
+        )}
+
         <SanityContent content={post.content} highlightsStyle={highlightsStyle} />
         
         <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-900 flex flex-col sm:flex-row sm:items-center justify-between gap-4">

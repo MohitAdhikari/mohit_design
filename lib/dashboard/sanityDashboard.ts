@@ -6,6 +6,7 @@ export interface ArticleInput {
   excerpt?: string;
   content?: any[];
   thumbnail?: { _type: 'image'; asset: { _type: 'reference'; _ref: string } };
+  bodyImage?: { _type: 'image'; asset: { _type: 'reference'; _ref: string }; alt?: string } | null;
   imageAlt?: string;
   categoryRef?: string;
   tags?: string[];
@@ -17,7 +18,7 @@ export interface ArticleInput {
 }
 
 const ARTICLE_FIELDS = `
-  _id, _createdAt, publishDate, title, slug, excerpt, "thumbnail": thumbnail.asset->url, imageAlt,
+  _id, _createdAt, publishDate, title, slug, excerpt, "thumbnail": thumbnail.asset->url, "bodyImage": bodyImage.asset->url, imageAlt,
   status, dashboardOwnerId, dashboardOwnerEmail,
   "categoryRef": categoryRef->{_id, title},
   "tags": tags[]->{_id, title},
@@ -71,6 +72,7 @@ export async function createArticleForUser(user: DashboardUser, input: ArticleIn
     excerpt: input.excerpt,
     content: input.content ?? [],
     thumbnail: input.thumbnail,
+    bodyImage: input.bodyImage,
     imageAlt: input.imageAlt || input.title,
     categoryRef: input.categoryRef
       ? { _type: 'reference', _ref: input.categoryRef }
@@ -104,6 +106,7 @@ export async function updateArticleForUser(
   if (input.excerpt !== undefined) patch.excerpt = input.excerpt;
   if (input.content !== undefined) patch.content = input.content;
   if (input.thumbnail !== undefined) patch.thumbnail = input.thumbnail;
+  if (input.bodyImage !== undefined) patch.bodyImage = input.bodyImage;
   if (input.imageAlt !== undefined) patch.imageAlt = input.imageAlt;
   if (input.categoryRef !== undefined) {
     patch.categoryRef = input.categoryRef

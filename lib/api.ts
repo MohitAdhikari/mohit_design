@@ -205,7 +205,7 @@ export async function getNewsPostBySlug(slug: string): Promise<any> {
   const sanityClient = isEnabled ? previewClient : client;
   const publishedConstraint = isEnabled ? '' : ` && ${PUBLISHED_NEWSPOST_FILTER}`;
   const query = `*[_type == "newsPost" && slug.current == $slug${publishedConstraint}][0] {
-    _id, _createdAt, _updatedAt, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, authorName, youtubeUrl, instagramUrl, featured, badge, badgeCustom,
+    _id, _createdAt, _updatedAt, title, slug, "thumbnail": thumbnail.asset->url, "bodyImage": bodyImage{asset->url, alt, caption, credit}, category, publishDate, authorName, youtubeUrl, instagramUrl, featured, badge, badgeCustom,
     content[]{
       ...,
       _type == "image" => {

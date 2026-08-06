@@ -100,6 +100,24 @@ export const newsPost = defineType({
       description: 'Optional attribution, e.g. "Photo: Riot Games".',
     }),
     defineField({
+      name: 'bodyImage',
+      title: 'Body Image',
+      type: 'image',
+      group: 'media',
+      description: 'Defaults to the featured image. Upload a different image here to override.',
+      options: { hotspot: true },
+      fields: [
+        defineField({
+          name: 'alt',
+          title: 'Alt Text',
+          type: 'string',
+          description: 'Describe the image for accessibility & SEO.',
+        }),
+        defineField({ name: 'caption', title: 'Caption', type: 'string' }),
+        defineField({ name: 'credit', title: 'Image Credit', type: 'string' }),
+      ],
+    }),
+    defineField({
       name: 'youtubeUrl',
       title: 'YouTube URL',
       type: 'url',

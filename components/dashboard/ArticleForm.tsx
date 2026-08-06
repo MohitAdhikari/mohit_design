@@ -25,6 +25,7 @@ interface ArticleFormProps {
   initialValues?: Partial<ArticleFormValues>;
   initialStatus?: string;
   initialThumbnailUrl?: string;
+  initialBodyImageUrl?: string;
   userRole?: 'admin' | 'editor';
 }
 
@@ -44,6 +45,7 @@ export default function ArticleForm({
   initialValues,
   initialStatus,
   initialThumbnailUrl,
+  initialBodyImageUrl,
   userRole,
 }: ArticleFormProps) {
   const router = useRouter();
@@ -56,6 +58,12 @@ export default function ArticleForm({
   const [success, setSuccess] = useState<string | null>(null);
 
   const [pendingAssetId, setPendingAssetId] = useState<string | null>(null);
+
+  const [bodyImage, setBodyImage] = useState<{ _type: 'image'; asset: { _type: 'reference'; _ref: string }; alt?: string } | null>(null);
+  const [bodyImagePreview, setBodyImagePreview] = useState<string | undefined>(initialBodyImageUrl);
+  const [bodyImageChanged, setBodyImageChanged] = useState(false);
+  const [pendingBodyAssetId, setPendingBodyAssetId] = useState<string | null>(null);
+
   useEffect(() => {
     fetch('/api/dashboard/taxonomy')
       .then((r) => r.json())
@@ -97,12 +105,57 @@ export default function ArticleForm({
     setPendingAssetId(data.assetId);
   }
 
+  async function handleBodyImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (pendingBodyAssetId) {
+      await fetch('/api/dashboard/upload', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ assetId: pendingBodyAssetId }),
+      }).catch(() => {});
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    setError(null);
+    const res = await fetch('/api/dashboard/upload', { method: 'POST', body: formData });
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.error || 'Body image upload failed.');
+      return;
+    }
+
+    setBodyImage({ ...data.image, alt: values.title || 'Article image' });
+    setBodyImagePreview(data.url);
+    setPendingBodyAssetId(data.assetId);
+    setBodyImageChanged(true);
+  }
+
+  function removeBodyImage() {
+    if (pendingBodyAssetId) {
+      fetch('/api/dashboard/upload', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ assetId: pendingBodyAssetId }),
+      }).catch(() => {});
+      setPendingBodyAssetId(null);
+    }
+    setBodyImage(null);
+    setBodyImagePreview(undefined);
+    setBodyImageChanged(true);
+  }
+
   function buildPayload(status?: 'draft' | 'in_review') {
     return {
       title: values.title,
       excerpt: values.excerpt,
       content: values.body ? textToBlocks(values.body) : [],
       thumbnail: thumbnail || undefined,
+      bodyImage: bodyImageChanged ? (bodyImage ? { ...bodyImage, alt: values.title || 'Article image' } : null) : undefined,
       imageAlt: values.title,
       categoryRef: values.categoryRef || undefined,
       tags: values.tags,
@@ -166,12 +219,25 @@ export default function ArticleForm({
           setThumbnailPreview(initialThumbnailUrl);
           setPendingAssetId(null);
         }
+        if (pendingBodyAssetId) {
+          await fetch('/api/dashboard/upload', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ assetId: pendingBodyAssetId }),
+          }).catch(() => {});
+          setPendingBodyAssetId(null);
+        }
+        setBodyImage(null);
+        setBodyImagePreview(initialBodyImageUrl || initialThumbnailUrl);
+        setBodyImageChanged(false);
         setSaving(false);
         setError(data.error || 'Failed to save article.');
         return;
       }
 
       setPendingAssetId(null); // asset committed, no longer orphan risk
+      setPendingBodyAssetId(null);
+      setBodyImageChanged(false);
 
       if (!articleId && data.article?._id) {
         if (status === 'in_review') {
@@ -278,6 +344,25 @@ Double newline = new paragraph`}
         {thumbnailPreview && (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={thumbnailPreview} alt="Preview" className="mt-2 h-32 rounded-md object-cover" />
+        )}
+      </div>
+
+      <div>
+        <label className="block text-xs text-white/60 mb-1">Body Image</label>
+        <p className="text-[10px] text-white/40 mb-1">Defaults to the featured image. Upload a different image to override.</p>
+        <input type="file" accept="image/*" onChange={handleBodyImageUpload} className="text-sm" />
+        {(bodyImagePreview || thumbnailPreview) && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={bodyImagePreview || thumbnailPreview} alt="Body preview" className="mt-2 h-32 rounded-md object-cover" />
+        )}
+        {bodyImagePreview && (
+          <button
+            type="button"
+            onClick={removeBodyImage}
+            className="text-xs text-white/60 hover:text-white mt-2 underline"
+          >
+            Remove body image override
+          </button>
         )}
       </div>
 
