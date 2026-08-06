@@ -23,7 +23,7 @@ export default async function EditArticlePage({
         articleId={article._id}
         initialStatus={article.status}
         initialThumbnailUrl={article.thumbnail}
-        initialBodyImageUrl={article.bodyImage?.asset?.url}
+        initialBodyImageUrl={article.bodyImage?.url}
         userRole={user.role}
         initialValues={{
           title: article.title || '',

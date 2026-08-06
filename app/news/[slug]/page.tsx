@@ -213,11 +213,11 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
           </div>
         )}
 
-        {(post.bodyImage?.asset?.url || post.thumbnail) && (
+        {(post.bodyImage?.url || post.thumbnail) && (
           <figure className="my-8">
             <div className="relative w-full aspect-video">
               <Image
-                src={optimizedImageUrl(post.bodyImage?.asset?.url || post.thumbnail, 1200)}
+                src={optimizedImageUrl(post.bodyImage?.url || post.thumbnail, 1200)}
                 alt={post.bodyImage?.alt || post.imageAlt || post.title}
                 fill
                 sizes="(max-width: 768px) 100vw, 768px"

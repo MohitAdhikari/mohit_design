@@ -18,7 +18,7 @@ export interface ArticleInput {
 }
 
 const ARTICLE_FIELDS = `
-  _id, _createdAt, publishDate, title, slug, excerpt, "thumbnail": thumbnail.asset->url, "bodyImage": bodyImage{asset->url, alt, caption, credit}, imageAlt,
+  _id, _createdAt, publishDate, title, slug, excerpt, "thumbnail": thumbnail.asset->url, "bodyImage": bodyImage{"url": asset->url, alt, caption, credit}, imageAlt,
   status, dashboardOwnerId, dashboardOwnerEmail,
   "categoryRef": categoryRef->{_id, title},
   "tags": tags[]->{_id, title},
