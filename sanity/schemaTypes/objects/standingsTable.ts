@@ -12,6 +12,13 @@ export const standingsTable = defineType({
       description: 'e.g. Group A Standings — Match 6 of 12',
     }),
     defineField({
+      name: 'hideTitle',
+      title: 'Hide Title',
+      type: 'boolean',
+      description: 'Enable if you are using a heading above this block manually.',
+      initialValue: false,
+    }),
+    defineField({
       name: 'rawText',
       title: 'Paste Table Here',
       type: 'text',

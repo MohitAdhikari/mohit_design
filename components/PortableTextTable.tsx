@@ -1,5 +1,6 @@
 type TableValue = {
   title?: string
+  hideTitle?: boolean
   rawText?: string
 }
 
@@ -31,7 +32,7 @@ export default function PortableTextTable({ value }: { value: TableValue }) {
 
   return (
     <div className="my-6 w-full overflow-x-auto rounded-lg border border-zinc-700">
-      {value.title && (
+      {!value.hideTitle && value.title && (
         <p className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-zinc-400 border-b border-zinc-700">
           {value.title}
         </p>
