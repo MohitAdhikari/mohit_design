@@ -166,49 +166,57 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
-      {/* HERO BANNER */}
+      {/* HERO BANNER — image only, conditional */}
       {!post.hideHeroImage && (
-      <div className="relative w-full min-h-[50vh] md:min-h-[60vh] border-b border-gray-200 dark:border-gray-900">
-        <Image 
-          src={optimizedImageUrl(post.thumbnail, 1920, 'https://picsum.photos/1920/1080')}
-          alt={post.imageAlt || post.title}
-          fill
-          sizes="100vw"
-          className="object-cover"
-          priority
-          referrerPolicy="no-referrer"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
-        
-        <div className="absolute bottom-0 left-0 w-full">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-6 sm:pb-12">
-            <div className="flex flex-wrap gap-2 mb-6">
-              <span className="inline-block bg-blue-600 text-white text-[10px] font-mono tracking-widest uppercase px-3 py-1 rounded-sm">
-                {post.category}
+        <div className="relative w-full min-h-[50vh] md:min-h-[60vh] border-b border-gray-200 dark:border-gray-900">
+          <Image
+            src={optimizedImageUrl(post.thumbnail, 1920, 'https://picsum.photos/1920/1080')}
+            alt={post.imageAlt || post.title}
+            fill
+            sizes="100vw"
+            className="object-cover"
+            priority
+            referrerPolicy="no-referrer"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
+        </div>
+      )}
+
+      {/* TITLE BLOCK — always rendered */}
+      <div className={post.hideHeroImage
+        ? 'border-b border-gray-200 dark:border-gray-900 pt-8 pb-6 sm:pt-12 sm:pb-10'
+        : 'relative -mt-[140px] sm:-mt-[180px] z-10'
+      }>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-6 sm:pb-12">
+          <div className="flex flex-wrap gap-2 mb-6">
+            <span className="inline-block bg-blue-600 text-white text-[10px] font-mono tracking-widest uppercase px-3 py-1 rounded-sm">
+              {post.category}
+            </span>
+            {post.badge && post.badge !== 'None' && (
+              <span className="inline-block bg-[#2A2A32] text-white text-[10px] font-mono tracking-widest uppercase px-3 py-1 rounded-sm">
+                {post.badge === 'CUSTOM' ? post.badgeCustom : post.badge}
               </span>
-              {post.badge && post.badge !== 'None' && (
-                <span className="inline-block bg-[#2A2A32] text-white text-[10px] font-mono tracking-widest uppercase px-3 py-1 rounded-sm">
-                  {post.badge === 'CUSTOM' ? post.badgeCustom : post.badge}
-                </span>
-              )}
-            </div>
-            <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-black font-space-grotesk tracking-tighter leading-tight mb-4 sm:mb-6 text-white text-balance drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]">
-              {post.title}
-            </h1>
-            <div className="flex flex-wrap items-center text-gray-400 text-xs font-mono gap-4 uppercase tracking-wider">
-              <span>By {authorName}</span>
-              <span>•</span>
-              <span>{formatDateTimeIST(publishDate)}</span>
-              <span>•</span>
-              <span>{readingTimeMinutes} min read</span>
-            </div>
-            <div className="mt-6">
-              <ShareButtons title={post.title} url={canonicalUrl} />
-            </div>
+            )}
+          </div>
+          <h1 className={`text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-black font-space-grotesk tracking-tighter leading-tight mb-4 sm:mb-6 text-balance drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)] ${
+            post.hideHeroImage ? 'text-gray-900 dark:text-white' : 'text-white'
+          }`}>
+            {post.title}
+          </h1>
+          <div className={`flex flex-wrap items-center text-xs font-mono gap-4 uppercase tracking-wider ${
+            post.hideHeroImage ? 'text-gray-500 dark:text-gray-400' : 'text-gray-400'
+          }`}>
+            <span>By {authorName}</span>
+            <span>•</span>
+            <span>{formatDateTimeIST(publishDate)}</span>
+            <span>•</span>
+            <span>{readingTimeMinutes} min read</span>
+          </div>
+          <div className="mt-6">
+            <ShareButtons title={post.title} url={canonicalUrl} />
           </div>
         </div>
       </div>
-      )}
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-12">
         {(post.youtubeUrl || post.instagramUrl) && (
