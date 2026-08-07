@@ -30,6 +30,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
+  const interviewUrls = interviews.map((interview: any) => ({
+    url: `${baseUrl}/interviews`,
+    lastModified: new Date(interview.publishDate || interview._createdAt),
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }));
+
   const tagUrls = tags.map((tag: any) => ({
     url: `${baseUrl}/tags/${tag.slug}`,
     lastModified: new Date(tag.lastUsed || tag._createdAt),
@@ -104,6 +111,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     ...newsUrls,
     ...guideUrls,
+    ...interviewUrls,
     ...tagUrls,
   ];
 }
