@@ -32,7 +32,7 @@ export default function VideoEmbed({ youtubeUrl, instagramUrl, title }: { youtub
           rel="noopener noreferrer"
           className="flex items-center justify-center gap-3 w-full aspect-video rounded-xl border border-gray-200 dark:border-gray-800/60 bg-gray-100 dark:bg-[#0B0B0F] text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-500 transition-colors font-mono text-xs uppercase tracking-widest"
         >
-          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
           Watch on YouTube
         </a>
       );
@@ -58,7 +58,7 @@ export default function VideoEmbed({ youtubeUrl, instagramUrl, title }: { youtub
             />
             <div className="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/30 transition-colors">
               <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(220,38,38,0.8)] group-hover:scale-110 transition-transform">
-                <svg className="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M8 5v14l11-7z" />
                 </svg>
               </div>
@@ -93,7 +93,7 @@ export default function VideoEmbed({ youtubeUrl, instagramUrl, title }: { youtub
            >
              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 p-1 mb-4 group-hover:scale-110 transition-transform">
                 <div className="w-full h-full bg-white dark:bg-[#111116] rounded-xl flex items-center justify-center">
-                  <svg className="w-6 h-6 text-gray-900 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-gray-900 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
                      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
                      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
