@@ -1,7 +1,5 @@
-'use client'
-
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { useClient, set, type ArrayOfObjectsInputProps } from 'sanity'
+import { useClient, set, PatchEvent, type ArrayOfObjectsInputProps } from 'sanity'
 import { Box, Button, Card, Flex, Inline, Stack, Text, TextInput } from '@sanity/ui'
 
 interface TagSuggestion {
@@ -41,6 +39,7 @@ export function TagsInput(props: ArrayOfObjectsInputProps) {
   const [allTags, setAllTags] = useState<TagSuggestion[]>([])
   const [loading, setLoading] = useState(false)
   const [creating, setCreating] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -78,52 +77,44 @@ export function TagsInput(props: ArrayOfObjectsInputProps) {
     const refs = (value as TagRef[]) || []
     if (refs.some((r) => r._ref === tagId)) return
     const next: TagRef[] = [...refs, { _key: makeKey(), _type: 'reference', _ref: tagId }]
-    onChange([set(next)])
+    onChange(PatchEvent.from(set(next)))
     setQuery('')
+    setError(null)
     inputRef.current?.focus()
   }
 
   const removeTag = (tagId: string) => {
     const refs = (value as TagRef[]) || []
     const next = refs.filter((r) => r._ref !== tagId)
-    onChange([set(next)])
+    onChange(PatchEvent.from(set(next)))
   }
 
   const createTag = async () => {
     const title = query.trim()
     if (!title) return
-
     const existingByTitle = allTags.find((t) => t.title.toLowerCase() === title.toLowerCase())
-    if (existingByTitle) {
-      addTag(existingByTitle._id)
-      return
-    }
-
+    if (existingByTitle) { addTag(existingByTitle._id); return }
     setCreating(true)
-
-    let baseSlug = slugify(title)
-    let slug = baseSlug
-    let attempt = 1
-
-    // Ensure unique slug
-    while (true) {
-      const existing = await client.fetch<{ _id: string } | null>(
-        `*[_type == "tag" && slug.current == $slug][0]{_id}`,
-        { slug }
-      )
-      if (!existing) break
-      attempt += 1
-      slug = `${baseSlug}-${attempt}`
+    setError(null)
+    try {
+      let baseSlug = slugify(title), slug = baseSlug, attempt = 1
+      while (true) {
+        const existing = await client.fetch<{ _id: string } | null>(
+          `*[_type == "tag" && slug.current == $slug][0]{_id}`, { slug }
+        )
+        if (!existing) break
+        slug = `${baseSlug}-${++attempt}` 
+      }
+      const newTag = await client.create({
+        _type: 'tag', title, slug: { current: slug, _type: 'slug' },
+      })
+      setAllTags((prev) => [...prev, { _id: newTag._id, title, slug: { current: slug } }])
+      addTag(newTag._id)
+    } catch (err: any) {
+      setError(err?.message || 'Failed to create tag. Check your Sanity token permissions.')
+    } finally {
+      setCreating(false)
     }
-
-    const newTag = await client.create({
-      _type: 'tag',
-      title,
-      slug: { current: slug, _type: 'slug' },
-    })
-
-    addTag(newTag._id)
-    setCreating(false)
   }
 
   const selectedTags = ((value as TagRef[]) || []).map((r) => r._ref)
@@ -161,12 +152,25 @@ export function TagsInput(props: ArrayOfObjectsInputProps) {
         })}
       </Flex>
 
+      {error && (
+        <Card tone="critical" padding={2} radius={2}>
+          <Text size={1}>{error}</Text>
+        </Card>
+      )}
+
       {!readOnly && (
         <Box style={{ position: 'relative' }}>
           <TextInput
             ref={inputRef}
             value={query}
             onChange={(e) => setQuery(e.currentTarget.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                if (filteredSuggestions.length === 1) addTag(filteredSuggestions[0]._id)
+                else if (!exactMatchByTitle && !exactMatchBySlug && query.trim()) createTag()
+              }
+            }}
             placeholder="BG, KRAFTON, Free Fire…"
             disabled={creating}
           />

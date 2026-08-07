@@ -1,7 +1,5 @@
-'use client'
-
 import { useEffect, useState } from 'react'
-import { useClient, useFormValue, set, type StringInputProps } from 'sanity'
+import { useClient, useFormValue, set, PatchEvent, type StringInputProps } from 'sanity'
 import { useRouter } from 'sanity/router'
 import { Box, Button, Card, Inline, Stack, Text, TextInput } from '@sanity/ui'
 
@@ -45,7 +43,7 @@ export function TagTitleInput(props: StringInputProps) {
     <Stack space={3}>
       <TextInput
         value={value}
-        onChange={(e) => onChange([set(e.currentTarget.value)])}
+        onChange={(e) => onChange(PatchEvent.from(set(e.currentTarget.value)))}
         readOnly={readOnly}
       />
       {existing && (
