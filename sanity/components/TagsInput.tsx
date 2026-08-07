@@ -77,7 +77,12 @@ export function TagsInput(props: ArrayOfObjectsInputProps) {
     const refs = (value as TagRef[]) || []
     if (refs.some((r) => r._ref === tagId)) return
     const next: TagRef[] = [...refs, { _key: makeKey(), _type: 'reference', _ref: tagId }]
-    onChange(PatchEvent.from(set(next)))
+    try {
+      onChange(PatchEvent.from(set(next)))
+    } catch (err) {
+      console.error('TagsInput addTag patch error:', err)
+      throw err
+    }
     setQuery('')
     setError(null)
     inputRef.current?.focus()
@@ -86,7 +91,12 @@ export function TagsInput(props: ArrayOfObjectsInputProps) {
   const removeTag = (tagId: string) => {
     const refs = (value as TagRef[]) || []
     const next = refs.filter((r) => r._ref !== tagId)
-    onChange(PatchEvent.from(set(next)))
+    try {
+      onChange(PatchEvent.from(set(next)))
+    } catch (err) {
+      console.error('TagsInput removeTag patch error:', err)
+      throw err
+    }
   }
 
   const createTag = async () => {
@@ -111,6 +121,7 @@ export function TagsInput(props: ArrayOfObjectsInputProps) {
       setAllTags((prev) => [...prev, { _id: newTag._id, title, slug: { current: slug } }])
       addTag(newTag._id)
     } catch (err: any) {
+      console.error('TagsInput createTag error:', err)
       setError(err?.message || 'Failed to create tag. Check your Sanity token permissions.')
     } finally {
       setCreating(false)

@@ -5,7 +5,7 @@ import Reveal from '@/components/Reveal'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Tournaments | PHONEOCEAN',
+  title: 'Esports | PHONEOCEAN',
   description: 'Browse all BGMI and mobile esports tournaments — results, prize pools, teams, and more.',
 }
 

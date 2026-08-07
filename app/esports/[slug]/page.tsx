@@ -73,7 +73,12 @@ export default async function TournamentDetailPage({
   } catch {
     editions = []
   }
-  const status = getTournamentStatus(tournament.startDate, tournament.endDate)
+  const latestEdition = editions[0] ?? null
+  const status = getTournamentStatus(
+    latestEdition?.startDate ?? null,
+    latestEdition?.endDate ?? null,
+    latestEdition?.tournamentStatus ?? null
+  )
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0B0B0F]">
@@ -95,10 +100,10 @@ export default async function TournamentDetailPage({
 
         <div className="absolute top-6 left-4 sm:left-8 z-10">
           <Link
-            href="/tournaments"
+            href="/esports"
             className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-gray-400 hover:text-[#00E5FF] transition-colors"
           >
-            ← Tournaments
+            ← Esports
           </Link>
         </div>
 
@@ -132,12 +137,14 @@ export default async function TournamentDetailPage({
 
       <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14 space-y-12">
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {[
-            { label: 'Prize Pool', value: tournament.prizePool },
-            { label: 'Venue',      value: tournament.venue },
-            { label: 'Start Date', value: formatDate(tournament.startDate) },
-            { label: 'End Date',   value: formatDate(tournament.endDate) },
+            { label: 'Game',       value: tournament.game },
+            { label: 'Region',     value: tournament.region },
+            { label: 'Prize Pool', value: latestEdition?.prizePool },
+            { label: 'Venue',      value: latestEdition?.venue },
+            { label: 'Start Date', value: formatDate(latestEdition?.startDate ?? null) },
+            { label: 'End Date',   value: formatDate(latestEdition?.endDate ?? null) },
           ].map(({ label, value }) => (
             <div
               key={label}

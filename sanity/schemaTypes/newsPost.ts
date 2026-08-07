@@ -290,6 +290,14 @@ export const newsPost = defineType({
       group: 'publishing',
       initialValue: false,
     }),
+    defineField({
+      name: 'showOnHomepage',
+      title: 'Show on Homepage',
+      type: 'boolean',
+      group: 'publishing',
+      initialValue: true,
+      description: 'Turn off to hide from the homepage feed. The article stays published and Google can still index it.',
+    }),
 
     // ---- APPEARANCE ----
     defineField({

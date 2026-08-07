@@ -183,6 +183,7 @@ function isPublishedDoc(doc: any): boolean {
     !['published', 'scheduled'].includes(doc.status)
   ) return false;
   if (doc.publishDate && new Date(doc.publishDate).getTime() > Date.now()) return false;
+  if (doc._type === 'newsPost' && doc.showOnHomepage === false) return false;
   return true;
 }
 
@@ -420,7 +421,7 @@ export async function getHomepage(): Promise<{
   };
   if (!projectId) return empty;
   const articleProjection = `{
-    _id, _type, _createdAt, status, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, authorName, featured, badge, badgeCustom
+    _id, _type, _createdAt, status, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, authorName, featured, badge, badgeCustom, showOnHomepage
   }`;
   const query = `*[_type == "homepage"][0] {
     "heroArticle": heroArticle->${articleProjection},
