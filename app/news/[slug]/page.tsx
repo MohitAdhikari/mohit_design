@@ -111,38 +111,32 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
   const heroImage = post.hideHeroImage ? null : (post.seo?.socialShareImage || post.thumbnail || 'https://picsum.photos/1200/630');
   const readingTimeMinutes = calculateReadingTime(post.content);
 
-  const jsonLd = {
+  const newsArticleJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'NewsArticle',
     headline: post.title,
-    ...(description ? { description } : {}),
-    ...(heroImage ? {
-      image: {
-        '@type': 'ImageObject',
-        url: heroImage,
-        width: 1200,
-        height: 630,
-      },
-    } : {}),
-    datePublished: publishedIso,
-    dateModified: publishedIso,
-    ...(articleSection ? { articleSection } : {}),
-    ...(keywords.length ? { keywords: keywords.join(', ') } : {}),
-    mainEntityOfPage: {
-      '@type': 'WebPage',
-      '@id': canonicalUrl,
+    description: post.excerpt || '',
+    image: [post.thumbnail || `${baseUrl}/logo_phoneocean.png`],
+    datePublished: new Date(post.publishDate || post._createdAt).toISOString(),
+    dateModified: new Date(post._updatedAt || post.publishDate || post._createdAt).toISOString(),
+    author: {
+      '@type': 'Person',
+      name: post.author?.name || post.authorName || 'PHONEOCEAN Staff',
     },
-    author: [{
-        '@type': 'Person',
-        name: authorName,
-      }],
     publisher: {
       '@type': 'Organization',
       name: 'PHONEOCEAN',
+      url: baseUrl,
       logo: {
         '@type': 'ImageObject',
-        url: `${baseUrl}/logo.svg`,
+        url: `${baseUrl}/logo_phoneocean.png`,
+        width: 600,
+        height: 60,
       },
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `${baseUrl}/news/${post.slug?.current}`,
     },
   };
 
@@ -160,7 +154,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
     <article className="pb-20">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(newsArticleJsonLd) }}
       />
       <script
         type="application/ld+json"
