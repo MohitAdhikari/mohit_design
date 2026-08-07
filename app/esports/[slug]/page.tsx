@@ -2,6 +2,7 @@ import { getTournamentBySlug, getTournamentEditions, getAllTournamentSlugs, getT
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
+import Tabs from '@/components/Tabs'
 import type { Metadata } from 'next'
 
 export const revalidate = 60
@@ -18,7 +19,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params
   const tournament = await getTournamentBySlug(slug)
-  if (!tournament) return { title: 'Tournament | PHONEOCEAN' }
+  if (!tournament) return { title: 'Esports | PHONEOCEAN' }
   return {
     title: `${tournament.name} | PHONEOCEAN`,
     description:
@@ -169,138 +170,240 @@ export default async function TournamentDetailPage({
           </div>
         )}
 
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-black text-gray-900 dark:text-white font-space-grotesk">
-              Editions
-            </h2>
-            <span className="text-xs font-mono uppercase tracking-widest text-gray-500">
-              {editions.length} recorded
-            </span>
+        <Tabs tabs={['Editions', 'Prize Pool', 'Teams']}>
+          <div key="editions" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-black text-gray-900 dark:text-white font-space-grotesk">
+                Editions
+              </h2>
+              <span className="text-xs font-mono uppercase tracking-widest text-gray-500">
+                {editions.length} recorded
+              </span>
+            </div>
+
+            {editions.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 gap-3 text-center border border-dashed border-gray-300 dark:border-gray-800 rounded-2xl">
+                <span className="text-4xl">📋</span>
+                <p className="text-gray-500 dark:text-gray-500 font-mono uppercase tracking-widest text-xs">
+                  No editions recorded yet
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                {editions.map((edition) => (
+                  <div
+                    key={edition._id}
+                    className="bg-white dark:bg-[#0E0E12] border border-gray-200 dark:border-gray-800/60 rounded-2xl overflow-hidden"
+                  >
+                    {edition.editionBannerUrl && (
+                      <div className="relative h-32 w-full">
+                        <Image
+                          src={edition.editionBannerUrl}
+                          alt={`${tournament.name} ${edition.year}`}
+                          fill
+                          className="object-cover"
+                          unoptimized
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                      </div>
+                    )}
+
+                    <div className="p-5 space-y-4">
+                      <div className="flex items-center justify-between flex-wrap gap-2">
+                        <h3 className="text-lg font-black text-gray-900 dark:text-white font-space-grotesk">
+                          {tournament.name} — {edition.year}
+                        </h3>
+                        {edition.format && (
+                          <span className="text-[10px] font-mono uppercase tracking-widest px-2.5 py-1 rounded-full bg-[#00E5FF]/10 text-[#00E5FF] border border-[#00E5FF]/20">
+                            {edition.format}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3 text-xs font-mono">
+                        {edition.prizePool && (
+                          <div>
+                            <span className="text-[#00E5FF] uppercase tracking-widest">Prize</span>
+                            <p className="text-gray-900 dark:text-gray-200 mt-0.5">{edition.prizePool}</p>
+                          </div>
+                        )}
+                        {edition.venue && (
+                          <div>
+                            <span className="text-[#00E5FF] uppercase tracking-widest">Venue</span>
+                            <p className="text-gray-900 dark:text-gray-200 mt-0.5">{edition.venue}</p>
+                          </div>
+                        )}
+                        {edition.startDate && (
+                          <div>
+                            <span className="text-[#00E5FF] uppercase tracking-widest">Dates</span>
+                            <p className="text-gray-900 dark:text-gray-200 mt-0.5">
+                              {formatDate(edition.startDate)}
+                              {edition.endDate && ` – ${formatDate(edition.endDate)}`}
+                            </p>
+                          </div>
+                        )}
+                        {edition.totalTeams && (
+                          <div>
+                            <span className="text-[#00E5FF] uppercase tracking-widest">Teams</span>
+                            <p className="text-gray-900 dark:text-gray-200 mt-0.5">{edition.totalTeams}</p>
+                          </div>
+                        )}
+                      </div>
+
+                      {(edition.winner || edition.runnerUp || edition.mvp) && (
+                        <div className="border-t border-gray-100 dark:border-gray-800/60 pt-4 flex flex-wrap gap-4">
+                          {edition.winner && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-yellow-400 text-base">🏆</span>
+                              <div>
+                                <p className="text-[10px] font-mono uppercase tracking-widest text-gray-500">Winner</p>
+                                <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{edition.winner.name}</p>
+                              </div>
+                            </div>
+                          )}
+                          {edition.runnerUp && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-gray-400 text-base">🥈</span>
+                              <div>
+                                <p className="text-[10px] font-mono uppercase tracking-widest text-gray-500">Runner-up</p>
+                                <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{edition.runnerUp.name}</p>
+                              </div>
+                            </div>
+                          )}
+                          {edition.mvp && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-purple-400 text-base">⭐</span>
+                              <div>
+                                <p className="text-[10px] font-mono uppercase tracking-widest text-gray-500">MVP</p>
+                                <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{edition.mvp.name}</p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {edition.broadcastLinks && edition.broadcastLinks.length > 0 && (
+                        <div className="border-t border-gray-100 dark:border-gray-800/60 pt-4 flex flex-wrap gap-2">
+                          {edition.broadcastLinks.map((link, i) => (
+                            <a
+                              key={i}
+                              href={link.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-widest px-3 py-1.5 rounded-full bg-gray-100 dark:bg-[#13131A] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-800 hover:border-[#00E5FF]/40 hover:text-[#00E5FF] transition-colors"
+                            >
+                              ▶ {link.platform}
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
-          {editions.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 gap-3 text-center border border-dashed border-gray-300 dark:border-gray-800 rounded-2xl">
-              <span className="text-4xl">📋</span>
-              <p className="text-gray-500 dark:text-gray-500 font-mono uppercase tracking-widest text-xs">
-                No editions recorded yet
-              </p>
+          <div key="prize-pool" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-black text-gray-900 dark:text-white font-space-grotesk">
+                Prize Pool
+              </h2>
+              {latestEdition?.prizePool && (
+                <span className="text-sm font-mono uppercase tracking-widest text-[#00E5FF]">
+                  {latestEdition.prizePool}
+                </span>
+              )}
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              {editions.map((edition) => (
-                <div
-                  key={edition._id}
-                  className="bg-white dark:bg-[#0E0E12] border border-gray-200 dark:border-gray-800/60 rounded-2xl overflow-hidden"
-                >
-                  {edition.editionBannerUrl && (
-                    <div className="relative h-32 w-full">
-                      <Image
-                        src={edition.editionBannerUrl}
-                        alt={`${tournament.name} ${edition.year}`}
-                        fill
-                        className="object-cover"
-                        unoptimized
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+
+            {!latestEdition?.prizePool && (!latestEdition?.prizeBreakdown || latestEdition.prizeBreakdown.length === 0) ? (
+              <div className="flex flex-col items-center justify-center py-16 gap-3 text-center border border-dashed border-gray-300 dark:border-gray-800 rounded-2xl">
+                <span className="text-4xl">🏆</span>
+                <p className="text-gray-500 dark:text-gray-500 font-mono uppercase tracking-widest text-xs">
+                  No prize pool data yet
+                </p>
+              </div>
+            ) : (
+              <div className="bg-white dark:bg-[#0E0E12] border border-gray-200 dark:border-gray-800/60 rounded-2xl overflow-hidden">
+                <div className="p-6">
+                  {latestEdition?.prizePool && (
+                    <div className="mb-6">
+                      <span className="text-[10px] font-mono uppercase tracking-widest text-[#00E5FF]">
+                        Total Prize Pool
+                      </span>
+                      <p className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white font-space-grotesk">
+                        {latestEdition.prizePool}
+                      </p>
                     </div>
                   )}
 
-                  <div className="p-5 space-y-4">
-                    <div className="flex items-center justify-between flex-wrap gap-2">
-                      <h3 className="text-lg font-black text-gray-900 dark:text-white font-space-grotesk">
-                        {tournament.name} — {edition.year}
-                      </h3>
-                      {edition.format && (
-                        <span className="text-[10px] font-mono uppercase tracking-widest px-2.5 py-1 rounded-full bg-[#00E5FF]/10 text-[#00E5FF] border border-[#00E5FF]/20">
-                          {edition.format}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3 text-xs font-mono">
-                      {edition.prizePool && (
-                        <div>
-                          <span className="text-[#00E5FF] uppercase tracking-widest">Prize</span>
-                          <p className="text-gray-900 dark:text-gray-200 mt-0.5">{edition.prizePool}</p>
-                        </div>
-                      )}
-                      {edition.venue && (
-                        <div>
-                          <span className="text-[#00E5FF] uppercase tracking-widest">Venue</span>
-                          <p className="text-gray-900 dark:text-gray-200 mt-0.5">{edition.venue}</p>
-                        </div>
-                      )}
-                      {edition.startDate && (
-                        <div>
-                          <span className="text-[#00E5FF] uppercase tracking-widest">Dates</span>
-                          <p className="text-gray-900 dark:text-gray-200 mt-0.5">
-                            {formatDate(edition.startDate)}
-                            {edition.endDate && ` – ${formatDate(edition.endDate)}`}
-                          </p>
-                        </div>
-                      )}
-                      {edition.totalTeams && (
-                        <div>
-                          <span className="text-[#00E5FF] uppercase tracking-widest">Teams</span>
-                          <p className="text-gray-900 dark:text-gray-200 mt-0.5">{edition.totalTeams}</p>
-                        </div>
-                      )}
-                    </div>
-
-                    {(edition.winner || edition.runnerUp || edition.mvp) && (
-                      <div className="border-t border-gray-100 dark:border-gray-800/60 pt-4 flex flex-wrap gap-4">
-                        {edition.winner && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-yellow-400 text-base">🏆</span>
-                            <div>
-                              <p className="text-[10px] font-mono uppercase tracking-widest text-gray-500">Winner</p>
-                              <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{edition.winner.name}</p>
-                            </div>
-                          </div>
-                        )}
-                        {edition.runnerUp && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-gray-400 text-base">🥈</span>
-                            <div>
-                              <p className="text-[10px] font-mono uppercase tracking-widest text-gray-500">Runner-up</p>
-                              <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{edition.runnerUp.name}</p>
-                            </div>
-                          </div>
-                        )}
-                        {edition.mvp && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-purple-400 text-base">⭐</span>
-                            <div>
-                              <p className="text-[10px] font-mono uppercase tracking-widest text-gray-500">MVP</p>
-                              <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{edition.mvp.name}</p>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {edition.broadcastLinks && edition.broadcastLinks.length > 0 && (
-                      <div className="border-t border-gray-100 dark:border-gray-800/60 pt-4 flex flex-wrap gap-2">
-                        {edition.broadcastLinks.map((link, i) => (
-                          <a
-                            key={i}
-                            href={link.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-widest px-3 py-1.5 rounded-full bg-gray-100 dark:bg-[#13131A] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-800 hover:border-[#00E5FF]/40 hover:text-[#00E5FF] transition-colors"
-                          >
-                            ▶ {link.platform}
-                          </a>
+                  {latestEdition?.prizeBreakdown && latestEdition.prizeBreakdown.length > 0 && (
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-gray-200 dark:border-gray-800/60">
+                          <th className="text-left py-3 px-2 text-xs font-mono uppercase tracking-widest text-gray-500">Place</th>
+                          <th className="text-right py-3 px-2 text-xs font-mono uppercase tracking-widest text-gray-500">Amount</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {latestEdition.prizeBreakdown.map((row, i) => (
+                          <tr key={i} className="border-b border-gray-100 dark:border-gray-800/40 last:border-0">
+                            <td className="py-3 px-2 text-gray-900 dark:text-gray-100 font-medium">{row.place}</td>
+                            <td className="py-3 px-2 text-right text-gray-900 dark:text-gray-100 font-mono">{row.amount}</td>
+                          </tr>
                         ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div key="teams" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-black text-gray-900 dark:text-white font-space-grotesk">
+                Teams
+              </h2>
+              <span className="text-xs font-mono uppercase tracking-widest text-gray-500">
+                {latestEdition?.teams?.length || 0} teams
+              </span>
+            </div>
+
+            {!latestEdition?.teams || latestEdition.teams.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 gap-3 text-center border border-dashed border-gray-300 dark:border-gray-800 rounded-2xl">
+                <span className="text-4xl">👥</span>
+                <p className="text-gray-500 dark:text-gray-500 font-mono uppercase tracking-widest text-xs">
+                  No teams listed yet
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                {latestEdition.teams.map((team) => (
+                  <div key={team._id} className="bg-white dark:bg-[#0E0E12] border border-gray-200 dark:border-gray-800/60 rounded-xl p-4 flex flex-col items-center gap-3">
+                    {team.logoUrl ? (
+                      <Image
+                        src={team.logoUrl}
+                        alt={team.name}
+                        width={64}
+                        height={64}
+                        className="w-16 h-16 object-contain"
+                        unoptimized
+                      />
+                    ) : (
+                      <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-[#13131A] flex items-center justify-center text-xl font-black text-gray-400 dark:text-gray-600">
+                        {team.name.slice(0, 2).toUpperCase()}
                       </div>
                     )}
+                    <span className="text-xs font-bold text-center text-gray-900 dark:text-gray-100 line-clamp-2">
+                      {team.name}
+                    </span>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </Tabs>
       </div>
     </div>
   )

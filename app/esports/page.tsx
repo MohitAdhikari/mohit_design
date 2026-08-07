@@ -18,7 +18,7 @@ export default async function TournamentsPage() {
     <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12">
       <PageHeader
         eyebrow="Esports Hub"
-        title={<>All <span className="text-blue-600 dark:text-[#00E5FF]">Tournaments</span></>}
+        title={<>All <span className="text-blue-600 dark:text-[#00E5FF]">Esports</span></>}
         description="Track every major BGMI and mobile esports tournament — brackets, prize pools, teams, and champions."
         accent="cyan"
         meta={
