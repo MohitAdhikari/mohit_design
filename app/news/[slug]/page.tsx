@@ -108,7 +108,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
   const articleSection = post.categoryRef?.title || post.category;
   const keywords = (post.tags?.map((t: any) => t?.title).filter(Boolean) || []) as string[];
   const description = post.seo?.metaDescription || post.excerpt || extractPlainText(post.content) || undefined;
-  const heroImage = post.seo?.socialShareImage || post.thumbnail || 'https://picsum.photos/1200/630';
+  const heroImage = post.hideHeroImage ? null : (post.seo?.socialShareImage || post.thumbnail || 'https://picsum.photos/1200/630');
   const readingTimeMinutes = calculateReadingTime(post.content);
 
   const jsonLd = {
@@ -116,12 +116,14 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
     '@type': 'NewsArticle',
     headline: post.title,
     ...(description ? { description } : {}),
-    image: {
-      '@type': 'ImageObject',
-      url: heroImage,
-      width: 1200,
-      height: 630,
-    },
+    ...(heroImage ? {
+      image: {
+        '@type': 'ImageObject',
+        url: heroImage,
+        width: 1200,
+        height: 630,
+      },
+    } : {}),
     datePublished: publishedIso,
     dateModified: publishedIso,
     ...(articleSection ? { articleSection } : {}),
@@ -165,6 +167,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       {/* HERO BANNER */}
+      {!post.hideHeroImage && (
       <div className="relative w-full min-h-[50vh] md:min-h-[60vh] border-b border-gray-200 dark:border-gray-900">
         <Image 
           src={optimizedImageUrl(post.thumbnail, 1920, 'https://picsum.photos/1920/1080')}
@@ -205,6 +208,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
           </div>
         </div>
       </div>
+      )}
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-12">
         {(post.youtubeUrl || post.instagramUrl) && (

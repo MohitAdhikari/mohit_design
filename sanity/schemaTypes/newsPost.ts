@@ -100,6 +100,14 @@ export const newsPost = defineType({
       description: 'Optional attribution, e.g. "Photo: Riot Games".',
     }),
     defineField({
+      name: 'hideHeroImage',
+      title: 'Hide Hero Image',
+      type: 'boolean',
+      group: 'media',
+      initialValue: false,
+      description: 'Turn on to suppress the hero banner (e.g. old articles where the image is already in the body).',
+    }),
+    defineField({
       name: 'bodyImage',
       title: 'Body Image',
       type: 'image',
