@@ -225,7 +225,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
           </div>
         )}
 
-        {(post.bodyImage?.url || post.thumbnail) && (
+        {(post.bodyImage?.url || post.thumbnail) && post.hideHeroImage && (
           <figure className="my-8">
             <div className="relative w-full aspect-video">
               <Image
