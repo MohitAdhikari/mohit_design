@@ -165,7 +165,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       {/* HERO BANNER */}
-      <div className="relative w-full min-h-[50vh] md:min-h-[60vh] border-b border-gray-900">
+      <div className="relative w-full min-h-[50vh] md:min-h-[60vh] border-b border-gray-200 dark:border-gray-900">
         <Image 
           src={optimizedImageUrl(post.thumbnail, 1920, 'https://picsum.photos/1920/1080')}
           alt={post.imageAlt || post.title}
@@ -175,7 +175,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
           priority
           referrerPolicy="no-referrer"
         />
-        <div className="absolute inset-0 bg-black/50" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
         
         <div className="absolute bottom-0 left-0 w-full">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-6 sm:pb-12">
@@ -189,7 +189,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
                 </span>
               )}
             </div>
-            <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-black font-space-grotesk tracking-tighter leading-tight mb-4 sm:mb-6 text-white">
+            <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-black font-space-grotesk tracking-tighter leading-tight mb-4 sm:mb-6 text-white text-balance drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]">
               {post.title}
             </h1>
             <div className="flex flex-wrap items-center text-gray-400 text-xs font-mono gap-4 uppercase tracking-wider">
