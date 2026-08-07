@@ -92,7 +92,12 @@ export default async function RootLayout({children}: {children: React.ReactNode}
     '@type': 'Organization',
     name: siteName,
     url: baseUrl,
-    logo: settings.logoUrl || `${baseUrl}/logo.svg`,
+    logo: {
+      '@type': 'ImageObject',
+      url: settings.logoUrl || `${baseUrl}/logo_phoneocean.png`,
+      width: 600,
+      height: 60,
+    },
   };
   const websiteJsonLd = {
     '@context': 'https://schema.org',
