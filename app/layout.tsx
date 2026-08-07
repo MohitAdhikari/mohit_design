@@ -82,6 +82,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
   const tickerItems = news.slice(0, 6).map((n: any) => ({
     title: n.title,
     href: `/news/${n.slug.current}`,
+    showOnHomepage: n.showOnHomepage,
   }));
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in';

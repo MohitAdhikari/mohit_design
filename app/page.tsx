@@ -17,12 +17,13 @@ export default async function Home() {
     getHomepage(),
   ]);
 
-  const featured = homepage.heroArticle || news[0];
+  const homepageNews = news.filter((post) => post.showOnHomepage !== false);
+  const featured = homepage.heroArticle || homepageNews[0];
   const showFeaturedBadge = featured?.featured === true;
   const latestNews = homepage.trendingArticles.length
     ? homepage.trendingArticles.slice(0, 3)
-    : news.slice(1, 4);
-  const feedNews = news.length > 3 ? news.slice(1) : news;
+    : homepageNews.slice(1, 4);
+  const feedNews = homepageNews.length > 3 ? homepageNews.slice(1) : homepageNews;
 
   return (
     <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">

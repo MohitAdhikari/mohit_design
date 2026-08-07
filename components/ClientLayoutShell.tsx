@@ -7,7 +7,7 @@ import NewsletterCTA from './NewsletterCTA';
 import AmbientBackground from './AmbientBackground';
 
 interface Props {
-  tickerItems: { title: string; href: string }[];
+  tickerItems: { title: string; href: string; showOnHomepage?: boolean }[];
   settings: any;
   children: React.ReactNode;
   logoUrl?: string;
@@ -27,6 +27,11 @@ export default function ClientLayoutShell({
     return <>{children}</>;
   }
 
+  const visibleTickerItems = (pathname === '/'
+    ? tickerItems.filter((item) => item.showOnHomepage !== false)
+    : tickerItems
+  ).map(({ title, href }) => ({ title, href }));
+
   return (
     <>
       <AmbientBackground />
@@ -37,7 +42,7 @@ export default function ClientLayoutShell({
         logoOnTop={logoOnTop}
       />
       <div className="pt-20">
-        <BreakingTicker items={tickerItems} />
+        <BreakingTicker items={visibleTickerItems} />
       </div>
       <main className="flex-grow">{children}</main>
       <NewsletterCTA />
