@@ -1,8 +1,8 @@
-import { getNewsPosts } from '@/lib/api';
+import { getPublicNewsPosts } from '@/lib/api';
 
 export async function GET() {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in';
-  const posts = await getNewsPosts();
+  const posts = await getPublicNewsPosts();
 
   const items = posts.slice(0, 50).map((post: any) => `
     <item>

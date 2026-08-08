@@ -169,8 +169,9 @@ export const mockData = {
 const PUBLISHED_NEWSPOST_FILTER = `(status in ["published", "scheduled"] || !defined(status)) && (!defined(publishDate) || dateTime(publishDate) <= dateTime(now()))`;
 const PUBLISHED_GUIDE_FILTER = `(!defined(publishDate) || dateTime(publishDate) <= dateTime(now()))`;
 const PUBLISHED_INTERVIEW_FILTER = `(!defined(publishDate) || dateTime(publishDate) <= dateTime(now()))`;
+const NEWSPOST_PUBLIC_FILTER = `${PUBLISHED_NEWSPOST_FILTER} && showOnHomepage != false`;
 const PUBLISHED_CONTENT_FILTER = `(
-  (_type == "newsPost" && ${PUBLISHED_NEWSPOST_FILTER}) ||
+  (_type == "newsPost" && ${NEWSPOST_PUBLIC_FILTER}) ||
   (_type == "guide" && ${PUBLISHED_GUIDE_FILTER}) ||
   (_type == "interview" && ${PUBLISHED_INTERVIEW_FILTER})
 )`;
@@ -198,6 +199,11 @@ export async function getNewsPosts(): Promise<any[]> {
   }`;
   const posts = await client.fetch(query);
   return sortByTimestamp(posts);
+}
+
+export async function getPublicNewsPosts(): Promise<any[]> {
+  const posts = await getNewsPosts();
+  return posts.filter((post: any) => post.showOnHomepage !== false);
 }
 
 export async function getNewsPostBySlug(slug: string): Promise<any> {
@@ -363,8 +369,8 @@ export async function getTags(): Promise<any[]> {
   const query = `*[_type == "tag"] | order(title asc) {
     _id, _createdAt, title, "slug": slug.current, description,
     "seo": { "seoTitle": seo.seoTitle, "metaDescription": seo.metaDescription, "openGraphImage": seo.openGraphImage.asset->url },
-    "articleCount": count(*[_type in ["newsPost", "guide"] && references(^._id) && ((_type == "newsPost" && ${PUBLISHED_NEWSPOST_FILTER}) || (_type == "guide" && ${PUBLISHED_GUIDE_FILTER}))]),
-    "lastUsed": *[_type in ["newsPost", "guide"] && references(^._id) && ((_type == "newsPost" && ${PUBLISHED_NEWSPOST_FILTER}) || (_type == "guide" && ${PUBLISHED_GUIDE_FILTER}))] | order(dateTime(coalesce(publishDate, _createdAt)) desc)[0]{ "lastUsed": coalesce(publishDate, _createdAt) }.lastUsed
+    "articleCount": count(*[_type in ["newsPost", "guide"] && references(^._id) && ((_type == "newsPost" && ${NEWSPOST_PUBLIC_FILTER}) || (_type == "guide" && ${PUBLISHED_GUIDE_FILTER}))]),
+    "lastUsed": *[_type in ["newsPost", "guide"] && references(^._id) && ((_type == "newsPost" && ${NEWSPOST_PUBLIC_FILTER}) || (_type == "guide" && ${PUBLISHED_GUIDE_FILTER}))] | order(dateTime(coalesce(publishDate, _createdAt)) desc)[0]{ "lastUsed": coalesce(publishDate, _createdAt) }.lastUsed
   }`
   return client.fetch(query)
 }
@@ -376,8 +382,8 @@ export async function getTagBySlug(slug: string): Promise<any | null> {
   const query = `*[_type == "tag" && slug.current == $slug][0] {
     _id, _createdAt, title, "slug": slug.current, description,
     "seo": { "seoTitle": seo.seoTitle, "metaDescription": seo.metaDescription, "openGraphImage": seo.openGraphImage.asset->url },
-    "articleCount": count(*[_type in ["newsPost", "guide"] && references(^._id) && ((_type == "newsPost" && ${PUBLISHED_NEWSPOST_FILTER}) || (_type == "guide" && ${PUBLISHED_GUIDE_FILTER}))]),
-    "articles": *[_type in ["newsPost", "guide"] && references(^._id) && ((_type == "newsPost" && ${PUBLISHED_NEWSPOST_FILTER}) || (_type == "guide" && ${PUBLISHED_GUIDE_FILTER}))] | order(dateTime(coalesce(publishDate, _createdAt)) desc) {
+    "articleCount": count(*[_type in ["newsPost", "guide"] && references(^._id) && ((_type == "newsPost" && ${NEWSPOST_PUBLIC_FILTER}) || (_type == "guide" && ${PUBLISHED_GUIDE_FILTER}))]),
+    "articles": *[_type in ["newsPost", "guide"] && references(^._id) && ((_type == "newsPost" && ${NEWSPOST_PUBLIC_FILTER}) || (_type == "guide" && ${PUBLISHED_GUIDE_FILTER}))] | order(dateTime(coalesce(publishDate, _createdAt)) desc) {
       _id, _type, _createdAt, title, "slug": slug.current, "thumbnail": thumbnail.asset->url, publishDate, gameName, category
     }
   }`;
@@ -388,7 +394,7 @@ export async function getTagBySlug(slug: string): Promise<any | null> {
 
 export async function getPostsByTagId(tagId: string, limit = 50): Promise<any[]> {
   if (!projectId) return []
-  const query = `*[_type in ["newsPost", "guide"] && references($tagId) && ((_type == "newsPost" && ${PUBLISHED_NEWSPOST_FILTER}) || (_type == "guide" && ${PUBLISHED_GUIDE_FILTER}))] | order(dateTime(coalesce(publishDate, _createdAt)) desc) [0...$limit] {
+  const query = `*[_type in ["newsPost", "guide"] && references($tagId) && ((_type == "newsPost" && ${NEWSPOST_PUBLIC_FILTER}) || (_type == "guide" && ${PUBLISHED_GUIDE_FILTER}))] | order(dateTime(coalesce(publishDate, _createdAt)) desc) [0...$limit] {
     _id, _type, _createdAt, title, "slug": slug.current, "thumbnail": thumbnail.asset->url, publishDate, category, gameName
   }`;
   const posts = await client.fetch(query, { tagId, limit });

@@ -1,4 +1,4 @@
-import { getNewsPosts, getInterviews, getGuides } from '@/lib/api';
+import { getPublicNewsPosts, getInterviews, getGuides } from '@/lib/api';
 
 export const revalidate = 3600;
 
@@ -19,7 +19,7 @@ export async function GET() {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in';
 
   const [news, interviews, guides] = await Promise.all([
-    getNewsPosts(),
+    getPublicNewsPosts(),
     getInterviews(),
     getGuides(),
   ]);

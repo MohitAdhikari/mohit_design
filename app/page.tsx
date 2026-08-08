@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { getNewsPosts, getInterviews, getGuides, getSiteSettings, getHomepage } from '@/lib/api';
+import { getPublicNewsPosts, getInterviews, getGuides, getSiteSettings, getHomepage } from '@/lib/api';
 import { optimizedImageUrl } from '@/lib/sanityImage';
 import { formatDateCompactIST, formatDateDayMonthIST } from '@/utils/formatDate';
 import { calculateReadingTime } from '@/lib/readingTime';
@@ -30,7 +30,7 @@ function catDot(tag: string) {
 
 export default async function Home() {
   const [news, interviews, guides, settings, homepage] = await Promise.all([
-    getNewsPosts(),
+    getPublicNewsPosts(),
     getInterviews(),
     getGuides(),
     getSiteSettings(),

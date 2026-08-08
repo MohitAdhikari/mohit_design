@@ -1,4 +1,4 @@
-import { getNewsPosts } from '@/lib/api';
+import { getPublicNewsPosts } from '@/lib/api';
 import Image from 'next/image';
 import Link from 'next/link';
 import { optimizedImageUrl } from '@/lib/sanityImage';
@@ -14,7 +14,7 @@ export const metadata = {
 export const revalidate = 60;
 
 export default async function NewsPage() {
-  const news = await getNewsPosts();
+  const news = await getPublicNewsPosts();
 
   return (
     <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12">
