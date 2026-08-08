@@ -69,13 +69,13 @@ export default async function Home() {
       <div className="flex flex-col gap-5 lg:hidden">
 
         {heroPool.length > 0 && (
-          <Reveal>
+          <Reveal initial>
             <HeroCycle posts={heroPool} />
           </Reveal>
         )}
 
         {mobileTrending.length > 0 && (
-          <Reveal>
+          <Reveal initial>
             <section>
               <div className="flex items-center justify-between mb-2.5">
                 <h2 className="text-xs font-black font-space-grotesk uppercase tracking-widest text-gray-900 dark:text-white flex items-center gap-2">
@@ -139,7 +139,7 @@ export default async function Home() {
               const tag = post.category || post.tags?.[0]?.title || post.tags?.[0] || '';
               const dot = catDot(tag);
               return (
-                <Reveal key={post._id || i} delay={i * 40}>
+                <Reveal key={post._id || i} delay={i * 40} initial={i < 2}>
                   <Link
                     href={`/news/${post.slug.current}`}
                     className="group flex flex-row items-start gap-2.5 p-3 hover:bg-gray-50 dark:hover:bg-white/[0.03] transition-colors"
@@ -169,7 +169,7 @@ export default async function Home() {
                       <h3 className="text-sm font-bold font-space-grotesk leading-snug text-gray-900 dark:text-gray-100 group-hover:text-[#00E5FF] transition-colors line-clamp-3">
                         {post.title}
                       </h3>
-                      <div className="flex items-center gap-1.5 text-[10px] text-gray-400 dark:text-gray-500 font-mono uppercase tracking-wider mt-auto">
+                      <div className="flex items-center gap-1.5 text-[10px] text-gray-600 dark:text-gray-400 font-mono uppercase tracking-wider mt-auto">
                         <span>{formatDateCompactIST(post.publishDate || post._createdAt)}</span>
                         <span className="w-0.5 h-0.5 rounded-full bg-gray-300 dark:bg-gray-700" />
                         <span>{post.readMins} min read</span>
@@ -182,7 +182,7 @@ export default async function Home() {
           </div>
         </section>
 
-        <Reveal><GamesMarquee /></Reveal>
+        <Reveal initial><GamesMarquee /></Reveal>
 
         {mobileFeed.length > 8 && (
           <section>
@@ -227,7 +227,7 @@ export default async function Home() {
                         <h3 className="text-sm font-bold font-space-grotesk leading-snug text-gray-900 dark:text-gray-100 group-hover:text-[#00E5FF] transition-colors line-clamp-3">
                           {post.title}
                         </h3>
-                        <div className="flex items-center gap-1.5 text-[10px] text-gray-400 dark:text-gray-500 font-mono uppercase tracking-wider mt-auto">
+                        <div className="flex items-center gap-1.5 text-[10px] text-gray-600 dark:text-gray-400 font-mono uppercase tracking-wider mt-auto">
                           <span>{formatDateCompactIST(post.publishDate || post._createdAt)}</span>
                           <span className="w-0.5 h-0.5 rounded-full bg-gray-300 dark:bg-gray-700" />
                           <span>{post.readMins} min read</span>
@@ -335,7 +335,7 @@ export default async function Home() {
           <GamesMarquee />
 
           {/* ── LATEST FEED ── */}
-          <Reveal as="section" className="space-y-5">
+          <Reveal as="section" className="space-y-5" initial>
             {/* Section header */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -379,7 +379,7 @@ export default async function Home() {
                     <h3 className="text-sm sm:text-lg font-bold font-space-grotesk leading-snug group-hover:text-[#00E5FF] dark:group-hover:text-white text-gray-900 dark:text-gray-100 transition-colors duration-300 line-clamp-3 sm:line-clamp-2">
                       {post.title}
                     </h3>
-                    <div className="text-[10px] text-gray-400 dark:text-gray-500 font-mono uppercase tracking-wider flex items-center gap-2 mt-auto">
+                    <div className="text-[10px] text-gray-600 dark:text-gray-400 font-mono uppercase tracking-wider flex items-center gap-2 mt-auto">
                       <span>{formatDateCompactIST(post.publishDate || post._createdAt)}</span>
                       <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700" />
                       <span>By {post.authorName || 'PHONEOCEAN'}</span>
@@ -442,14 +442,14 @@ export default async function Home() {
                   </div>
 
                   <div className="p-5 flex-1 flex flex-col gap-2">
-                    <span className="text-gray-400 dark:text-gray-500 text-[10px] uppercase tracking-widest font-mono line-clamp-1">
+                    <span className="text-gray-600 dark:text-gray-400 text-[10px] uppercase tracking-widest font-mono line-clamp-1">
                       {interview.eventName}
                     </span>
                     <h3 className="text-base font-bold font-space-grotesk leading-snug group-hover:text-[#9D00FF] dark:group-hover:text-white text-gray-900 dark:text-gray-100 transition-colors duration-300 line-clamp-2 flex-1">
                       Exclusive with {interview.playerOrCeoName}
                     </h3>
                     <div className="pt-3 border-t border-gray-100 dark:border-gray-800/50 flex justify-between items-center mt-auto">
-                      <span className="text-gray-400 dark:text-gray-500 text-[10px] font-mono tracking-wider uppercase">
+                      <span className="text-gray-600 dark:text-gray-400 text-[10px] font-mono tracking-wider uppercase">
                         {formatDateDayMonthIST(interview.publishDate || interview._createdAt)}
                       </span>
                       <span className="text-[#9D00FF] text-[10px] font-black uppercase tracking-widest flex items-center gap-1 group-hover:gap-2 transition-all duration-300">
@@ -512,11 +512,11 @@ export default async function Home() {
                       {post.title}
                     </h3>
                     <div className="flex items-center gap-2">
-                      <span className="text-[9px] text-gray-400 dark:text-gray-500 font-mono uppercase tracking-wider">{post.category}</span>
+                      <span className="text-[9px] text-gray-600 dark:text-gray-400 font-mono uppercase tracking-wider">{post.category}</span>
                       <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700" />
-                      <span className="text-[9px] text-gray-400 dark:text-gray-500 font-mono">{formatDateDayMonthIST(post.publishDate || post._createdAt)}</span>
+                      <span className="text-[9px] text-gray-600 dark:text-gray-400 font-mono">{formatDateDayMonthIST(post.publishDate || post._createdAt)}</span>
                       <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700" />
-                      <span className="text-[9px] text-gray-400 dark:text-gray-500 font-mono">{post.readMins} min</span>
+                      <span className="text-[9px] text-gray-600 dark:text-gray-400 font-mono">{post.readMins} min</span>
                     </div>
                   </div>
                 </Link>
@@ -607,7 +607,7 @@ export default async function Home() {
                     </svg>
                   </div>
                   <div>
-                    <div className="text-[9px] font-mono uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">Community</div>
+                    <div className="text-[9px] font-mono uppercase tracking-[0.2em] text-gray-600 dark:text-gray-400">Community</div>
                     <div className="text-sm font-bold text-gray-900 dark:text-white">Join our Discord</div>
                   </div>
                 </div>

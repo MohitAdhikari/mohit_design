@@ -10,6 +10,8 @@ type Props = {
   className?: string;
   /** Render as a different element (default div) */
   as?: 'div' | 'section' | 'li' | 'article' | 'span';
+  /** Start visible; useful for above-the-fold content so it does not block FCP/LCP. */
+  initial?: boolean;
 };
 
 /**
@@ -17,13 +19,13 @@ type Props = {
  * Adds `.is-visible` (see globals.css `.reveal`) when scrolled into view.
  * Safe to wrap Server Component children — they are passed straight through.
  */
-export default function Reveal({ children, delay = 0, className = '', as = 'div' }: Props) {
+export default function Reveal({ children, delay = 0, className = '', as = 'div', initial = false }: Props) {
   const ref = useRef<HTMLElement | null>(null);
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(initial);
 
   useEffect(() => {
     const node = ref.current;
-    if (!node) return;
+    if (!node || initial) return;
 
     // Respect reduced motion — show immediately.
     if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {

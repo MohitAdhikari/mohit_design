@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import ThemeToggle from './ThemeToggle';
 import { Search as SearchIcon } from 'lucide-react';
+import { optimizedImageUrl } from '@/lib/sanityImage';
 
 interface NavbarProps {
   logoUrl?: string;
@@ -77,18 +78,19 @@ export default function Navbar({ logoUrl, siteName, logoTextSpacing = 8, logoOnT
             <div className="flex-shrink-0 flex items-center pr-8 lg:pr-12">
               <Link href="/" className="flex items-center hover:opacity-90 transition-opacity">
                 <Image
-                  src={logoUrl || '/logo.svg'}
+                  src={logoUrl ? optimizedImageUrl(logoUrl, 120) : '/logo.svg'}
                   alt={`${siteName || 'PHONEOCEAN'} Logo`}
                   width={56}
                   height={56}
                   className="w-12 h-12 lg:w-[52px] lg:h-[52px] object-contain flex-shrink-0"
                   style={getLogoImageStyle(logoTextSpacing, logoOnTop)}
                   priority
-                  {...(logoUrl ? { unoptimized: true } : {})}
+                  {...(!logoUrl ? { unoptimized: true } : {})}
+                  sizes="56px"
                 />
                 <span
                   style={textStyle}
-                  className="font-sans font-bold text-xl sm:text-[1.35rem] tracking-[0.02em] text-transparent bg-clip-text bg-gradient-to-r from-gray-900 via-blue-600 to-gray-900 dark:from-white dark:via-cyan-400 dark:to-white animate-gradient-x uppercase hidden sm:block"
+                  className="font-sans font-bold text-xl sm:text-[1.35rem] tracking-[0.02em] text-transparent bg-clip-text bg-gradient-to-r from-gray-900 via-blue-600 to-gray-900 dark:from-white dark:via-cyan-400 dark:to-white uppercase hidden sm:block"
                 >
                   {siteName || 'PHONEOCEAN'}
                 </span>

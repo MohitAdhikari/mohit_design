@@ -78,10 +78,11 @@ export default function HeroCycle({
               src={optimizedImageUrl(p.thumbnail, 1200)}
               alt={p.title}
               fill
-              sizes="100vw"
+              sizes="(max-width: 768px) 100vw, 1200px"
               className="object-cover object-top animate-kenburns will-change-transform"
               priority={i === 0}
               loading={i === 0 ? 'eager' : 'lazy'}
+              fetchPriority={i === 0 ? 'high' : 'auto'}
               referrerPolicy="no-referrer"
             />
           </div>
@@ -109,11 +110,11 @@ export default function HeroCycle({
           <h1 className="text-lg font-black font-space-grotesk tracking-tight leading-[1.15] text-white line-clamp-3 mb-2 group-hover:text-[#00E5FF] transition-colors duration-300">
             {post.title}
           </h1>
-          <div className="flex items-center gap-3 text-[11px] text-white/60 font-mono uppercase tracking-wider">
+          <div className="flex items-center gap-3 text-[11px] text-white/90 font-mono uppercase tracking-wider">
             <span>{formatDateCompactIST(post.publishDate || post._createdAt)}</span>
-            <span className="w-1 h-1 rounded-full bg-white/40" />
+            <span className="w-1 h-1 rounded-full bg-white/70" />
             <span>{post.readMins ?? 1} min read</span>
-            <span className="w-1 h-1 rounded-full bg-white/40" />
+            <span className="w-1 h-1 rounded-full bg-white/70" />
             <span className="text-[#00E5FF]">Read →</span>
           </div>
         </Link>
