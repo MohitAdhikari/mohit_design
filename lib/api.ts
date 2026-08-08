@@ -192,7 +192,7 @@ export async function getNewsPosts(): Promise<any[]> {
     return sortByTimestamp(mockData.newsPosts);
   }
   const query = `*[_type == "newsPost" && ${PUBLISHED_NEWSPOST_FILTER}] | order(dateTime(coalesce(publishDate, _createdAt)) desc) {
-    _id, _createdAt, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, authorName, youtubeUrl, instagramUrl, featured, badge, badgeCustom, showOnHomepage
+    _id, _createdAt, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, excerpt, authorName, youtubeUrl, instagramUrl, featured, badge, badgeCustom, showOnHomepage
   }`;
   const posts = await client.fetch(query);
   return sortByTimestamp(posts);
