@@ -23,9 +23,11 @@ export function TagTitleInput(props: StringInputProps) {
       return
     }
     const t = setTimeout(async () => {
+      const id = docId.replace(/^drafts\./, '')
+      const draftsId = id ? `drafts.${id}` : ''
       const res = await client.fetch<ExistingTag | null>(
-        `*[_type == "tag" && title == $title && _id != $id && _id != "drafts." + $id][0]{ _id, title, slug }`,
-        { title: value.trim(), id: docId.replace(/^drafts\./, '') }
+        `*[_type == "tag" && title == $title && _id != $id && _id != $draftsId][0]{ _id, title, slug }`,
+        { title: value.trim(), id, draftsId }
       )
       setExisting(res)
     }, 250)

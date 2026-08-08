@@ -25,10 +25,11 @@ export const tag = defineType({
           const { document, getClient } = context
           const client = getClient({ apiVersion: '2023-01-01' })
           const docId = document?._id ? document._id.replace(/^drafts\./, '') : ''
+          const draftsId = docId ? `drafts.${docId}` : ''
 
           const existing = await client.fetch(
-            `*[_type == "tag" && slug.current == $slug && _id != $docId && _id != "drafts." + $docId][0]{_id, title}`,
-            { slug: slug.current, docId }
+            `*[_type == "tag" && slug.current == $slug && _id != $docId && _id != $draftsId][0]{_id, title}`,
+            { slug: slug.current, docId, draftsId }
           )
 
           if (existing) {
