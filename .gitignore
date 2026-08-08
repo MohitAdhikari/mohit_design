@@ -11,3 +11,4 @@ tsconfig.tsbuildinfo
 ui_code.zip
 ui_code.txt
 .devin/tmp/
+.devin/
