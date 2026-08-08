@@ -146,7 +146,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home', item: baseUrl },
       { '@type': 'ListItem', position: 2, name: 'News', item: `${baseUrl}/news` },
-      { '@type': 'ListItem', position: 3, name: post.title, item: canonicalUrl },
+      { '@type': 'ListItem', position: 3, name: post.title, item: `${baseUrl}/news/${post.slug?.current}` },
     ],
   };
 
