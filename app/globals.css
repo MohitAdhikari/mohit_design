@@ -173,7 +173,6 @@ html {
   .animate-float,
   .animate-float-slow,
   .animate-aurora,
-  .animate-gradient-x,
   .animate-shimmer-sheen {
     animation: none !important;
   }
@@ -200,16 +199,6 @@ html {
 }
 .animate-float-slow {
   animation: float 9s ease-in-out infinite;
-}
-
-/* Animated gradient background position (for gradient text/borders) */
-@keyframes gradientX {
-  0%, 100% { background-position: 0% 50%; }
-  50%      { background-position: 100% 50%; }
-}
-.animate-gradient-x {
-  background-size: 200% 200%;
-  animation: gradientX 6s ease infinite;
 }
 
 /* Shine sweep across an element on hover */
