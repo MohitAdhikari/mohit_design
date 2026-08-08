@@ -78,6 +78,15 @@ html {
   font-family: var(--font-sans);
 }
 
+/* ── MOBILE_PERF_v3 ─────────────────────────── */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar { display: none; }
+.snap-x { -webkit-overflow-scrolling: touch; }
+/* ─────────────────────────────────────────────── */
+
 @utility hide-scrollbar {
   /* IE and Edge */
   -ms-overflow-style: none;
@@ -266,4 +275,115 @@ html {
   background-size: 40px 40px;
   -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 40%, transparent 100%);
   mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 40%, transparent 100%);
+}
+
+/* =======================================================================
+   PHONEOCEAN-UI-PATCH-v1 — auto-applied by apply_ui_fixes.sh
+   ======================================================================= */
+
+/* ── Mobile article images ── */
+@media (max-width: 640px) {
+  article .prose img,
+  article figure img {
+    border-radius: 8px;
+  }
+}
+
+/* ── Article body — comfortable mobile reading ── */
+.article-body {
+  font-size: 1rem;
+  line-height: 1.75;
+}
+@media (max-width: 640px) {
+  .article-body {
+    font-size: 0.9375rem; /* 15 px */
+    line-height: 1.72;
+  }
+}
+
+/* ── Instagram embed dark-mode fix ──
+   Prevents the blinding white iframe box on dark backgrounds.          */
+.instagram-embed-wrapper {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #1a1a2e;
+}
+.instagram-embed-wrapper iframe,
+.instagram-embed-wrapper blockquote.instagram-media {
+  border-radius: 12px !important;
+  margin: 0 !important;
+  min-width: 0 !important;
+  width: 100% !important;
+}
+.instagram-media,
+.instagram-media-rendered {
+  background: transparent !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Force dark color-scheme on all embedded iframes in dark mode */
+.dark iframe {
+  color-scheme: dark;
+}
+
+/* ── ShareButtons — ensure they never occlude body copy on mobile ── */
+@media (max-width: 768px) {
+  .share-buttons-float {
+    position: static !important;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* ── Ticker fade edges (use CSS var so themes can override) ── */
+.ticker-fade-left {
+  background: linear-gradient(
+    to right,
+    var(--ticker-bg, #fff) 0%,
+    transparent 100%
+  );
+}
+.ticker-fade-right {
+  background: linear-gradient(
+    to left,
+    var(--ticker-bg, #fff) 0%,
+    transparent 100%
+  );
+}
+
+/* ── Prevent horizontal scroll on mobile ── */
+@media (max-width: 640px) {
+  body {
+    overflow-x: hidden;
+  }
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ── HOMEPAGE_MOBILE_PATCH ── */
+@media (max-width: 639px) {
+  /* Feed cards: prevent image stretching */
+  .feed-card-img {
+    flex-shrink: 0 !important;
+    width: 88px !important;
+    height: 66px !important;
+  }
+  /* Hero title */
+  .hero-title {
+    font-size: 1.25rem;
+    line-height: 1.3;
+  }
+  /* Trending scroll — swipeable */
+  .trending-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+  }
+  .trending-scroll > * {
+    scroll-snap-align: start;
+  }
 }

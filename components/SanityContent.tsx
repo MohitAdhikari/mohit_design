@@ -46,6 +46,7 @@ return {
           showReward={value?.showReward ?? true}
           isNew={value?.isNew}
           isExpired={value?.isExpired}
+          isRedeemed={value?.isRedeemed}
           expiresAt={value?.expiresAt}
         />
       </div>

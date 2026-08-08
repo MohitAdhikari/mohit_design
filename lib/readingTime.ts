@@ -14,11 +14,19 @@ function extractPlainText(content: any): string {
 const WORDS_PER_MINUTE = 200;
 
 /**
- * Estimates reading time in minutes from Portable Text content, using the
- * standard ~200 words-per-minute average reading speed.
+ * Counts words in Portable Text content (or any string/array shape).
  */
-export function calculateReadingTime(content: any): number {
+export function calculateWordCount(content: any): number {
   const text = extractPlainText(content);
-  const words = text.split(/\s+/).filter(Boolean).length;
+  return text.split(/\s+/).filter(Boolean).length;
+}
+
+/**
+ * Estimates reading time in minutes from Portable Text content or a
+ * precomputed word count, using the standard ~200 words-per-minute average
+ * reading speed.
+ */
+export function calculateReadingTime(input: any): number {
+  const words = typeof input === 'number' ? input : calculateWordCount(input);
   return Math.max(1, Math.round(words / WORDS_PER_MINUTE));
 }

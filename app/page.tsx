@@ -3,10 +3,30 @@ import Link from 'next/link';
 import { getNewsPosts, getInterviews, getGuides, getSiteSettings, getHomepage } from '@/lib/api';
 import { optimizedImageUrl } from '@/lib/sanityImage';
 import { formatDateCompactIST, formatDateDayMonthIST } from '@/utils/formatDate';
+import { calculateReadingTime } from '@/lib/readingTime';
 import Reveal from '@/components/Reveal';
 import GamesMarquee from '@/components/GamesMarquee';
+import HeroCycle from '@/components/HeroCycle';
 
 export const revalidate = 60;
+
+/* ── category dot color map (mobile trending/feed) ── */
+const CAT_DOT: Record<string, string> = {
+  bgmi:        'bg-cyan-400',
+  valorant:    'bg-red-500',
+  esports:     'bg-purple-500',
+  roblox:      'bg-yellow-400',
+  'free fire': 'bg-orange-400',
+  guides:      'bg-green-400',
+  interview:   'bg-blue-400',
+};
+function catDot(tag: string) {
+  const k = (tag || '').toLowerCase();
+  for (const [key, val] of Object.entries(CAT_DOT)) {
+    if (k.includes(key)) return val;
+  }
+  return 'bg-[#00E5FF]';
+}
 
 export default async function Home() {
   const [news, interviews, guides, settings, homepage] = await Promise.all([
@@ -17,17 +37,225 @@ export default async function Home() {
     getHomepage(),
   ]);
 
-  const homepageNews = news.filter((post) => post.showOnHomepage !== false);
-  const featured = homepage.heroArticle || homepageNews[0];
+  const withReadTime = (p: any) => ({ ...p, readMins: calculateReadingTime(p.wordCount ?? p.content) });
+
+  const homepageNews = news.filter((post) => post.showOnHomepage !== false).map(withReadTime);
+  const trendingArticles = (homepage.trendingArticles || []).map(withReadTime);
+  const heroArticle = homepage.heroArticle ? withReadTime(homepage.heroArticle) : null;
+
+  const featured = heroArticle || homepageNews[0];
   const showFeaturedBadge = featured?.featured === true;
-  const latestNews = homepage.trendingArticles.length
-    ? homepage.trendingArticles.slice(0, 3)
+  const latestNews = trendingArticles.length
+    ? trendingArticles.slice(0, 3)
     : homepageNews.slice(1, 4);
   const feedNews = homepageNews.length > 3 ? homepageNews.slice(1) : homepageNews;
 
+  /* ── mobile-only hero cycle pool + supporting feed ── */
+  const heroPool: any[] = heroArticle
+    ? [heroArticle, ...homepageNews.filter((p: any) => p._id !== heroArticle._id).slice(0, 2)]
+    : homepageNews.slice(0, 3);
+  const heroIds = new Set(heroPool.map((p: any) => p._id));
+  const mobileFeed: any[] = homepageNews.filter((p: any) => !heroIds.has(p._id));
+  const mobileTrending: any[] = trendingArticles.length
+    ? trendingArticles.slice(0, 6)
+    : homepageNews.slice(3, 9);
+
   return (
     <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
-      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_350px] gap-x-8 xl:gap-x-12 items-start">
+
+      {/* ╔═══════════════════════════════════════╗
+          ║  MOBILE LAYOUT — hidden on lg+        ║
+          ╚═══════════════════════════════════════╝ */}
+      <div className="flex flex-col gap-5 lg:hidden">
+
+        {heroPool.length > 0 && (
+          <Reveal>
+            <HeroCycle posts={heroPool} />
+          </Reveal>
+        )}
+
+        {mobileTrending.length > 0 && (
+          <Reveal>
+            <section>
+              <div className="flex items-center justify-between mb-2.5">
+                <h2 className="text-xs font-black font-space-grotesk uppercase tracking-widest text-gray-900 dark:text-white flex items-center gap-2">
+                  <span className="w-1 h-4 rounded-full bg-[#00E5FF] inline-block" />
+                  Trending
+                </h2>
+                <Link href="/news" className="text-[10px] font-mono uppercase tracking-widest text-[#00E5FF] hover:underline">
+                  See all →
+                </Link>
+              </div>
+              <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-none pb-1 -mx-3 px-3">
+                {mobileTrending.map((post: any, i: number) => {
+                  const tag = post.category || post.tags?.[0]?.title || post.tags?.[0] || '';
+                  return (
+                    <Link
+                      key={post._id || i}
+                      href={`/news/${post.slug.current}`}
+                      className="group flex-none w-[136px] snap-start"
+                    >
+                      <div className="relative w-full h-[86px] rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800/60">
+                        <Image
+                          src={optimizedImageUrl(post.thumbnail, 400)}
+                          alt={post.title}
+                          fill
+                          sizes="140px"
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          loading={i < 3 ? 'eager' : 'lazy'}
+                          referrerPolicy="no-referrer"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                        {tag && (
+                          <span className="absolute top-1.5 left-1.5 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-black/50 text-white font-mono">
+                            <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${catDot(tag)}`} />
+                            {tag}
+                          </span>
+                        )}
+                      </div>
+                      <p className="mt-1.5 text-[11px] font-bold font-space-grotesk text-gray-900 dark:text-gray-100 line-clamp-2 leading-snug group-hover:text-[#00E5FF] transition-colors">
+                        {post.title}
+                      </p>
+                    </Link>
+                  );
+                })}
+              </div>
+            </section>
+          </Reveal>
+        )}
+
+        <section>
+          <div className="flex items-center justify-between mb-2.5">
+            <h2 className="text-xs font-black font-space-grotesk uppercase tracking-widest text-gray-900 dark:text-white flex items-center gap-2">
+              <span className="w-1 h-4 rounded-full bg-[#9D00FF] inline-block" />
+              Latest News
+            </h2>
+            <Link href="/news" className="text-[10px] font-mono uppercase tracking-widest text-[#00E5FF] hover:underline">
+              All news →
+            </Link>
+          </div>
+          <div className="flex flex-col divide-y divide-gray-100 dark:divide-gray-800/60 rounded-2xl border border-gray-200 dark:border-gray-800/60 overflow-hidden bg-white dark:bg-[#111116]">
+            {mobileFeed.slice(0, 8).map((post: any, i: number) => {
+              const tag = post.category || post.tags?.[0]?.title || post.tags?.[0] || '';
+              const dot = catDot(tag);
+              return (
+                <Reveal key={post._id || i} delay={i * 40}>
+                  <Link
+                    href={`/news/${post.slug.current}`}
+                    className="group flex flex-row items-start gap-2.5 p-3 hover:bg-gray-50 dark:hover:bg-white/[0.03] transition-colors"
+                  >
+                    <span className="flex-none w-5 text-[10px] font-black font-mono text-[#00E5FF] mt-1 select-none">
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                    <div className="relative flex-none w-[88px] h-[66px] rounded-lg overflow-hidden border border-gray-100 dark:border-gray-800/60">
+                      <Image
+                        src={optimizedImageUrl(post.thumbnail, 400)}
+                        alt={post.title}
+                        fill
+                        sizes="88px"
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        loading="lazy"
+                        referrerPolicy="no-referrer"
+                      />
+                      <span className={`absolute top-1 left-1 w-2 h-2 rounded-full ${dot} shadow-sm`} />
+                    </div>
+                    <div className="flex-1 min-w-0 flex flex-col gap-1">
+                      {tag && (
+                        <span className="inline-flex items-center gap-1 w-fit text-[9px] font-bold uppercase tracking-wider font-mono text-gray-500 dark:text-gray-400">
+                          <span className={`w-1.5 h-1.5 rounded-full ${dot} flex-shrink-0`} />
+                          {tag}
+                        </span>
+                      )}
+                      <h3 className="text-sm font-bold font-space-grotesk leading-snug text-gray-900 dark:text-gray-100 group-hover:text-[#00E5FF] transition-colors line-clamp-3">
+                        {post.title}
+                      </h3>
+                      <div className="flex items-center gap-1.5 text-[10px] text-gray-400 dark:text-gray-500 font-mono uppercase tracking-wider mt-auto">
+                        <span>{formatDateCompactIST(post.publishDate || post._createdAt)}</span>
+                        <span className="w-0.5 h-0.5 rounded-full bg-gray-300 dark:bg-gray-700" />
+                        <span>{post.readMins} min read</span>
+                      </div>
+                    </div>
+                  </Link>
+                </Reveal>
+              );
+            })}
+          </div>
+        </section>
+
+        <Reveal><GamesMarquee /></Reveal>
+
+        {mobileFeed.length > 8 && (
+          <section>
+            <div className="flex items-center justify-between mb-2.5">
+              <h2 className="text-xs font-black font-space-grotesk uppercase tracking-widest text-gray-900 dark:text-white flex items-center gap-2">
+                <span className="w-1 h-4 rounded-full bg-gray-400 dark:bg-gray-600 inline-block" />
+                More Stories
+              </h2>
+            </div>
+            <div className="flex flex-col divide-y divide-gray-100 dark:divide-gray-800/60 rounded-2xl border border-gray-200 dark:border-gray-800/60 overflow-hidden bg-white dark:bg-[#111116]">
+              {mobileFeed.slice(8, 16).map((post: any, i: number) => {
+                const tag = post.category || post.tags?.[0]?.title || post.tags?.[0] || '';
+                const dot = catDot(tag);
+                return (
+                  <Reveal key={post._id || i} delay={i * 40}>
+                    <Link
+                      href={`/news/${post.slug.current}`}
+                      className="group flex flex-row items-start gap-2.5 p-3 hover:bg-gray-50 dark:hover:bg-white/[0.03] transition-colors"
+                    >
+                      <span className="flex-none w-5 text-[10px] font-black font-mono text-gray-300 dark:text-gray-600 mt-1 select-none">
+                        {String(i + 9).padStart(2, '0')}
+                      </span>
+                      <div className="relative flex-none w-[88px] h-[66px] rounded-lg overflow-hidden border border-gray-100 dark:border-gray-800/60">
+                        <Image
+                          src={optimizedImageUrl(post.thumbnail, 400)}
+                          alt={post.title}
+                          fill
+                          sizes="88px"
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          loading="lazy"
+                          referrerPolicy="no-referrer"
+                        />
+                        <span className={`absolute top-1 left-1 w-2 h-2 rounded-full ${dot} shadow-sm`} />
+                      </div>
+                      <div className="flex-1 min-w-0 flex flex-col gap-1">
+                        {tag && (
+                          <span className="inline-flex items-center gap-1 w-fit text-[9px] font-bold uppercase tracking-wider font-mono text-gray-500 dark:text-gray-400">
+                            <span className={`w-1.5 h-1.5 rounded-full ${dot} flex-shrink-0`} />
+                            {tag}
+                          </span>
+                        )}
+                        <h3 className="text-sm font-bold font-space-grotesk leading-snug text-gray-900 dark:text-gray-100 group-hover:text-[#00E5FF] transition-colors line-clamp-3">
+                          {post.title}
+                        </h3>
+                        <div className="flex items-center gap-1.5 text-[10px] text-gray-400 dark:text-gray-500 font-mono uppercase tracking-wider mt-auto">
+                          <span>{formatDateCompactIST(post.publishDate || post._createdAt)}</span>
+                          <span className="w-0.5 h-0.5 rounded-full bg-gray-300 dark:bg-gray-700" />
+                          <span>{post.readMins} min read</span>
+                        </div>
+                      </div>
+                    </Link>
+                  </Reveal>
+                );
+              })}
+            </div>
+            <div className="mt-4 text-center">
+              <Link
+                href="/news"
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-bold font-space-grotesk text-gray-700 dark:text-gray-300 hover:border-[#00E5FF] hover:text-[#00E5FF] transition-all"
+              >
+                Load more →
+              </Link>
+            </div>
+          </section>
+        )}
+
+      </div>
+      {/* ── END MOBILE LAYOUT ── */}
+
+      {/* ╔═══════════════════════════════════════╗
+          ║  DESKTOP LAYOUT — hidden on mobile    ║
+          ╚═══════════════════════════════════════╝ */}
+      <div className="hidden lg:grid lg:grid-cols-[minmax(0,1fr)_350px] gap-x-8 xl:gap-x-12 items-start">
 
         {/* ═══════════════════════════════════════
             LEFT COLUMN
@@ -71,7 +299,7 @@ export default async function Home() {
                 )}
 
                 {/* Content overlay */}
-                <div className="absolute bottom-0 left-0 p-6 md:p-10 w-full lg:w-[90%] animate-rise">
+                <div className="absolute bottom-0 left-0 p-4 sm:p-6 md:p-10 w-full animate-rise">
                   <div className="flex flex-wrap items-center gap-2 mb-3">
                     <span className="inline-block bg-[#00E5FF] text-[#0B0B0F] text-[10px] font-black tracking-[0.15em] uppercase px-3 py-1 rounded-sm shadow-sm">
                       {featured.category}
@@ -83,7 +311,7 @@ export default async function Home() {
                     )}
                   </div>
 
-                  <h1 className="text-3xl md:text-[2.6rem] font-black font-space-grotesk tracking-tighter leading-[1.1] mb-5 text-white">
+                  <h1 className="text-xl sm:text-3xl md:text-[2.6rem] font-black font-space-grotesk tracking-tighter leading-[1.1] mb-3 sm:mb-5 text-white">
                     <span className="bg-gradient-to-r from-white to-white group-hover:from-white group-hover:to-[#00E5FF] bg-clip-text text-transparent transition-all duration-500">
                       {featured.title}
                     </span>
@@ -127,14 +355,14 @@ export default async function Home() {
                 <Link
                   href={`/news/${post.slug.current}`}
                   key={post._id}
-                  className="group flex flex-col sm:flex-row gap-4 sm:gap-5 bg-white dark:bg-[#111116] p-4 rounded-2xl border border-gray-200 dark:border-gray-800/50 hover:border-[#00E5FF]/30 dark:hover:border-[#00E5FF]/20 transition-all duration-300 shadow-sm dark:shadow-none hover:shadow-md dark:hover:shadow-[0_4px_24px_rgba(0,0,0,0.4)] hover:-translate-y-0.5"
+                  className="group flex flex-row gap-3 sm:gap-5 bg-white dark:bg-[#111116] p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-200 dark:border-gray-800/50 hover:border-[#00E5FF]/30 dark:hover:border-[#00E5FF]/20 transition-all duration-300 shadow-sm dark:shadow-none hover:shadow-md dark:hover:shadow-[0_4px_24px_rgba(0,0,0,0.4)] hover:-translate-y-0.5"
                 >
-                  <div className="relative aspect-video sm:w-48 sm:aspect-video rounded-xl overflow-hidden flex-shrink-0 border border-gray-100 dark:border-gray-800/60">
+                  <div className="relative w-[88px] h-[66px] sm:w-48 sm:h-32 rounded-lg overflow-hidden flex-shrink-0 border border-gray-100 dark:border-gray-800/60">
                     <Image
                       src={optimizedImageUrl(post.thumbnail, 800)}
                       alt={post.title}
                       fill
-                      sizes="(max-width: 640px) 100vw, 200px"
+                      sizes="(max-width: 640px) 88px, 200px"
                       loading="lazy"
                       className="object-cover opacity-90 group-hover:scale-105 transition-transform duration-500"
                       referrerPolicy="no-referrer"
@@ -148,13 +376,15 @@ export default async function Home() {
                     <span className="hidden sm:inline-block text-[10px] text-[#00E5FF] font-black tracking-[0.2em] uppercase">
                       {post.category}
                     </span>
-                    <h3 className="text-base sm:text-lg font-bold font-space-grotesk leading-snug group-hover:text-[#00E5FF] dark:group-hover:text-white text-gray-900 dark:text-gray-100 transition-colors duration-300 line-clamp-2">
+                    <h3 className="text-sm sm:text-lg font-bold font-space-grotesk leading-snug group-hover:text-[#00E5FF] dark:group-hover:text-white text-gray-900 dark:text-gray-100 transition-colors duration-300 line-clamp-3 sm:line-clamp-2">
                       {post.title}
                     </h3>
                     <div className="text-[10px] text-gray-400 dark:text-gray-500 font-mono uppercase tracking-wider flex items-center gap-2 mt-auto">
                       <span>{formatDateCompactIST(post.publishDate || post._createdAt)}</span>
                       <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700" />
                       <span>By {post.authorName || 'PHONEOCEAN'}</span>
+                      <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700" />
+                      <span>{post.readMins} min read</span>
                     </div>
                   </div>
                 </Link>
@@ -285,6 +515,8 @@ export default async function Home() {
                       <span className="text-[9px] text-gray-400 dark:text-gray-500 font-mono uppercase tracking-wider">{post.category}</span>
                       <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700" />
                       <span className="text-[9px] text-gray-400 dark:text-gray-500 font-mono">{formatDateDayMonthIST(post.publishDate || post._createdAt)}</span>
+                      <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700" />
+                      <span className="text-[9px] text-gray-400 dark:text-gray-500 font-mono">{post.readMins} min</span>
                     </div>
                   </div>
                 </Link>
@@ -403,6 +635,8 @@ export default async function Home() {
         {/* ── END RIGHT COLUMN ── */}
 
       </div>
+      {/* ── END DESKTOP LAYOUT ── */}
+
     </div>
   );
 }

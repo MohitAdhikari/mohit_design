@@ -1,5 +1,6 @@
 import { defineType, defineField } from 'sanity'
 import { TagsInput } from '../components/TagsInput'
+import { WordCountInput } from '../components/WordCountInput'
 
 export const newsPost = defineType({
   name: 'newsPost',
@@ -68,6 +69,14 @@ export const newsPost = defineType({
         { type: 'scheduleBlock' },
         { type: 'standingsTable' },
       ],
+    }),
+    defineField({
+      name: 'wordCount',
+      title: 'Word Count',
+      type: 'number',
+      group: 'content',
+      description: 'Auto-calculated word count from the article body. Used for fast read-time estimates on list pages.',
+      components: { input: WordCountInput },
     }),
 
     // ---- MEDIA ----

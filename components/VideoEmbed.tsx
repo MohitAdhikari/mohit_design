@@ -105,7 +105,7 @@ export default function VideoEmbed({ youtubeUrl, instagramUrl, title }: { youtub
     const postUrl = normalizeInstagramUrl(instagramUrl);
 
     return (
-      <div className="flex justify-center my-4">
+      <div className="instagram-embed-wrapper flex justify-center my-4">
         <blockquote
           className="instagram-media"
           data-instgrm-permalink={`${postUrl}/?utm_source=ig_embed&utm_campaign=loading`}

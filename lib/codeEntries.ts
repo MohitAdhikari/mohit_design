@@ -4,6 +4,7 @@ export interface CodeEntry {
   showReward?: boolean;
   isNew?: boolean;
   isExpired?: boolean;
+  isRedeemed?: boolean;
   expiresAt?: string;
 }
 
@@ -13,13 +14,22 @@ export function isExpiredNow(isExpired?: boolean, expiresAt?: string): boolean {
   return false;
 }
 
+export function isRedeemedNow(isRedeemed?: boolean): boolean {
+  return Boolean(isRedeemed);
+}
+
+export function isUsable(entry: CodeEntry): boolean {
+  return !isExpiredNow(entry.isExpired, entry.expiresAt) && !isRedeemedNow(entry.isRedeemed);
+}
+
 export function sortCodeEntries(entries: CodeEntry[] = []): CodeEntry[] {
   return [...entries].sort((a, b) => {
-    const aExpired = isExpiredNow(a.isExpired, a.expiresAt) ? 1 : 0;
-    const bExpired = isExpiredNow(b.isExpired, b.expiresAt) ? 1 : 0;
-    if (aExpired !== bExpired) return aExpired - bExpired;
+    const aUsable = isUsable(a) ? 0 : 1;
+    const bUsable = isUsable(b) ? 0 : 1;
+    if (aUsable !== bUsable) return aUsable - bUsable;
     const aNew = a.isNew ? 0 : 1;
     const bNew = b.isNew ? 0 : 1;
-    return aNew - bNew;
+    if (aNew !== bNew) return aNew - bNew;
+    return a.code.localeCompare(b.code);
   });
 }

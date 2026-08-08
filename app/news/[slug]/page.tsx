@@ -109,7 +109,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
   const keywords = (post.tags?.map((t: any) => t?.title).filter(Boolean) || []) as string[];
   const description = post.seo?.metaDescription || post.excerpt || extractPlainText(post.content) || undefined;
   const heroImage = post.hideHeroImage ? null : (post.seo?.socialShareImage || post.thumbnail || 'https://picsum.photos/1200/630');
-  const readingTimeMinutes = calculateReadingTime(post.content);
+  const readingTimeMinutes = calculateReadingTime(post.wordCount ?? post.content);
 
   const newsArticleJsonLd = {
     '@context': 'https://schema.org',
@@ -162,7 +162,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
       />
       {/* HERO BANNER — image only, conditional */}
       {!post.hideHeroImage && (
-        <div className="relative w-full min-h-[50vh] md:min-h-[60vh] border-b border-gray-200 dark:border-gray-900">
+        <div className="relative w-full aspect-[16/9] sm:aspect-auto sm:min-h-[55vh] md:min-h-[65vh] border-b border-gray-200 dark:border-gray-900">
           <Image
             src={optimizedImageUrl(post.thumbnail, 1920, 'https://picsum.photos/1920/1080')}
             alt={post.imageAlt || post.title}
@@ -172,14 +172,14 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
             priority
             referrerPolicy="no-referrer"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/10" />
         </div>
       )}
 
       {/* TITLE BLOCK — always rendered */}
       <div className={post.hideHeroImage
         ? 'border-b border-gray-200 dark:border-gray-900 pt-8 pb-6 sm:pt-12 sm:pb-10'
-        : 'relative -mt-[140px] sm:-mt-[180px] z-10'
+        : 'relative -mt-[80px] sm:-mt-[140px] md:-mt-[200px] z-10'
       }>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-6 sm:pb-12">
           <div className="flex flex-wrap gap-2 mb-6">
@@ -192,7 +192,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
               </span>
             )}
           </div>
-          <h1 className={`text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-black font-space-grotesk tracking-tighter leading-tight mb-4 sm:mb-6 text-balance drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)] ${
+          <h1 className={`text-lg sm:text-2xl md:text-4xl lg:text-5xl font-black font-space-grotesk tracking-tighter leading-tight mb-3 sm:mb-5 text-balance drop-shadow-[0_2px_16px_rgba(0,0,0,1)] ${
             post.hideHeroImage ? 'text-gray-900 dark:text-white' : 'text-white'
           }`}>
             {post.title}
@@ -207,7 +207,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
             <span>{readingTimeMinutes} min read</span>
           </div>
           <div className="mt-6">
-            <ShareButtons title={post.title} url={canonicalUrl} />
+            <div className="share-buttons-float"><ShareButtons title={post.title} url={canonicalUrl} /></div>
           </div>
         </div>
       </div>
@@ -247,7 +247,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
         
         <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-900 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <span className="text-sm font-mono text-gray-500 uppercase tracking-widest">Share this article</span>
-          <ShareButtons title={post.title} url={canonicalUrl} />
+          <div className="share-buttons-float"><ShareButtons title={post.title} url={canonicalUrl} /></div>
         </div>
       </div>
     </article>

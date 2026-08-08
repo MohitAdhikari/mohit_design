@@ -41,7 +41,7 @@ export default function ClientLayoutShell({
         logoTextSpacing={logoTextSpacing}
         logoOnTop={logoOnTop}
       />
-      <div className="pt-20">
+      <div className="pt-[80px]">
         <BreakingTicker items={visibleTickerItems} />
       </div>
       <main className="flex-grow">{children}</main>

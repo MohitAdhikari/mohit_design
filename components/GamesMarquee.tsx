@@ -31,7 +31,7 @@ export default function GamesMarquee() {
           <Link
             key={i}
             href={`/search?q=${encodeURIComponent(g)}`}
-            className="mx-6 inline-flex items-center gap-3 text-lg md:text-2xl font-black font-space-grotesk uppercase tracking-tight text-gray-300 dark:text-gray-700 hover:text-[#00E5FF] dark:hover:text-[#00E5FF] transition-colors"
+            className="mx-6 inline-flex items-center gap-3 text-lg md:text-2xl font-black font-space-grotesk uppercase tracking-tight text-gray-500 dark:text-gray-600 hover:text-[#00E5FF] dark:hover:text-[#00E5FF] transition-colors"
           >
             {g}
             <span className="w-1.5 h-1.5 rounded-full bg-[#00E5FF]/60" />

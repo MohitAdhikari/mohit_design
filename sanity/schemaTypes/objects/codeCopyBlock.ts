@@ -40,6 +40,13 @@ export const codeCopyBlock = defineType({
       description: 'Mark this code as expired. Expired codes sort last.',
     }),
     defineField({
+      name: 'isRedeemed',
+      title: 'Redeemed',
+      type: 'boolean',
+      initialValue: false,
+      description: 'Mark this code as already used / no longer available. The copy button will be disabled.',
+    }),
+    defineField({
       name: 'expiresAt',
       title: 'Auto-expire at',
       type: 'datetime',
@@ -47,9 +54,9 @@ export const codeCopyBlock = defineType({
     }),
   ],
   preview: {
-    select: { code: 'code', isExpired: 'isExpired', isNew: 'isNew' },
-    prepare({ code, isExpired, isNew }) {
-      const badges = [isNew ? 'NEW' : '', isExpired ? 'EXPIRED' : ''].filter(Boolean).join(' · ')
+    select: { code: 'code', isExpired: 'isExpired', isNew: 'isNew', isRedeemed: 'isRedeemed' },
+    prepare({ code, isExpired, isNew, isRedeemed }) {
+      const badges = [isNew ? 'NEW' : '', isExpired ? 'EXPIRED' : '', isRedeemed ? 'REDEEMED' : ''].filter(Boolean).join(' · ')
       return {
         title: code || 'Code',
         subtitle: badges || 'Active code',

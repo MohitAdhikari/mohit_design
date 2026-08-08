@@ -192,7 +192,9 @@ export async function getNewsPosts(): Promise<any[]> {
     return sortByTimestamp(mockData.newsPosts);
   }
   const query = `*[_type == "newsPost" && ${PUBLISHED_NEWSPOST_FILTER}] | order(dateTime(coalesce(publishDate, _createdAt)) desc) {
-    _id, _createdAt, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, excerpt, authorName, youtubeUrl, instagramUrl, featured, badge, badgeCustom, showOnHomepage
+    _id, _createdAt, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, excerpt, authorName, youtubeUrl, instagramUrl, featured, badge, badgeCustom, showOnHomepage,
+    wordCount,
+    !defined(wordCount) => { content }
   }`;
   const posts = await client.fetch(query);
   return sortByTimestamp(posts);
@@ -206,7 +208,7 @@ export async function getNewsPostBySlug(slug: string): Promise<any> {
   const sanityClient = isEnabled ? previewClient : client;
   const publishedConstraint = isEnabled ? '' : ` && ${PUBLISHED_NEWSPOST_FILTER}`;
   const query = `*[_type == "newsPost" && slug.current == $slug${publishedConstraint}][0] {
-    _id, _createdAt, _updatedAt, title, slug, "thumbnail": thumbnail.asset->url, "bodyImage": bodyImage{"url": asset->url, alt, caption, credit}, category, publishDate, authorName, youtubeUrl, instagramUrl, featured, badge, badgeCustom, hideHeroImage,
+    _id, _createdAt, _updatedAt, title, slug, "thumbnail": thumbnail.asset->url, "bodyImage": bodyImage{"url": asset->url, alt, caption, credit}, category, publishDate, authorName, youtubeUrl, instagramUrl, featured, badge, badgeCustom, hideHeroImage, wordCount,
     content[]{
       ...,
       _type == "image" => {
@@ -260,7 +262,7 @@ export async function getGuideBySlug(slug: string): Promise<any> {
   const sanityClient = isEnabled ? previewClient : client;
   const publishedConstraint = isEnabled ? '' : ` && ${PUBLISHED_GUIDE_FILTER}`;
   const query = `*[_type == "guide" && slug.current == $slug${publishedConstraint}][0] {
-    _id, _createdAt, title, slug, gameName, "thumbnail": thumbnail.asset->url, thumbnailAlt, thumbnailCaption, thumbnailCredit, codesList, codeEntries, publishDate, lastUpdated, showUpdatedDate, youtubeUrl, instagramUrl,
+    _id, _createdAt, title, slug, gameName, "thumbnail": thumbnail.asset->url, thumbnailAlt, thumbnailCaption, thumbnailCredit, codesList, codeEntries, publishDate, lastUpdated, showUpdatedDate, youtubeUrl, instagramUrl, wordCount,
     content[]{
       ...,
       _type == "image" => {
@@ -421,7 +423,9 @@ export async function getHomepage(): Promise<{
   };
   if (!projectId) return empty;
   const articleProjection = `{
-    _id, _type, _createdAt, status, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, authorName, featured, badge, badgeCustom, showOnHomepage
+    _id, _type, _createdAt, status, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, authorName, featured, badge, badgeCustom, showOnHomepage,
+    wordCount,
+    !defined(wordCount) => { content }
   }`;
   const query = `*[_type == "homepage"][0] {
     "heroArticle": heroArticle->${articleProjection},
@@ -438,6 +442,20 @@ export async function getHomepage(): Promise<{
     trendingArticles: (data?.trendingArticles || []).filter(isPublishedDoc),
     editorsPicks: (data?.editorsPicks || []).filter(isPublishedDoc),
   };
+}
+
+export async function getGameCodes(): Promise<any[]> {
+  if (!projectId) {
+    return mockData.guides.filter((g: any) => (g.codeEntries?.length || g.codesList?.length));
+  }
+  const query = `*[_type == "guide" && ${PUBLISHED_GUIDE_FILTER} && (defined(codeEntries) || defined(codesList))] | order(dateTime(coalesce(lastUpdated, publishDate, _createdAt)) desc) {
+    _id, _createdAt, title, slug, gameName, "thumbnail": thumbnail.asset->url, thumbnailAlt, publishDate, lastUpdated, guideType,
+    codesList,
+    codeEntries[]{
+      code, reward, showReward, isNew, isExpired, isRedeemed, expiresAt
+    }
+  }`;
+  return client.fetch(query);
 }
 
 export async function getAllVideos(): Promise<any[]> {

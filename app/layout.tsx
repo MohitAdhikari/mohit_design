@@ -28,8 +28,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const faviconUrl = settings.logoUrl?.trim() ? settings.logoUrl : '/logo_phoneocean.png';
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in';
   const siteName = settings.siteName || 'PHONEOCEAN';
-  const title = 'PHONEOCEAN | Gaming News, Esports Updates & Exclusive Interviews';
-  const description = 'Professional esports news and content platform featuring latest BGMI updates, roster changes, and Roblox codes.';
+  const title = 'PHONEOCEAN | Esports, Gaming News & New Launch Reviews';
+  const description = "India's #1 esports and gaming news platform. Latest BGMI, PUBG Mobile, Valorant tournament results, rosters and exclusive interviews.";
   const ogImage = `${baseUrl}/logo_phoneocean.png`;
 
   return {

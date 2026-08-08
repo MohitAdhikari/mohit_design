@@ -1,5 +1,6 @@
 import { defineType, defineField } from 'sanity'
 import { ReadingTimeInput } from '../components/ReadingTimeInput'
+import { WordCountInput } from '../components/WordCountInput'
 import { TagsInput } from '../components/TagsInput'
 
 export const guide = defineType({
@@ -110,6 +111,13 @@ export const guide = defineType({
         { type: 'codeCopyBlock' },
         { type: 'scheduleBlock' },
       ],
+    }),
+    defineField({
+      name: 'wordCount',
+      title: 'Word Count',
+      type: 'number',
+      description: 'Auto-calculated word count from the guide body. Used for fast read-time estimates on list pages.',
+      components: { input: WordCountInput },
     }),
     defineField({
       name: 'author',

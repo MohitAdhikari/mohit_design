@@ -91,7 +91,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
   const showUpdatedDate = Boolean(guide.showUpdatedDate && guide.lastUpdated);
   const modifiedIso = guide.lastUpdated ? new Date(guide.lastUpdated).toISOString() : publishedIso;
   const authorName = guide.author?.name || 'PHONEOCEAN Staff';
-  const readingTimeMinutes = calculateReadingTime(guide.content);
+  const readingTimeMinutes = calculateReadingTime(guide.wordCount ?? guide.content);
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -211,6 +211,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
                     showReward={entry.showReward ?? true}
                     isNew={entry.isNew}
                     isExpired={entry.isExpired}
+                    isRedeemed={entry.isRedeemed}
                     expiresAt={entry.expiresAt}
                   />
                 ))}

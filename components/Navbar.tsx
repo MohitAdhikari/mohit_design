@@ -65,7 +65,7 @@ export default function Navbar({ logoUrl, siteName, logoTextSpacing = 8, logoOnT
 
   return (
     <nav
-      className={`fixed top-0 w-full z-50 bg-white/90 dark:bg-[#0B0B0F]/90 backdrop-blur-md border-b transition-shadow ${
+      className={`fixed top-0 w-full z-50 bg-white/95 dark:bg-[#0B0B0F]/95 backdrop-blur-lg border-b transition-all duration-300 ${
         scrolled
           ? 'border-gray-200 dark:border-gray-800/70 shadow-[0_4px_24px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.4)]'
           : 'border-gray-200/60 dark:border-gray-800/30'
@@ -156,7 +156,7 @@ export default function Navbar({ logoUrl, siteName, logoTextSpacing = 8, logoOnT
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden bg-white dark:bg-[#0B0B0F] border-b border-gray-200 dark:border-gray-800/50 px-4 pt-2 pb-6 space-y-2 shadow-2xl">
+        <div className="md:hidden fixed top-[80px] left-0 right-0 bottom-0 overflow-y-auto bg-white dark:bg-[#0B0B0F] border-b border-gray-200 dark:border-gray-800/50 px-4 pt-2 pb-6 space-y-2 shadow-2xl">
           <Link href="/news" onClick={() => setIsOpen(false)} className={`block transition-colors text-base font-bold uppercase tracking-widest p-4 rounded-xl ${isActive('/news') ? 'text-blue-600 dark:text-[#00E5FF] bg-blue-50 dark:bg-blue-900/10' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5'}`}>News</Link>
           <Link href="/interviews" onClick={() => setIsOpen(false)} className={`block transition-colors text-base font-bold uppercase tracking-widest p-4 rounded-xl ${isActive('/interviews') ? 'text-blue-600 dark:text-[#00E5FF] bg-blue-50 dark:bg-blue-900/10' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5'}`}>Interviews</Link>
           <Link href="/guides" onClick={() => setIsOpen(false)} className={`block transition-colors text-base font-bold uppercase tracking-widest p-4 rounded-xl ${isActive('/guides') ? 'text-blue-600 dark:text-[#00E5FF] bg-blue-50 dark:bg-blue-900/10' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5'}`}>Guides</Link>
