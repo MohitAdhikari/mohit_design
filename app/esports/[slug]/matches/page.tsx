@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { getEditionBySlug, getMatches } from '@/lib/tournamentApi'
 import type { Match } from '@/lib/tournamentApi'
+import { EditionTabs } from '@/components/EditionTabs'
 
 const STAGE_LABELS: Record<string, string> = {
   group_stage: 'Group Stage',
@@ -37,6 +38,8 @@ export default async function MatchesPage({ params }: Props) {
 
   return (
     <main className="min-h-screen bg-zinc-950 text-white px-4 py-10 max-w-4xl mx-auto">
+      <EditionTabs slug={slug} active="matches" />
+
       <h1 className="text-3xl font-bold mb-2">{edition.title}</h1>
       <p className="text-zinc-400 mb-8">Matches</p>
 

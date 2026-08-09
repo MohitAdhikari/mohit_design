@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import Tabs from '@/components/Tabs'
+import { EditionTabs } from '@/components/EditionTabs'
 import type { Metadata } from 'next'
 
 export const revalidate = 60
@@ -137,6 +138,8 @@ export default async function TournamentDetailPage({
       </div>
 
       <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14 space-y-12">
+
+        <EditionTabs slug={slug} active="overview" />
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {[
