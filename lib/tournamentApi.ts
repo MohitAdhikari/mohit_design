@@ -236,24 +236,26 @@ export interface Article {
   _id: string
   title: string
   slug: { current: string }
-  type: 'news' | 'preview' | 'recap' | 'standings' | 'analysis' | 'tournament_report' | 'roster_move' | 'guide'
-  status: 'draft' | 'review' | 'published'
-  publishedAt: string | null
+  publishDate: string | null
   excerpt: string | null
-  coverImageUrl: string | null
-  coverImageAlt: string | null
+  thumbnailUrl: string | null
+  imageAlt: string | null
   author: { name: string; photoUrl: string | null } | null
-  tournament: { _id: string; name: string; slug: { current: string } } | null
-  edition: { _id: string; year: string } | null
-  relatedTeams: { _id: string; name: string; logoUrl: string | null }[]
+  category: string | null
   tags: { _id: string; title: string; slug: { current: string } }[]
+  tournament: { _id: string; name: string; slug: { current: string } } | null
 }
 
 export interface ArticleDetail extends Article {
-  body: any[]
-  relatedMatches: { _id: string }[]
+  imageCaption: string | null
+  authorName: string | null
+  badge: string | null
+  badgeCustom: string | null
+  hideHeroImage: boolean
+  content: any[]
+  relatedTeams: { _id: string; name: string; logoUrl: string | null }[]
   relatedPlayers: { _id: string; name: string }[]
-  seo: { metaTitle: string | null; metaDescription: string | null } | null
+  seo: { metaTitle: string | null; metaDescription: string | null; ogImage: string | null } | null
 }
 
 // ─── MATCH QUERIES ────────────────────────────────────────────────────
@@ -325,45 +327,42 @@ export async function getStandingsByGroup(editionId: string, group: string): Pro
 // ─── ARTICLE QUERIES ──────────────────────────────────────────────────
 
 const ARTICLE_FIELDS = `
-  _id, title, slug, type, status, publishedAt, excerpt,
-  "coverImageUrl": coverImage.asset->url,
-  "coverImageAlt": coverImage.alt,
+  _id, title, slug, publishDate, excerpt,
+  "thumbnailUrl": thumbnail.asset->url,
+  "imageAlt": imageAlt,
   "author": author->{ name, "photoUrl": photo.asset->url },
+  "category": category,
   "tournament": tournament->{ _id, name, slug },
-  "edition": edition->{ _id, year },
-  "relatedTeams": relatedTeams[]->{ _id, name, "logoUrl": logo.asset->url },
   "tags": tags[]->{ _id, title, slug }
 `
 
 export async function getArticles(limit = 20): Promise<Article[]> {
   return client.fetch(
-    `*[_type == "article" && status == "published"] | order(publishedAt desc) [0...$limit] { ${ARTICLE_FIELDS} }`,
+    `*[_type == "newsPost" && status == "published" && (!defined(publishDate) || dateTime(publishDate) <= dateTime(now()))] | order(dateTime(coalesce(publishDate, _createdAt)) desc) [0...$limit] { ${ARTICLE_FIELDS} }`,
     { limit }
-  )
-}
-
-export async function getArticlesByType(type: string, limit = 10): Promise<Article[]> {
-  return client.fetch(
-    `*[_type == "article" && status == "published" && type == $type] | order(publishedAt desc) [0...$limit] { ${ARTICLE_FIELDS} }`,
-    { type, limit }
-  )
-}
-
-export async function getArticlesByEdition(editionId: string): Promise<Article[]> {
-  return client.fetch(
-    `*[_type == "article" && status == "published" && edition._ref == $editionId] | order(publishedAt desc) { ${ARTICLE_FIELDS} }`,
-    { editionId }
   )
 }
 
 export async function getArticleBySlug(slug: string): Promise<ArticleDetail | null> {
   return client.fetch(
-    `*[_type == "article" && slug.current == $slug && status == "published"][0] {
+    `*[_type == "newsPost" && slug.current == $slug && status == "published" && (!defined(publishDate) || dateTime(publishDate) <= dateTime(now()))][0] {
       ${ARTICLE_FIELDS},
-      body,
-      "relatedMatches": relatedMatches[]->{ _id },
-      "relatedPlayers": relatedPlayers[]->{ _id, name },
-      "seo": seo { metaTitle, metaDescription }
+      "imageCaption": imageCaption,
+      "authorName": authorName,
+      "badge": badge,
+      "badgeCustom": badgeCustom,
+      "hideHeroImage": hideHeroImage,
+      content[]{
+        ...,
+        _type == "image" => {
+          ...,
+          "assetUrl": asset->url,
+          "assetDimensions": asset->metadata { dimensions }
+        }
+      },
+      "relatedTeams": teams[]->{ _id, name, "logoUrl": logo.asset->url },
+      "relatedPlayers": players[]->{ _id, name },
+      "seo": { "metaTitle": seo.seoTitle, "metaDescription": seo.metaDescription, "ogImage": seo.socialShareImage.asset->url }
     }`,
     { slug }
   )
@@ -371,7 +370,7 @@ export async function getArticleBySlug(slug: string): Promise<ArticleDetail | nu
 
 export async function getAllArticleSlugs(): Promise<{ slug: string }[]> {
   return client.fetch(
-    `*[_type == "article" && status == "published" && defined(slug.current)] { "slug": slug.current }`
+    `*[_type == "newsPost" && status == "published" && defined(slug.current)] { "slug": slug.current }`
   )
 }
 

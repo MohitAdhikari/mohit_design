@@ -6,7 +6,6 @@ const HIDDEN_TYPES = [
   'newsPost',
   'interview',
   'guide',
-  'article',
   'author',
   'category',
   'subCategory',
@@ -41,7 +40,6 @@ export const structure: StructureResolver = (S) =>
               S.documentTypeListItem('newsPost').title('News Posts'),
               S.documentTypeListItem('interview').title('Interviews'),
               S.documentTypeListItem('guide').title('Guides / Codes'),
-              S.documentTypeListItem('article').title('Article'),
             ])
         ),
 

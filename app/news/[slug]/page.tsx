@@ -1,260 +1,115 @@
-import { getNewsPostBySlug, getNewsPosts, getAppearanceSettings, resolveHighlightsStyle } from '@/lib/api';
-import Image from 'next/image';
-import { optimizedImageUrl } from '@/lib/sanityImage';
-import { formatDateTimeIST } from '@/utils/formatDate';
-import { notFound } from 'next/navigation';
-import SanityContent from '@/components/SanityContent';
-import VideoEmbed from '@/components/VideoEmbed';
-import ShareButtons from '@/components/ShareButtons';
-import { Metadata } from 'next';
-import { calculateReadingTime } from '@/lib/readingTime';
+import { notFound } from 'next/navigation'
+import { Metadata } from 'next'
+import Image from 'next/image'
+import { PortableText } from '@portabletext/react'
+import { getArticleBySlug } from '@/lib/tournamentApi'
 
-function extractPlainText(content: any, max = 160): string {
-  if (!content) return '';
-  if (typeof content === 'string') return content.slice(0, max);
-  if (Array.isArray(content)) {
-    const text = content
-      .map((block: any) =>
-        (block?.children || [])
-          .map((c: any) => c?.text || '')
-          .join(' ')
-      )
-      .join(' ')
-      .trim();
-    return text.slice(0, max);
+type Props = { params: Promise<{ slug: string }> }
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params
+  const article = await getArticleBySlug(slug)
+  if (!article) return {}
+
+  const { metaTitle, metaDescription, ogImage } = article.seo ?? {
+    metaTitle: null,
+    metaDescription: null,
+    ogImage: null,
   }
-  return '';
-}
-
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const { slug } = await params;
-  const post = await getNewsPostBySlug(slug);
-
-  if (!post) {
-    return {
-      title: 'Post Not Found',
-    };
-  }
-
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in';
-  // Prefer CMS-authored SEO fields, then excerpt, then extracted body text.
-  const description =
-    post.seo?.metaDescription || post.excerpt || extractPlainText(post.content) || 'PHONEOCEAN gaming news.';
-  const seoTitle = post.seo?.seoTitle || `${post.title} | PHONEOCEAN`;
-  const shareImage = post.seo?.socialShareImage || post.thumbnail || 'https://picsum.photos/1200/630';
-  const imageAlt = post.imageAlt || post.title;
-  const pageUrl = `${baseUrl}/news/${post.slug?.current || slug}`;
-  // Only override canonical if the editor explicitly set one (e.g. syndicated content).
-  const canonical = post.seo?.canonicalUrl || pageUrl;
-  const keywords = [
-    post.seo?.focusKeyword,
-    ...(post.tags?.map((t: any) => t?.title).filter(Boolean) || []),
-  ].filter(Boolean) as string[];
-  const publishDate = post.publishDate || post._createdAt || new Date().toISOString();
-  const publishedIso = new Date(publishDate).toISOString();
+  const title = metaTitle || article.title
+  const description = metaDescription || article.excerpt || ''
+  const image = ogImage || article.thumbnailUrl || ''
 
   return {
-    title: seoTitle,
+    title,
     description,
-    ...(keywords.length ? { keywords } : {}),
-    authors: [{ name: post.author?.name || post.authorName || 'PHONEOCEAN Staff' }],
     openGraph: {
-      title: seoTitle,
+      title,
       description,
+      images: image ? [{ url: image }] : [],
       type: 'article',
-      publishedTime: publishedIso,
-      modifiedTime: publishedIso,
-      url: pageUrl,
-      images: [
-        {
-          url: shareImage,
-          width: 1200,
-          height: 630,
-          alt: imageAlt,
-        },
-      ],
+      publishedTime: article.publishDate || undefined,
     },
     twitter: {
       card: 'summary_large_image',
-      title: seoTitle,
+      title,
       description,
-      images: [shareImage],
+      images: image ? [image] : [],
     },
-    alternates: {
-      canonical,
-    },
-  };
-}
-
-export async function generateStaticParams() {
-  const posts = await getNewsPosts();
-  return posts.map((p: any) => ({ slug: p.slug?.current ?? p.slug }));
-}
-
-export default async function NewsArticlePage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
-  const [post, appearance] = await Promise.all([
-    getNewsPostBySlug(slug),
-    getAppearanceSettings(),
-  ]);
-
-  if (!post) {
-    notFound();
   }
+}
 
-  const highlightsStyle = resolveHighlightsStyle(post, appearance);
+export default async function NewsArticlePage({ params }: Props) {
+  const { slug } = await params
+  const article = await getArticleBySlug(slug)
+  if (!article) notFound()
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in';
-  const canonicalUrl = `${baseUrl}/news/${post.slug?.current || slug}`;
-  const publishDate = post.publishDate || post._createdAt || new Date().toISOString();
-  const publishedIso = new Date(publishDate).toISOString();
-
-  const authorName = post.author?.name || post.authorName || 'PHONEOCEAN Staff';
-  const articleSection = post.categoryRef?.title || post.category;
-  const keywords = (post.tags?.map((t: any) => t?.title).filter(Boolean) || []) as string[];
-  const description = post.seo?.metaDescription || post.excerpt || extractPlainText(post.content) || undefined;
-  const heroImage = post.hideHeroImage ? null : (post.seo?.socialShareImage || post.thumbnail || 'https://picsum.photos/1200/630');
-  const readingTimeMinutes = calculateReadingTime(post.wordCount ?? post.content);
-
-  const newsArticleJsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'NewsArticle',
-    headline: post.title,
-    description: post.excerpt || '',
-    image: [post.thumbnail || `${baseUrl}/logo_phoneocean.png`],
-    datePublished: new Date(post.publishDate || post._createdAt).toISOString(),
-    dateModified: new Date(post._updatedAt || post.publishDate || post._createdAt).toISOString(),
-    author: {
-      '@type': 'Person',
-      name: post.author?.name || post.authorName || 'PHONEOCEAN Staff',
-    },
-    publisher: {
-      '@type': 'Organization',
-      name: 'PHONEOCEAN',
-      url: baseUrl,
-      logo: {
-        '@type': 'ImageObject',
-        url: `${baseUrl}/logo_phoneocean.png`,
-        width: 600,
-        height: 60,
-      },
-    },
-    mainEntityOfPage: {
-      '@type': 'WebPage',
-      '@id': `${baseUrl}/news/${post.slug?.current}`,
-    },
-  };
-
-  const breadcrumbJsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: baseUrl },
-      { '@type': 'ListItem', position: 2, name: 'News', item: `${baseUrl}/news` },
-      { '@type': 'ListItem', position: 3, name: post.title, item: `${baseUrl}/news/${post.slug?.current}` },
-    ],
-  };
+  const badge = article.badge && article.badge !== 'None'
+    ? (article.badge === 'CUSTOM' ? article.badgeCustom : article.badge)
+    : null
 
   return (
-    <article className="pb-20">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(newsArticleJsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
-      />
-      {/* HERO BANNER — image only, conditional */}
-      {!post.hideHeroImage && (
-        <div className="relative w-full aspect-[16/9] sm:aspect-auto sm:min-h-[55vh] md:min-h-[65vh] border-b border-gray-200 dark:border-gray-900">
-          <Image
-            src={optimizedImageUrl(post.thumbnail, 1920, 'https://picsum.photos/1920/1080')}
-            alt={post.imageAlt || post.title}
-            fill
-            sizes="100vw"
-            className="object-cover"
-            priority
-            referrerPolicy="no-referrer"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/10" />
-        </div>
+    <main className="max-w-3xl mx-auto px-4 py-12">
+      {/* Badge */}
+      {badge && (
+        <span className="inline-block text-xs font-bold tracking-widest text-yellow-400 border border-yellow-500 px-2 py-0.5 rounded mb-4">
+          {badge}
+        </span>
       )}
 
-      {/* TITLE BLOCK — always rendered */}
-      <div className={post.hideHeroImage
-        ? 'border-b border-gray-200 dark:border-gray-900 pt-8 pb-6 sm:pt-12 sm:pb-10'
-        : 'relative -mt-[80px] sm:-mt-[140px] md:-mt-[200px] z-10'
-      }>
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-6 sm:pb-12">
-          <div className="flex flex-wrap gap-2 mb-6">
-            <span className="inline-block bg-blue-600 text-white text-[10px] font-mono tracking-widest uppercase px-3 py-1 rounded-sm">
-              {post.category}
-            </span>
-            {post.badge && post.badge !== 'None' && (
-              <span className="inline-block bg-[#2A2A32] text-white text-[10px] font-mono tracking-widest uppercase px-3 py-1 rounded-sm">
-                {post.badge === 'CUSTOM' ? post.badgeCustom : post.badge}
-              </span>
-            )}
-          </div>
-          <h1 className={`text-lg sm:text-2xl md:text-4xl lg:text-5xl font-black font-space-grotesk tracking-tighter leading-tight mb-3 sm:mb-5 text-balance ${
-            post.hideHeroImage ? 'text-gray-900 dark:text-white' : 'text-white drop-shadow-[0_2px_16px_rgba(0,0,0,1)]'
-          }`}>
-            {post.title}
-          </h1>
-          <div className={`flex flex-wrap items-center text-xs font-mono gap-4 uppercase tracking-wider ${
-            post.hideHeroImage ? 'text-gray-500 dark:text-gray-400' : 'text-gray-400'
-          }`}>
-            <span>By {authorName}</span>
-            <span>•</span>
-            <span>{formatDateTimeIST(publishDate)}</span>
-            <span>•</span>
-            <span>{readingTimeMinutes} min read</span>
-          </div>
-          <div className="mt-6">
-            <div className="share-buttons-float"><ShareButtons title={post.title} url={canonicalUrl} /></div>
-          </div>
-        </div>
+      {/* Title */}
+      <h1 className="text-3xl md:text-4xl font-bold text-white leading-tight mb-4">
+        {article.title}
+      </h1>
+
+      {/* Meta */}
+      <div className="flex items-center gap-3 text-sm text-zinc-400 mb-8">
+        {article.publishDate && (
+          <time dateTime={article.publishDate}>
+            {new Date(article.publishDate).toLocaleDateString('en-IN', {
+              day: 'numeric', month: 'long', year: 'numeric',
+            })}
+          </time>
+        )}
+        {(article.authorName || article.author?.name) && (
+          <>
+            <span>·</span>
+            <span>{article.author?.name || article.authorName}</span>
+          </>
+        )}
+        {article.category && (
+          <>
+            <span>·</span>
+            <span className="text-yellow-400">{article.category}</span>
+          </>
+        )}
       </div>
 
-      <div className={`max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 ${post.hideHeroImage ? 'pt-8' : 'pt-4'}`}>
-        {(post.youtubeUrl || post.instagramUrl) && (
-          <div className="mb-12">
-            <VideoEmbed youtubeUrl={post.youtubeUrl} instagramUrl={post.instagramUrl} title={post.title} />
-          </div>
-        )}
+      {/* Hero Image */}
+      {!article.hideHeroImage && article.thumbnailUrl && (
+        <figure className="mb-8 rounded-xl overflow-hidden">
+          <Image
+            src={article.thumbnailUrl}
+            alt={article.imageAlt || article.title}
+            width={800}
+            height={450}
+            className="w-full object-cover"
+            priority
+          />
+          {article.imageCaption && (
+            <figcaption className="text-xs text-zinc-500 mt-2 text-center">
+              {article.imageCaption}
+            </figcaption>
+          )}
+        </figure>
+      )}
 
-        {post.bodyImage?.url && (
-          <figure className="my-8">
-            <div className="relative w-full aspect-video">
-              <Image
-                src={optimizedImageUrl(post.bodyImage?.url || post.thumbnail, 1200)}
-                alt={post.bodyImage?.alt || post.imageAlt || post.title}
-                fill
-                sizes="(max-width: 768px) 100vw, 768px"
-                loading="lazy"
-                className="object-cover rounded-sm"
-                referrerPolicy="no-referrer"
-              />
-            </div>
-            {(post.bodyImage?.caption || post.bodyImage?.credit) && (
-              <figcaption className="mt-2 text-sm text-gray-500 dark:text-gray-400 font-sans">
-                {post.bodyImage?.caption}
-                {post.bodyImage?.credit && (
-                  <span className="italic"> — {post.bodyImage.credit}</span>
-                )}
-              </figcaption>
-            )}
-          </figure>
-        )}
-
-        <SanityContent content={post.content} highlightsStyle={highlightsStyle} />
-        
-        <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-900 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <span className="text-sm font-mono text-gray-500 uppercase tracking-widest">Share this article</span>
-          <div className="share-buttons-float"><ShareButtons title={post.title} url={canonicalUrl} /></div>
+      {/* Body */}
+      {article.content && (
+        <div className="prose prose-invert prose-yellow max-w-none">
+          <PortableText value={article.content} />
         </div>
-      </div>
-    </article>
-  );
+      )}
+    </main>
+  )
 }
