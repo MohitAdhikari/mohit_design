@@ -124,9 +124,11 @@ export default async function RootLayout({children}: {children: React.ReactNode}
         if (theme === 'dark') {
           document.documentElement.classList.add('dark');
           document.documentElement.style.colorScheme = 'dark';
+          document.documentElement.style.backgroundColor = '#0B0B0F';
         } else {
           document.documentElement.classList.remove('dark');
           document.documentElement.style.colorScheme = 'light';
+          document.documentElement.style.backgroundColor = '#ffffff';
         }
       } catch (e) {}
     })();
