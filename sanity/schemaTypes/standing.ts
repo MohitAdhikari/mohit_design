@@ -7,9 +7,9 @@ export const standing = defineType({
   fields: [
     defineField({
       name: 'edition',
-      title: 'Tournament Edition',
+      title: 'Edition',
       type: 'reference',
-      to: [{ type: 'tournamentEdition' }],
+      to: [{ type: 'edition' }],
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -23,39 +23,77 @@ export const standing = defineType({
       name: 'group',
       title: 'Group',
       type: 'string',
-      options: {
-        list: [
-          { title: 'Group A', value: 'Group A' },
-          { title: 'Group B', value: 'Group B' },
-          { title: 'Group C', value: 'Group C' },
-          { title: 'Group D', value: 'Group D' },
-          { title: 'Overall', value: 'Overall' },
-        ],
-      },
-      initialValue: 'Overall',
+      description: 'e.g. Group A. Leave blank for overall standings.',
     }),
-    defineField({ name: 'rank', title: 'Rank', type: 'number', validation: (Rule) => Rule.required().min(1) }),
-    defineField({ name: 'matchesPlayed', title: 'Matches Played', type: 'number', initialValue: 0 }),
-    defineField({ name: 'wins', title: 'Wins (Chicken Dinners)', type: 'number', initialValue: 0 }),
-    defineField({ name: 'losses', title: 'Losses', type: 'number', initialValue: 0 }),
-    defineField({ name: 'points', title: 'Total Points', type: 'number', initialValue: 0, validation: (Rule) => Rule.required() }),
-    defineField({ name: 'kills', title: 'Total Kills', type: 'number', initialValue: 0 }),
-    defineField({ name: 'placementPoints', title: 'Placement Points', type: 'number', initialValue: 0 }),
-    defineField({ name: 'killPoints', title: 'Kill Points', type: 'number', initialValue: 0 }),
-    defineField({ name: 'isEliminated', title: 'Eliminated?', type: 'boolean', initialValue: false }),
-    defineField({ name: 'isAdvanced', title: 'Advanced to next stage?', type: 'boolean', initialValue: false }),
-    defineField({ name: 'lastUpdated', title: 'Last Updated', type: 'datetime' }),
+    defineField({
+      name: 'rank',
+      title: 'Rank',
+      type: 'number',
+      validation: (Rule) => Rule.required().min(1),
+    }),
+    defineField({
+      name: 'wins',
+      title: 'Wins',
+      type: 'number',
+      initialValue: 0,
+    }),
+    defineField({
+      name: 'losses',
+      title: 'Losses',
+      type: 'number',
+      initialValue: 0,
+    }),
+    defineField({
+      name: 'points',
+      title: 'Points',
+      type: 'number',
+      initialValue: 0,
+      validation: (Rule) => Rule.required().min(0),
+    }),
+    defineField({
+      name: 'kills',
+      title: 'Total Kills',
+      type: 'number',
+      initialValue: 0,
+      description: 'BGMI-specific: total elimination points.',
+    }),
+    defineField({
+      name: 'placementPoints',
+      title: 'Placement Points',
+      type: 'number',
+      initialValue: 0,
+    }),
+    defineField({
+      name: 'matchesPlayed',
+      title: 'Matches Played',
+      type: 'number',
+      initialValue: 0,
+    }),
+    defineField({
+      name: 'wwcd',
+      title: 'WWCD (Chicken Dinners)',
+      type: 'number',
+      initialValue: 0,
+    }),
+    defineField({
+      name: 'lastUpdated',
+      title: 'Last Updated',
+      type: 'datetime',
+      initialValue: () => new Date().toISOString(),
+    }),
   ],
   preview: {
-    select: { team: 'team.name', rank: 'rank', points: 'points', kills: 'kills', group: 'group' },
-    prepare({ team, rank, points, kills, group }) {
+    select: {
+      team: 'team.name',
+      rank: 'rank',
+      points: 'points',
+      edition: 'edition.title',
+    },
+    prepare({ team, rank, points, edition }) {
       return {
-        title: `#${rank ?? '?'} — ${team ?? 'Unknown Team'}`,
-        subtitle: `${group ?? 'Overall'} · ${points ?? 0} pts · ${kills ?? 0} kills`,
+        title: `#${rank} ${team}`,
+        subtitle: `${points} pts · ${edition}`,
       }
     },
   },
-  orderings: [
-    { title: 'Rank (1st first)', name: 'rankAsc', by: [{ field: 'rank', direction: 'asc' }] },
-  ],
 })
