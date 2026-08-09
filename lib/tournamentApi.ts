@@ -165,6 +165,19 @@ export async function getAllTournamentSlugs(): Promise<{ slug: string }[]> {
   return client.fetch(query)
 }
 
+export async function getEditionBySlug(
+  slug: string
+): Promise<{ _id: string; title: string; slug: { current: string } | null } | null> {
+  return client.fetch(
+    `*[_type in ["edition", "tournamentEdition"] && slug.current == $slug && publishStatus == "published"][0] {
+      _id,
+      "title": tournament->name + " — " + year,
+      slug
+    }`,
+    { slug }
+  )
+}
+
 // Derives display status from the tournamentStatus field on the latest edition
 export function getTournamentStatus(
   startDate: string | null,
