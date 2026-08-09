@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { getEditionBySlug, getMatches } from '@/lib/tournamentApi'
+import { getActiveEditionByTournamentSlug, getMatches } from '@/lib/tournamentApi'
 import type { Match } from '@/lib/tournamentApi'
 import { EditionTabs } from '@/components/EditionTabs'
 
@@ -21,7 +21,7 @@ type Props = { params: Promise<{ slug: string }> }
 
 export default async function MatchesPage({ params }: Props) {
   const { slug } = await params
-  const edition = await getEditionBySlug(slug)
+  const edition = await getActiveEditionByTournamentSlug(slug)
   if (!edition) notFound()
 
   const matches = await getMatches(edition._id)

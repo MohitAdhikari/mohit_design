@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { getEditionBySlug, getStandings } from '@/lib/tournamentApi'
+import { getActiveEditionByTournamentSlug, getStandings } from '@/lib/tournamentApi'
 import type { Standing } from '@/lib/tournamentApi'
 import { EditionTabs } from '@/components/EditionTabs'
 
@@ -7,7 +7,7 @@ type Props = { params: Promise<{ slug: string }> }
 
 export default async function StandingsPage({ params }: Props) {
   const { slug } = await params
-  const edition = await getEditionBySlug(slug)
+  const edition = await getActiveEditionByTournamentSlug(slug)
   if (!edition) notFound()
 
   const standings = await getStandings(edition._id)
