@@ -1,10 +1,10 @@
 import { MetadataRoute } from 'next';
-import { getNewsPosts, getInterviews, getGuides, getTags } from '@/lib/api';
+import { getPublicNewsPosts, getInterviews, getGuides, getTags } from '@/lib/api';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in';
 
-  const posts = await getNewsPosts();
+  const posts = await getPublicNewsPosts();
   const interviews = await getInterviews();
   const guides = await getGuides();
   const tags = await getTags();

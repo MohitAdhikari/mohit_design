@@ -166,11 +166,14 @@ export const mockData = {
 
 // Only public-facing queries should include these filters.
 // Dashboard/admin routes in sanityDashboard.ts intentionally fetch all statuses.
-const PUBLISHED_NEWSPOST_FILTER = `(status in ["published", "scheduled"] || !defined(status)) && (!defined(publishDate) || dateTime(publishDate) <= dateTime(now()))`;
-const PUBLISHED_GUIDE_FILTER = `(!defined(publishDate) || dateTime(publishDate) <= dateTime(now()))`;
-const PUBLISHED_INTERVIEW_FILTER = `(!defined(publishDate) || dateTime(publishDate) <= dateTime(now()))`;
-const NEWSPOST_PUBLIC_FILTER = `${PUBLISHED_NEWSPOST_FILTER} && showOnHomepage != false`;
-const PUBLISHED_CONTENT_FILTER = `(
+const STATUS_FILTER = `(status == "published" || !defined(status))`;
+const DATE_FILTER = `(!defined(publishDate) || dateTime(publishDate) <= dateTime(now()))`;
+
+const PUBLISHED_NEWSPOST_FILTER  = `${STATUS_FILTER} && ${DATE_FILTER}`;
+const PUBLISHED_GUIDE_FILTER     = `${STATUS_FILTER} && ${DATE_FILTER}`;
+const PUBLISHED_INTERVIEW_FILTER = `${STATUS_FILTER} && ${DATE_FILTER}`;
+const NEWSPOST_PUBLIC_FILTER     = `${PUBLISHED_NEWSPOST_FILTER} && showOnHomepage != false`;
+const PUBLISHED_CONTENT_FILTER   = `(
   (_type == "newsPost" && ${NEWSPOST_PUBLIC_FILTER}) ||
   (_type == "guide" && ${PUBLISHED_GUIDE_FILTER}) ||
   (_type == "interview" && ${PUBLISHED_INTERVIEW_FILTER})
@@ -181,7 +184,7 @@ function isPublishedDoc(doc: any): boolean {
   if (
     doc._type === 'newsPost' &&
     doc.status &&
-    !['published', 'scheduled'].includes(doc.status)
+    doc.status !== 'published'
   ) return false;
   if (doc.publishDate && new Date(doc.publishDate).getTime() > Date.now()) return false;
   if (doc._type === 'newsPost' && doc.showOnHomepage === false) return false;
@@ -202,8 +205,16 @@ export async function getNewsPosts(): Promise<any[]> {
 }
 
 export async function getPublicNewsPosts(): Promise<any[]> {
-  const posts = await getNewsPosts();
-  return posts.filter((post: any) => post.showOnHomepage !== false);
+  if (!projectId) {
+    return sortByTimestamp(mockData.newsPosts.filter((p: any) => p.showOnHomepage !== false));
+  }
+  const query = `*[_type == "newsPost" && ${NEWSPOST_PUBLIC_FILTER}] | order(dateTime(coalesce(publishDate, _createdAt)) desc) {
+    _id, _createdAt, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, excerpt, authorName, youtubeUrl, instagramUrl, featured, badge, badgeCustom, showOnHomepage,
+    wordCount,
+    !defined(wordCount) => { content }
+  }`;
+  const posts = await client.fetch(query);
+  return sortByTimestamp(posts);
 }
 
 export async function getNewsPostBySlug(slug: string): Promise<any> {
