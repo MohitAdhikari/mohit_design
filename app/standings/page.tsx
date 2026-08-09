@@ -1,10 +1,11 @@
-import { getActiveEdition, getStandingsByEdition } from '@/lib/tournamentApi'
+import { getActiveEdition, getStandings } from '@/lib/tournamentApi'
+import type { Standing } from '@/lib/tournamentApi'
 
 export default async function StandingsPage() {
   const edition = await getActiveEdition()
   if (!edition) return <p className="text-center py-20 text-zinc-400">No active tournament.</p>
 
-  const standings = await getStandingsByEdition(edition._id)
+  const standings = await getStandings(edition._id)
 
   return (
     <main className="max-w-4xl mx-auto px-4 py-12">
@@ -23,7 +24,7 @@ export default async function StandingsPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-800">
-            {standings.map((s, i) => (
+            {standings.map((s: Standing, i: number) => (
               <tr key={s._id} className={`${i % 2 === 0 ? 'bg-zinc-950' : 'bg-zinc-900'} hover:bg-zinc-800 transition-colors`}>
                 <td className="px-4 py-3 text-zinc-500 font-mono">{s.rank ?? i + 1}</td>
                 <td className="px-4 py-3">

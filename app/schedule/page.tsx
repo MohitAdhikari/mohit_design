@@ -1,4 +1,4 @@
-import { getActiveEdition, getMatchesByEdition } from '@/lib/tournamentApi'
+import { getActiveEdition, getMatches } from '@/lib/tournamentApi'
 import type { Match } from '@/lib/tournamentApi'
 
 const STAGE_LABELS: Record<string, string> = {
@@ -19,9 +19,9 @@ export default async function SchedulePage() {
   const edition = await getActiveEdition()
   if (!edition) return <p className="text-center py-20 text-zinc-400">No active tournament.</p>
 
-  const matches = await getMatchesByEdition(edition._id)
+  const matches = await getMatches(edition._id)
 
-  const grouped = matches.reduce<Record<string, Match[]>>((acc, m) => {
+  const grouped = matches.reduce<Record<string, Match[]>>((acc: Record<string, Match[]>, m: Match) => {
     const key = m.stage ?? 'other'
     if (!acc[key]) acc[key] = []
     acc[key].push(m)
@@ -41,7 +41,7 @@ export default async function SchedulePage() {
             {STAGE_LABELS[stage] ?? stage}
           </h2>
           <div className="space-y-3">
-            {grouped[stage].map(match => (
+            {grouped[stage].map((match: Match) => (
               <div key={match._id} className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 flex items-center justify-between gap-4">
 
                 {/* Team 1 */}

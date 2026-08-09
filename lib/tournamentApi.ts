@@ -199,37 +199,33 @@ export function getCurrentStageLabel(stages: TournamentStage[]): string | null {
 
 export interface Match {
   _id: string
-  matchNumber: number | null
-  stage: 'group_stage' | 'survival_stage' | 'semifinals' | 'grand_finals' | null
-  group: string | null
+  team1: { name: string; logoUrl: string | null }
+  team2: { name: string; logoUrl: string | null }
+  team1Score: number | null
+  team2Score: number | null
   status: 'scheduled' | 'live' | 'completed' | 'cancelled'
-  scheduledAt: string | null
-  team1: { _id: string; name: string; logoUrl: string | null } | null
-  team2: { _id: string; name: string; logoUrl: string | null } | null
-  team1Score: number
-  team2Score: number
-  winner: { _id: string; name: string; logoUrl: string | null } | null
+  stage: string | null
+  group: string | null
+  matchNumber: number | null
   map: string | null
+  scheduledAt: string
+  winner: { name: string } | null
   broadcastUrl: string | null
-  playerOfMatch: { _id: string; name: string; photoUrl: string | null } | null
-  highlightStat: string | null
 }
 
 export interface Standing {
   _id: string
+  team: { name: string; logoUrl: string | null }
+  group: string | null
   rank: number
-  team: { _id: string; name: string; logoUrl: string | null }
-  group: string
-  matchesPlayed: number
   wins: number
   losses: number
   points: number
   kills: number
   placementPoints: number
-  killPoints: number
-  isEliminated: boolean
-  isAdvanced: boolean
-  lastUpdated: string | null
+  matchesPlayed: number
+  wwcd: number
+  lastUpdated: string
 }
 
 export interface Article {
@@ -260,67 +256,34 @@ export interface ArticleDetail extends Article {
 
 // ─── MATCH QUERIES ────────────────────────────────────────────────────
 
-const MATCH_FIELDS = `
-  _id, matchNumber, stage, group, status, scheduledAt,
-  "team1": team1->{ _id, name, "logoUrl": logo.asset->url },
-  "team2": team2->{ _id, name, "logoUrl": logo.asset->url },
-  team1Score, team2Score,
-  "winner": winner->{ _id, name, "logoUrl": logo.asset->url },
-  map, broadcastUrl,
-  "playerOfMatch": playerOfMatch->{ _id, name, "photoUrl": photo.asset->url },
-  highlightStat
-`
-
-export async function getMatchesByEdition(editionId: string): Promise<Match[]> {
+export async function getMatches(editionId: string): Promise<Match[]> {
   return client.fetch(
-    `*[_type == "match" && edition._ref == $editionId] | order(scheduledAt asc) { ${MATCH_FIELDS} }`,
+    `*[_type == "match" && edition._ref == $editionId] | order(scheduledAt asc) {
+      _id,
+      team1->{ name, "logoUrl": logo.asset->url },
+      team2->{ name, "logoUrl": logo.asset->url },
+      team1Score, team2Score,
+      status, stage, group, matchNumber, map,
+      scheduledAt,
+      winner->{ name },
+      broadcastUrl
+    }`,
     { editionId }
-  )
-}
-
-export async function getLiveMatches(editionId: string): Promise<Match[]> {
-  return client.fetch(
-    `*[_type == "match" && edition._ref == $editionId && status == "live"] | order(scheduledAt asc) { ${MATCH_FIELDS} }`,
-    { editionId }
-  )
-}
-
-export async function getTodaysMatches(editionId: string): Promise<Match[]> {
-  const start = new Date(); start.setHours(0, 0, 0, 0)
-  const end = new Date(); end.setHours(23, 59, 59, 999)
-  return client.fetch(
-    `*[_type == "match" && edition._ref == $editionId && scheduledAt >= $start && scheduledAt <= $end] | order(scheduledAt asc) { ${MATCH_FIELDS} }`,
-    { editionId, start: start.toISOString(), end: end.toISOString() }
-  )
-}
-
-export async function getMatchesByStage(editionId: string, stage: string): Promise<Match[]> {
-  return client.fetch(
-    `*[_type == "match" && edition._ref == $editionId && stage == $stage] | order(scheduledAt asc) { ${MATCH_FIELDS} }`,
-    { editionId, stage }
   )
 }
 
 // ─── STANDING QUERIES ─────────────────────────────────────────────────
 
-const STANDING_FIELDS = `
-  _id, rank,
-  "team": team->{ _id, name, "logoUrl": logo.asset->url },
-  group, matchesPlayed, wins, losses, points, kills,
-  placementPoints, killPoints, isEliminated, isAdvanced, lastUpdated
-`
-
-export async function getStandingsByEdition(editionId: string): Promise<Standing[]> {
+export async function getStandings(editionId: string): Promise<Standing[]> {
   return client.fetch(
-    `*[_type == "standing" && edition._ref == $editionId] | order(rank asc) { ${STANDING_FIELDS} }`,
+    `*[_type == "standing" && edition._ref == $editionId] | order(rank asc) {
+      _id,
+      team->{ name, "logoUrl": logo.asset->url },
+      group, rank, wins, losses,
+      points, kills, placementPoints,
+      matchesPlayed, wwcd, lastUpdated
+    }`,
     { editionId }
-  )
-}
-
-export async function getStandingsByGroup(editionId: string, group: string): Promise<Standing[]> {
-  return client.fetch(
-    `*[_type == "standing" && edition._ref == $editionId && group == $group] | order(rank asc) { ${STANDING_FIELDS} }`,
-    { editionId, group }
   )
 }
 
