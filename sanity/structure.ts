@@ -54,12 +54,42 @@ export const structure: StructureResolver = (S) =>
           S.list()
             .title('Esports')
             .items([
-              S.documentTypeListItem('tournament').title('Tournaments'),
-              S.documentTypeListItem('tournamentEdition').title('Tournament Editions'),
+              S.listItem()
+                .title('🏆 Tournaments')
+                .child(
+                  S.documentTypeList('tournament')
+                    .title('Tournaments')
+                    .child((tournamentId: string) =>
+                      S.documentTypeList('tournamentEdition')
+                        .title('Editions')
+                        .filter('_type == "tournamentEdition" && tournament._ref == $tournamentId')
+                        .params({ tournamentId })
+                        .child((editionId: string) =>
+                          S.list()
+                            .title('Edition')
+                            .items([
+                              S.listItem()
+                                .title('Matches')
+                                .child(
+                                  S.documentTypeList('match')
+                                    .title('Matches')
+                                    .filter('_type == "match" && edition._ref == $editionId')
+                                    .params({ editionId })
+                                ),
+                              S.listItem()
+                                .title('Standings')
+                                .child(
+                                  S.documentTypeList('standing')
+                                    .title('Standings')
+                                    .filter('_type == "standing" && edition._ref == $editionId')
+                                    .params({ editionId })
+                                ),
+                            ])
+                        )
+                    )
+                ),
               S.documentTypeListItem('team').title('Teams'),
               S.documentTypeListItem('player').title('Players'),
-              S.documentTypeListItem('match').title('Match'),
-              S.documentTypeListItem('standing').title('Standing'),
             ])
         ),
 
