@@ -9,7 +9,7 @@ export const standing = defineType({
       name: 'edition',
       title: 'Edition',
       type: 'reference',
-      to: [{ type: 'edition' }],
+      to: [{ type: 'tournamentEdition' }],
       validation: (Rule) => Rule.required(),
     }),
     defineField({

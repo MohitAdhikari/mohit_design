@@ -23,7 +23,7 @@ export const match = defineType({
       title: 'Edition',
       type: 'reference',
       group: 'core',
-      to: [{ type: 'edition' }],
+      to: [{ type: 'tournamentEdition' }],
       validation: (Rule) => Rule.required(),
     }),
     defineField({
