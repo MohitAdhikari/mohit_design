@@ -2,6 +2,9 @@ import { type SchemaTypeDefinition } from 'sanity'
 import { newsPost } from './newsPost'
 import { interview } from './interview'
 import { guide } from './guide'
+import { match } from './match'
+import { standing } from './standing'
+import { article } from './article'
 import { siteSettings } from './siteSettings'
 import { appearanceSettings } from './appearanceSettings'
 import { seo } from './objects/seo'
@@ -38,6 +41,9 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     interview,
     guide,
     // Taxonomy & entities
+    match,
+    standing,
+    article,
     author,
     category,
     subCategory,

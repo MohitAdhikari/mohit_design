@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
-import { getTagBySlug } from '@/lib/api'
+import { getTagBySlug, getTags } from '@/lib/api'
 import { optimizedImageUrl } from '@/lib/sanityImage'
 import { formatDateIST } from '@/utils/formatDate'
 import { Metadata } from 'next'
@@ -34,6 +34,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       canonical: `${baseUrl}/tags/${tag.slug}`,
     },
   }
+}
+
+export async function generateStaticParams() {
+  const tags = await getTags();
+  return tags.map((t: any) => ({ slug: t.slug?.current ?? t.slug }));
 }
 
 export default async function TagPage({ params }: { params: Promise<{ slug: string }> }) {

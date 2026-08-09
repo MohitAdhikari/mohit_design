@@ -1,4 +1,4 @@
-import { getGuideBySlug, getAppearanceSettings, resolveHighlightsStyle } from '@/lib/api';
+import { getGuideBySlug, getGuides, getAppearanceSettings, resolveHighlightsStyle } from '@/lib/api';
 import Image from 'next/image';
 import { optimizedImageUrl } from '@/lib/sanityImage';
 import { formatDateCompactIST, formatDateTimeIST } from '@/utils/formatDate';
@@ -69,6 +69,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       canonical: `${baseUrl}/guides/${guide.slug?.current || slug}`,
     },
   };
+}
+
+export async function generateStaticParams() {
+  const guides = await getGuides();
+  return guides.map((g: any) => ({ slug: g.slug?.current ?? g.slug }));
 }
 
 export default async function GuidePage({ params }: { params: Promise<{ slug: string }> }) {

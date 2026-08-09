@@ -1,4 +1,4 @@
-import { getNewsPostBySlug, getAppearanceSettings, resolveHighlightsStyle } from '@/lib/api';
+import { getNewsPostBySlug, getNewsPosts, getAppearanceSettings, resolveHighlightsStyle } from '@/lib/api';
 import Image from 'next/image';
 import { optimizedImageUrl } from '@/lib/sanityImage';
 import { formatDateTimeIST } from '@/utils/formatDate';
@@ -84,6 +84,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       canonical,
     },
   };
+}
+
+export async function generateStaticParams() {
+  const posts = await getNewsPosts();
+  return posts.map((p: any) => ({ slug: p.slug?.current ?? p.slug }));
 }
 
 export default async function NewsArticlePage({ params }: { params: Promise<{ slug: string }> }) {
@@ -192,8 +197,8 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
               </span>
             )}
           </div>
-          <h1 className={`text-lg sm:text-2xl md:text-4xl lg:text-5xl font-black font-space-grotesk tracking-tighter leading-tight mb-3 sm:mb-5 text-balance drop-shadow-[0_2px_16px_rgba(0,0,0,1)] ${
-            post.hideHeroImage ? 'text-gray-900 dark:text-white' : 'text-white'
+          <h1 className={`text-lg sm:text-2xl md:text-4xl lg:text-5xl font-black font-space-grotesk tracking-tighter leading-tight mb-3 sm:mb-5 text-balance ${
+            post.hideHeroImage ? 'text-gray-900 dark:text-white' : 'text-white drop-shadow-[0_2px_16px_rgba(0,0,0,1)]'
           }`}>
             {post.title}
           </h1>
@@ -212,7 +217,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-12">
+      <div className={`max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 ${post.hideHeroImage ? 'pt-8' : 'pt-4'}`}>
         {(post.youtubeUrl || post.instagramUrl) && (
           <div className="mb-12">
             <VideoEmbed youtubeUrl={post.youtubeUrl} instagramUrl={post.instagramUrl} title={post.title} />

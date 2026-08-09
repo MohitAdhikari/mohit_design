@@ -191,6 +191,195 @@ export function getCurrentStageLabel(stages: TournamentStage[]): string | null {
   const live = stages.find((s) => s.status === 'live')
   if (live) return live.name
   const upcoming = stages.find((s) => s.status === 'upcoming')
-  if (upcoming) return `${upcoming.name} (Upcoming)` 
+  if (upcoming) return `${upcoming.name} (Upcoming)`
   return null
+}
+
+// ─── MATCH TYPES ──────────────────────────────────────────────────────
+
+export interface Match {
+  _id: string
+  matchNumber: number | null
+  stage: 'group_stage' | 'survival_stage' | 'semifinals' | 'grand_finals' | null
+  group: string | null
+  status: 'scheduled' | 'live' | 'completed' | 'cancelled'
+  scheduledAt: string | null
+  team1: { _id: string; name: string; logoUrl: string | null } | null
+  team2: { _id: string; name: string; logoUrl: string | null } | null
+  team1Score: number
+  team2Score: number
+  winner: { _id: string; name: string; logoUrl: string | null } | null
+  map: string | null
+  broadcastUrl: string | null
+  playerOfMatch: { _id: string; name: string; photoUrl: string | null } | null
+  highlightStat: string | null
+}
+
+export interface Standing {
+  _id: string
+  rank: number
+  team: { _id: string; name: string; logoUrl: string | null }
+  group: string
+  matchesPlayed: number
+  wins: number
+  losses: number
+  points: number
+  kills: number
+  placementPoints: number
+  killPoints: number
+  isEliminated: boolean
+  isAdvanced: boolean
+  lastUpdated: string | null
+}
+
+export interface Article {
+  _id: string
+  title: string
+  slug: { current: string }
+  type: 'news' | 'preview' | 'recap' | 'standings' | 'analysis' | 'tournament_report' | 'roster_move' | 'guide'
+  status: 'draft' | 'review' | 'published'
+  publishedAt: string | null
+  excerpt: string | null
+  coverImageUrl: string | null
+  coverImageAlt: string | null
+  author: { name: string; photoUrl: string | null } | null
+  tournament: { _id: string; name: string; slug: { current: string } } | null
+  edition: { _id: string; year: string } | null
+  relatedTeams: { _id: string; name: string; logoUrl: string | null }[]
+  tags: { _id: string; title: string; slug: { current: string } }[]
+}
+
+export interface ArticleDetail extends Article {
+  body: any[]
+  relatedMatches: { _id: string }[]
+  relatedPlayers: { _id: string; name: string }[]
+  seo: { metaTitle: string | null; metaDescription: string | null } | null
+}
+
+// ─── MATCH QUERIES ────────────────────────────────────────────────────
+
+const MATCH_FIELDS = `
+  _id, matchNumber, stage, group, status, scheduledAt,
+  "team1": team1->{ _id, name, "logoUrl": logo.asset->url },
+  "team2": team2->{ _id, name, "logoUrl": logo.asset->url },
+  team1Score, team2Score,
+  "winner": winner->{ _id, name, "logoUrl": logo.asset->url },
+  map, broadcastUrl,
+  "playerOfMatch": playerOfMatch->{ _id, name, "photoUrl": photo.asset->url },
+  highlightStat
+`
+
+export async function getMatchesByEdition(editionId: string): Promise<Match[]> {
+  return client.fetch(
+    `*[_type == "match" && edition._ref == $editionId] | order(scheduledAt asc) { ${MATCH_FIELDS} }`,
+    { editionId }
+  )
+}
+
+export async function getLiveMatches(editionId: string): Promise<Match[]> {
+  return client.fetch(
+    `*[_type == "match" && edition._ref == $editionId && status == "live"] | order(scheduledAt asc) { ${MATCH_FIELDS} }`,
+    { editionId }
+  )
+}
+
+export async function getTodaysMatches(editionId: string): Promise<Match[]> {
+  const start = new Date(); start.setHours(0, 0, 0, 0)
+  const end = new Date(); end.setHours(23, 59, 59, 999)
+  return client.fetch(
+    `*[_type == "match" && edition._ref == $editionId && scheduledAt >= $start && scheduledAt <= $end] | order(scheduledAt asc) { ${MATCH_FIELDS} }`,
+    { editionId, start: start.toISOString(), end: end.toISOString() }
+  )
+}
+
+export async function getMatchesByStage(editionId: string, stage: string): Promise<Match[]> {
+  return client.fetch(
+    `*[_type == "match" && edition._ref == $editionId && stage == $stage] | order(scheduledAt asc) { ${MATCH_FIELDS} }`,
+    { editionId, stage }
+  )
+}
+
+// ─── STANDING QUERIES ─────────────────────────────────────────────────
+
+const STANDING_FIELDS = `
+  _id, rank,
+  "team": team->{ _id, name, "logoUrl": logo.asset->url },
+  group, matchesPlayed, wins, losses, points, kills,
+  placementPoints, killPoints, isEliminated, isAdvanced, lastUpdated
+`
+
+export async function getStandingsByEdition(editionId: string): Promise<Standing[]> {
+  return client.fetch(
+    `*[_type == "standing" && edition._ref == $editionId] | order(rank asc) { ${STANDING_FIELDS} }`,
+    { editionId }
+  )
+}
+
+export async function getStandingsByGroup(editionId: string, group: string): Promise<Standing[]> {
+  return client.fetch(
+    `*[_type == "standing" && edition._ref == $editionId && group == $group] | order(rank asc) { ${STANDING_FIELDS} }`,
+    { editionId, group }
+  )
+}
+
+// ─── ARTICLE QUERIES ──────────────────────────────────────────────────
+
+const ARTICLE_FIELDS = `
+  _id, title, slug, type, status, publishedAt, excerpt,
+  "coverImageUrl": coverImage.asset->url,
+  "coverImageAlt": coverImage.alt,
+  "author": author->{ name, "photoUrl": photo.asset->url },
+  "tournament": tournament->{ _id, name, slug },
+  "edition": edition->{ _id, year },
+  "relatedTeams": relatedTeams[]->{ _id, name, "logoUrl": logo.asset->url },
+  "tags": tags[]->{ _id, title, slug }
+`
+
+export async function getArticles(limit = 20): Promise<Article[]> {
+  return client.fetch(
+    `*[_type == "article" && status == "published"] | order(publishedAt desc) [0...$limit] { ${ARTICLE_FIELDS} }`,
+    { limit }
+  )
+}
+
+export async function getArticlesByType(type: string, limit = 10): Promise<Article[]> {
+  return client.fetch(
+    `*[_type == "article" && status == "published" && type == $type] | order(publishedAt desc) [0...$limit] { ${ARTICLE_FIELDS} }`,
+    { type, limit }
+  )
+}
+
+export async function getArticlesByEdition(editionId: string): Promise<Article[]> {
+  return client.fetch(
+    `*[_type == "article" && status == "published" && edition._ref == $editionId] | order(publishedAt desc) { ${ARTICLE_FIELDS} }`,
+    { editionId }
+  )
+}
+
+export async function getArticleBySlug(slug: string): Promise<ArticleDetail | null> {
+  return client.fetch(
+    `*[_type == "article" && slug.current == $slug && status == "published"][0] {
+      ${ARTICLE_FIELDS},
+      body,
+      "relatedMatches": relatedMatches[]->{ _id },
+      "relatedPlayers": relatedPlayers[]->{ _id, name },
+      "seo": seo { metaTitle, metaDescription }
+    }`,
+    { slug }
+  )
+}
+
+export async function getAllArticleSlugs(): Promise<{ slug: string }[]> {
+  return client.fetch(
+    `*[_type == "article" && status == "published" && defined(slug.current)] { "slug": slug.current }`
+  )
+}
+
+export async function getActiveEdition(): Promise<{ _id: string; name: string } | null> {
+  return client.fetch(
+    `*[_type == "tournamentEdition" && publishStatus == "published"] | order(startDate desc) [0] {
+      _id,
+      "name": tournament->name + " — " + year
+    }`
+  )
 }

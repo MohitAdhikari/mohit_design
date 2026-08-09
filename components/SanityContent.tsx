@@ -90,7 +90,13 @@ return {
     },
   },
   block: {
-    normal: ({ children }: any) => <p className="mb-6 leading-relaxed text-gray-700 dark:text-gray-300 font-sans text-lg">{children}</p>,
+    normal: ({ children }: any) => {
+      const text = Array.isArray(children)
+        ? children.map((c: any) => (typeof c === 'string' ? c : '')).join('')
+        : typeof children === 'string' ? children : '';
+      if (/^[\|\s\-:]+$/.test(text.trim()) && text.includes('-')) return null;
+      return <p className="mb-6 leading-relaxed text-gray-700 dark:text-gray-300 font-sans text-lg">{children}</p>;
+    },
     h1: ({ children }: any) => <h1 className="text-4xl font-black font-space-grotesk mt-12 mb-6 text-gray-900 dark:text-white">{children}</h1>,
     h2: ({ children }: any) => <h2 className="text-3xl font-bold font-space-grotesk mt-10 mb-5 text-gray-900 dark:text-white">{children}</h2>,
     h3: ({ children }: any) => <h3 className="text-2xl font-bold font-space-grotesk mt-8 mb-4 text-gray-900 dark:text-white">{children}</h3>,

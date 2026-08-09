@@ -24,6 +24,15 @@ function normalizeInstagramUrl(url: string): string {
 
 export default function VideoEmbed({ youtubeUrl, instagramUrl, title }: { youtubeUrl?: string, instagramUrl?: string, title: string }) {
   const [ytLoaded, setYtLoaded] = useState(false);
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsDark(document.documentElement.classList.contains('dark'));
+    check();
+    const observer = new MutationObserver(check);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!instagramUrl) return;
@@ -111,10 +120,12 @@ export default function VideoEmbed({ youtubeUrl, instagramUrl, title }: { youtub
           data-instgrm-permalink={`${postUrl}/?utm_source=ig_embed&utm_campaign=loading`}
           data-instgrm-version="14"
           style={{
-            background: '#FFF',
+            background: isDark ? '#1A1A22' : '#FFF',
             border: 0,
             borderRadius: '3px',
-            boxShadow: '0 0 1px 0 rgba(0,0,0,0.5), 0 1px 10px 0 rgba(0,0,0,0.15)',
+            boxShadow: isDark
+              ? '0 0 1px 0 rgba(255,255,255,0.1), 0 1px 10px 0 rgba(0,0,0,0.5)'
+              : '0 0 1px 0 rgba(0,0,0,0.5), 0 1px 10px 0 rgba(0,0,0,0.15)',
             margin: '1px',
             maxWidth: '540px',
             minWidth: '326px',
@@ -127,7 +138,7 @@ export default function VideoEmbed({ youtubeUrl, instagramUrl, title }: { youtub
               href={`${postUrl}/`}
               target="_blank"
               rel="noopener noreferrer"
-              style={{ color: '#000', fontFamily: 'Arial,sans-serif', fontSize: '14px', fontStyle: 'normal', fontWeight: 550, lineHeight: '18px' }}
+              style={{ color: isDark ? '#E0E0E0' : '#000', fontFamily: 'Arial,sans-serif', fontSize: '14px', fontStyle: 'normal', fontWeight: 550, lineHeight: '18px' }}
             >
               View this post on Instagram
             </a>

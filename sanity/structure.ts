@@ -6,6 +6,7 @@ const HIDDEN_TYPES = [
   'newsPost',
   'interview',
   'guide',
+  'article',
   'author',
   'category',
   'subCategory',
@@ -14,6 +15,8 @@ const HIDDEN_TYPES = [
   'tournamentEdition',
   'team',
   'player',
+  'match',
+  'standing',
   'subscriber',
   'contactMessage',
   'homepage',
@@ -27,10 +30,10 @@ export const structure: StructureResolver = (S) =>
     .items([
 
       // ─────────────────────────────────────────
-      // 📰 CONTENT
+      // 📁 CONTENT
       // ─────────────────────────────────────────
       S.listItem()
-        .title('📰 Content')
+        .title('📁 Content')
         .child(
           S.list()
             .title('Content')
@@ -38,6 +41,7 @@ export const structure: StructureResolver = (S) =>
               S.documentTypeListItem('newsPost').title('News Posts'),
               S.documentTypeListItem('interview').title('Interviews'),
               S.documentTypeListItem('guide').title('Guides / Codes'),
+              S.documentTypeListItem('article').title('Article'),
             ])
         ),
 
@@ -56,6 +60,8 @@ export const structure: StructureResolver = (S) =>
               S.documentTypeListItem('tournamentEdition').title('Tournament Editions'),
               S.documentTypeListItem('team').title('Teams'),
               S.documentTypeListItem('player').title('Players'),
+              S.documentTypeListItem('match').title('Match'),
+              S.documentTypeListItem('standing').title('Standing'),
             ])
         ),
 
