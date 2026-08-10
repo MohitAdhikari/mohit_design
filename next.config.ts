@@ -1,19 +1,9 @@
 import type {NextConfig} from 'next';
 
-const contentSecurityPolicy = [
-  "default-src 'self'",
-  "base-uri 'self'",
-  "form-action 'self'",
-  "frame-ancestors 'self'",
-  "object-src 'none'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com",
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://cdn.sanity.io https://picsum.photos https://www.google-analytics.com https://img.youtube.com https://*.instagram.com",
-  "font-src 'self' data:",
-  "connect-src 'self' https://*.sanity.io https://*.apicdn.sanity.io https://www.google-analytics.com https://region1.google-analytics.com https://*.supabase.co",
-  "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com",
-  "upgrade-insecure-requests",
-].join('; ');
+// Content-Security-Policy is set dynamically per-request in `middleware.ts`
+// (nonce-based for the main site, a separate permissive policy for
+// `/studio`) rather than statically here, since Sanity Studio needs
+// `unsafe-eval` but the rest of the site should not.
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -39,6 +29,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**', 
       },
+      {
+        protocol: 'https',
+        hostname: 'img.youtube.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
   async headers() {
@@ -46,10 +42,6 @@ const nextConfig: NextConfig = {
       {
         source: '/:path*',
         headers: [
-          {
-            key: 'Content-Security-Policy',
-            value: contentSecurityPolicy,
-          },
           {
             key: 'Strict-Transport-Security',
             value: 'max-age=63072000; includeSubDomains; preload',
@@ -62,6 +54,9 @@ const nextConfig: NextConfig = {
             value: 'camera=(), microphone=(), geolocation=()',
           },
           { key: 'X-DNS-Prefetch-Control', value: 'on' },
+          // 'same-origin-allow-popups' (not 'same-origin') so Sanity
+          // Studio's OAuth login popup can still talk back to its opener.
+          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin-allow-popups' },
         ],
       },
     ];

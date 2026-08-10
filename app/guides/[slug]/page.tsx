@@ -1,7 +1,5 @@
 import { getGuideBySlug, getGuides, getAppearanceSettings, resolveHighlightsStyle } from '@/lib/api';
-import Image from 'next/image';
-import { optimizedImageUrl } from '@/lib/sanityImage';
-import { formatDateCompactIST, formatDateTimeIST } from '@/utils/formatDate';
+import { formatDateIST } from '@/utils/formatDate';
 import { notFound } from 'next/navigation';
 import SanityContent from '@/components/SanityContent';
 import VideoEmbed from '@/components/VideoEmbed';
@@ -10,6 +8,8 @@ import ShareButtons from '@/components/ShareButtons';
 import CodeCopyBox from '@/components/blocks/CodeCopyBox';
 import { sortCodeEntries } from '@/lib/codeEntries';
 import { calculateReadingTime } from '@/lib/readingTime';
+import ArticleHeader from '@/components/article/ArticleHeader';
+import ArticleHero from '@/components/article/ArticleHero';
 
 function extractPlainText(content: any, max = 160): string {
   if (!content) return '';
@@ -146,48 +146,27 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
-      {/* HERO BANNER */}
-      <div className="relative w-full h-[40vh] md:h-[50vh] border-b border-gray-200 dark:border-gray-900">
-        <Image 
-          src={optimizedImageUrl(guide.thumbnail, 1920, 'https://picsum.photos/1920/1080')}
-          alt={guide.thumbnailAlt || guide.title}
-          fill
-          sizes="100vw"
-          className="object-cover"
-          priority
-          referrerPolicy="no-referrer"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
-        
-        <div className="absolute bottom-0 left-0 w-full">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-            <span className="inline-block bg-purple-600 text-white text-[10px] font-mono tracking-widest uppercase px-3 py-1 mb-6 rounded-sm">
-              {guide.gameName} Guide
-            </span>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black font-space-grotesk tracking-tighter leading-tight mb-6 text-white text-balance drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]">
-              {guide.title}
-            </h1>
-            <div className="flex flex-wrap items-center text-gray-400 text-xs font-mono gap-4 uppercase tracking-wider">
-              <span>By {authorName}</span>
-              <span>•</span>
-              <span>{formatDateTimeIST(publishDate)}</span>
-              <span>•</span>
-              <span>{readingTimeMinutes} min read</span>
-              {showUpdatedDate && (
-                <>
-                  <span>•</span>
-                  <span>Updated {formatDateCompactIST(guide.lastUpdated)}</span>
-                </>
-              )}
-            </div>
-            <div className="mt-6">
-              <ShareButtons title={guide.title} url={canonicalUrl} />
-            </div>
-          </div>
-        </div>
-      </div>
+      <ArticleHeader
+        eyebrow={`${guide.gameName} Guide`}
+        title={guide.title}
+        authorName={authorName}
+        isoDate={publishedIso}
+        formattedDate={formatDateIST(publishDate)}
+        readingTimeMinutes={readingTimeMinutes}
+        updatedLabel={showUpdatedDate ? formatDateIST(guide.lastUpdated) : null}
+        shareTitle={guide.title}
+        shareUrl={canonicalUrl}
+      />
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-12">
+      <ArticleHero
+        image={guide.heroImage}
+        fallbackUrl={guide.thumbnail}
+        alt={guide.thumbnailAlt || guide.title}
+        caption={guide.thumbnailCaption}
+        credit={guide.thumbnailCredit}
+      />
+
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
         
         {(guide.youtubeUrl || guide.instagramUrl) && (
           <div className="mb-12">

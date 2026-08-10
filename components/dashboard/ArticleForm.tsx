@@ -75,6 +75,31 @@ export default function ArticleForm({
     setValues((prev) => ({ ...prev, [key]: value }));
   }
 
+  const bodyWordCount = values.body.trim() ? values.body.trim().split(/\s+/).length : 0;
+  const bodyReadingTime = Math.max(1, Math.round(bodyWordCount / 200));
+
+  // If the pasted text starts with a markdown H1 and there's no title yet,
+  // surface it so the writer can adopt it with one click instead of
+  // re-typing the title the AI tool already generated.
+  const detectedH1 = values.body.match(/^#\s+(.+)/m)?.[1]?.trim();
+  const titleAutoFillHint = !values.title.trim() && detectedH1 ? detectedH1 : null;
+
+  function handleBodyChange(newBody: string) {
+    updateField('body', newBody);
+    // Auto-fill excerpt from the first real paragraph if it's still empty,
+    // so writers pasting a full AI article don't have to write one by hand.
+    if (!values.excerpt.trim()) {
+      const firstParagraph = newBody
+        .split(/\n\n+/)
+        .map((p) => p.trim())
+        .find((p) => p && !/^#{1,3}\s/.test(p) && !/^[-*+]\s/.test(p) && !/^\d+[.)]\s/.test(p) && !/^>\s?/.test(p));
+      if (firstParagraph) {
+        const plain = firstParagraph.replace(/[*_`#>]/g, '').replace(/\[(.+?)\]\(.+?\)/g, '$1').trim();
+        updateField('excerpt', plain.slice(0, 200));
+      }
+    }
+  }
+
   function toggleTag(tagId: string) {
     setValues((prev) => ({
       ...prev,
@@ -321,21 +346,41 @@ export default function ArticleForm({
       </div>
 
       <div>
-        <label className="block text-xs text-white/60 mb-1">Body</label>
+        <div className="flex items-center justify-between mb-1">
+          <label className="block text-xs text-white/60">Body</label>
+          <span className="text-[10px] text-white/30 font-mono">{bodyWordCount} words · ~{bodyReadingTime} min read</span>
+        </div>
         <textarea
-          rows={8}
+          rows={14}
           value={values.body}
-          onChange={(e) => updateField('body', e.target.value)}
-          placeholder={`Supports markdown-lite:
-## Heading 2  ### Heading 3
-**bold**  _italic_  \`code\`
+          onChange={(e) => handleBodyChange(e.target.value)}
+          placeholder={`Paste an AI-generated article here. Supports:
+## Heading 2   ### Heading 3
+**bold**  _italic_  \`code\`  [link text](https://example.com)
+- bullet list item
+1. numbered list item
+> blockquote
 
-Double newline = new paragraph`}
-          className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-purple-500"
+Blank line = new paragraph`}
+          className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-sm font-mono leading-relaxed focus:outline-none focus:border-purple-500"
         />
         <p className="text-[10px] text-white/30 mt-1 font-mono">
-          ## h2 &nbsp;### h3 &nbsp;**bold** &nbsp;_italic_ &nbsp;\`code\` &nbsp;· double newline = new paragraph
+          ## h2 &nbsp;### h3 &nbsp;**bold** &nbsp;_italic_ &nbsp;\`code\` &nbsp;[text](url) &nbsp;- list &nbsp;1. list &nbsp;{'>'} quote &nbsp;· blank line = new paragraph
         </p>
+        {titleAutoFillHint && (
+          <button
+            type="button"
+            onClick={() => {
+              updateField('title', titleAutoFillHint);
+              // Strip the now-redundant H1 line from the body so it isn't
+              // duplicated as a heading inside the article content.
+              updateField('body', values.body.replace(/^#\s+.+\n?/, '').trimStart());
+            }}
+            className="text-[10px] text-purple-300 hover:text-purple-200 mt-1 underline"
+          >
+            Use detected heading &ldquo;{titleAutoFillHint}&rdquo; as the title
+          </button>
+        )}
       </div>
 
       <div>

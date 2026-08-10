@@ -86,8 +86,8 @@ export default function VideoEmbed({ youtubeUrl, instagramUrl, title }: { youtub
               src={thumbnailUrl}
               alt={`Thumbnail for ${title}`}
               fill
+              sizes="(max-width: 768px) 100vw, 800px"
               className="object-cover opacity-90 group-hover:opacity-100 transition-opacity"
-              unoptimized
             />
             <div className="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/30 transition-colors">
               <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(220,38,38,0.8)] group-hover:scale-110 transition-transform">

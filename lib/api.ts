@@ -225,7 +225,7 @@ export async function getNewsPostBySlug(slug: string): Promise<any> {
   const sanityClient = isEnabled ? previewClient : client;
   const publishedConstraint = isEnabled ? '' : ` && ${PUBLISHED_NEWSPOST_FILTER}`;
   const query = `*[_type == "newsPost" && slug.current == $slug${publishedConstraint}][0] {
-    _id, _createdAt, _updatedAt, title, slug, "thumbnail": thumbnail.asset->url, "bodyImage": bodyImage{"url": asset->url, alt, caption, credit}, category, publishDate, authorName, youtubeUrl, instagramUrl, featured, badge, badgeCustom, hideHeroImage, wordCount,
+    _id, _createdAt, _updatedAt, title, slug, "thumbnail": thumbnail.asset->url, "heroImage": thumbnail, "bodyImage": bodyImage{"url": asset->url, alt, caption, credit}, category, publishDate, authorName, youtubeUrl, instagramUrl, featured, badge, badgeCustom, hideHeroImage, wordCount,
     content[]{
       ...,
       _type == "image" => {
@@ -234,8 +234,8 @@ export async function getNewsPostBySlug(slug: string): Promise<any> {
         "assetDimensions": asset->metadata { dimensions }
       }
     },
-    excerpt, imageAlt, imageCaption, useGlobalAppearance, customHighlightsStyle,
-    "author": author->{ name, role },
+    excerpt, imageAlt, imageCaption, imageCredit, useGlobalAppearance, customHighlightsStyle,
+    "author": author->{ name, role, "photoUrl": photo.asset->url },
     "categoryRef": categoryRef->{ title, "slug": slug.current },
     "tags": tags[]->{ title, "slug": slug.current },
     "seo": {
@@ -247,6 +247,14 @@ export async function getNewsPostBySlug(slug: string): Promise<any> {
     }
   }`;
   return sanityClient.fetch(query, { slug });
+}
+
+export async function getAllNewsSlugs(): Promise<{ slug: string }[]> {
+  if (!projectId) {
+    return mockData.newsPosts.map((p) => ({ slug: p.slug.current }));
+  }
+  const query = `*[_type == "newsPost" && ${PUBLISHED_NEWSPOST_FILTER} && defined(slug.current)] { "slug": slug.current }`;
+  return client.fetch(query);
 }
 
 export async function getInterviews(): Promise<any[]> {
@@ -279,7 +287,7 @@ export async function getGuideBySlug(slug: string): Promise<any> {
   const sanityClient = isEnabled ? previewClient : client;
   const publishedConstraint = isEnabled ? '' : ` && ${PUBLISHED_GUIDE_FILTER}`;
   const query = `*[_type == "guide" && slug.current == $slug${publishedConstraint}][0] {
-    _id, _createdAt, title, slug, gameName, "thumbnail": thumbnail.asset->url, thumbnailAlt, thumbnailCaption, thumbnailCredit, codesList, codeEntries, publishDate, lastUpdated, showUpdatedDate, youtubeUrl, instagramUrl, wordCount,
+    _id, _createdAt, title, slug, gameName, "thumbnail": thumbnail.asset->url, "heroImage": thumbnail, thumbnailAlt, thumbnailCaption, thumbnailCredit, codesList, codeEntries, publishDate, lastUpdated, showUpdatedDate, youtubeUrl, instagramUrl, wordCount,
     content[]{
       ...,
       _type == "image" => {

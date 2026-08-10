@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { getPublicNewsPosts, getInterviews, getGuides, getTags } from '@/lib/api';
+import { getTournaments } from '@/lib/tournamentApi';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in';
@@ -8,6 +9,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const interviews = await getInterviews();
   const guides = await getGuides();
   const tags = await getTags();
+  const tournaments = await getTournaments().catch(() => []);
+
+  const tournamentUrls = tournaments.map((t: any) => ({
+    url: `${baseUrl}/esports/${t.slug.current}`,
+    lastModified: new Date(t.latestEdition?.endDate || t.latestEdition?.startDate || t._createdAt),
+    changeFrequency: 'daily' as const,
+    priority: 0.8,
+  }));
 
   const newsUrls = posts.map((post: any) => ({
     url: `${baseUrl}/news/${post.slug.current}`,
@@ -79,6 +88,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
     {
+      url: `${baseUrl}/esports`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.9,
+    },
+    {
       url: `${baseUrl}/about`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
@@ -105,5 +120,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...newsUrls,
     ...guideUrls,
     ...tagUrls,
+    ...tournamentUrls,
   ];
 }

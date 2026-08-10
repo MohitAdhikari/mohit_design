@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -270,24 +271,41 @@ html {
    PHONEOCEAN-UI-PATCH-v1 — auto-applied by apply_ui_fixes.sh
    ======================================================================= */
 
-/* ── Mobile article images ── */
-@media (max-width: 640px) {
-  article .prose img,
-  article figure img {
-    border-radius: 8px;
-  }
-}
-
-/* ── Article body — comfortable mobile reading ── */
-.article-body {
-  font-size: 1rem;
+/* =======================================================================
+   ARTICLE TYPOGRAPHY SYSTEM — single source of truth for news/guide/
+   interview body copy. Used via the `.article-prose` class together with
+   Tailwind Typography's `prose` class in SanityContent. Mobile-first:
+   comfortable 17px body copy that scales up on desktop.
+   ======================================================================= */
+.article-prose {
+  --tw-prose-body: theme(colors.gray.700);
+  --tw-prose-headings: theme(colors.gray.900);
+  --tw-prose-links: theme(colors.blue.600);
+  --tw-prose-bold: theme(colors.gray.900);
+  --tw-prose-bullets: theme(colors.gray.400);
+  --tw-prose-quotes: theme(colors.gray.600);
+  --tw-prose-quote-borders: theme(colors.blue.500);
+  font-size: 1.0625rem; /* 17px */
   line-height: 1.75;
 }
-@media (max-width: 640px) {
-  .article-body {
-    font-size: 0.9375rem; /* 15 px */
-    line-height: 1.72;
+.dark .article-prose {
+  --tw-prose-body: theme(colors.gray.300);
+  --tw-prose-headings: theme(colors.white);
+  --tw-prose-links: theme(colors.cyan.300);
+  --tw-prose-bold: theme(colors.white);
+  --tw-prose-bullets: theme(colors.gray.600);
+  --tw-prose-quotes: theme(colors.gray.400);
+  --tw-prose-quote-borders: theme(colors.cyan.400);
+}
+@media (min-width: 768px) {
+  .article-prose {
+    font-size: 1.125rem; /* 18px */
+    line-height: 1.8;
   }
+}
+.article-prose img,
+.article-prose figure img {
+  border-radius: 8px;
 }
 
 /* ── Instagram embed dark-mode fix ──

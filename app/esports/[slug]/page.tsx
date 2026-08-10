@@ -92,8 +92,8 @@ export default async function TournamentDetailPage({
             alt={tournament.name}
             fill
             priority
+            sizes="100vw"
             className="object-cover"
-            unoptimized
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-gray-900 via-[#0E0E1A] to-black" />
@@ -116,8 +116,8 @@ export default async function TournamentDetailPage({
                 src={tournament.logoUrl}
                 alt={tournament.name}
                 fill
+                sizes="96px"
                 className="object-contain p-2"
-                unoptimized
               />
             </div>
           )}
@@ -204,8 +204,8 @@ export default async function TournamentDetailPage({
                           src={edition.editionBannerUrl}
                           alt={`${tournament.name} ${edition.year}`}
                           fill
+                          sizes="(max-width: 768px) 100vw, 50vw"
                           className="object-cover"
-                          unoptimized
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                       </div>
@@ -391,7 +391,6 @@ export default async function TournamentDetailPage({
                         width={64}
                         height={64}
                         className="w-16 h-16 object-contain"
-                        unoptimized
                       />
                     ) : (
                       <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-[#13131A] flex items-center justify-center text-xl font-black text-gray-400 dark:text-gray-600">

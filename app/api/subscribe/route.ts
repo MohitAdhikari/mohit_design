@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { writeClient } from '@/lib/sanityServer'
 import { sendEmail } from '@/lib/email'
+import { escapeHtml } from '@/lib/security/escapeHtml'
+import { checkRateLimit, looksLikeBot } from '@/lib/security/rateLimit'
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'phoneoceanlive@gmail.com'
 
@@ -24,8 +26,24 @@ export async function POST(req: NextRequest) {
     const body = await req.json().catch(() => ({}))
     const rawEmail = body?.email?.trim().toLowerCase()
 
+    // Honeypot: a hidden field ("website") real users never fill in, plus a
+    // minimum time-on-form check using the client-reported form-render time.
+    if (looksLikeBot(body?.website, body?.formRenderedAt)) {
+      // Pretend success so bots don't learn the honeypot was tripped.
+      return NextResponse.json({ success: true })
+    }
+
     if (!rawEmail || !isValidEmail(rawEmail)) {
       return NextResponse.json({ error: 'Please enter a valid email address.' }, { status: 400 })
+    }
+
+    const ip = getClientIp(req)
+    const rateLimit = checkRateLimit(`subscribe:${ip}`, 5, 10 * 60 * 1000)
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429, headers: { 'Retry-After': String(rateLimit.retryAfterSeconds) } }
+      )
     }
 
     if (!process.env.SANITY_API_WRITE_TOKEN) {
@@ -35,7 +53,6 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const ip = getClientIp(req)
     const submittedAt = new Date().toISOString()
 
     const doc = await writeClient.create({
@@ -45,13 +62,16 @@ export async function POST(req: NextRequest) {
       ip,
     })
 
+    const safeEmail = escapeHtml(rawEmail)
+    const safeIp = escapeHtml(ip)
+
     sendEmail({
       to: ADMIN_EMAIL,
       subject: `New PHONEOCEAN subscriber: ${rawEmail}`,
       text: `A new user subscribed to the PHONEOCEAN newsletter.\n\nEmail: ${rawEmail}\nIP: ${ip}\nSubmitted at: ${submittedAt}\nDocument ID: ${doc._id}`,
       html: `<p><b>New PHONEOCEAN subscriber</b></p>
-<p>Email: ${rawEmail}</p>
-<p>IP: ${ip}</p>
+<p>Email: ${safeEmail}</p>
+<p>IP: ${safeIp}</p>
 <p>Submitted at: ${submittedAt}</p>
 <p>Document ID: ${doc._id}</p>`,
     }).catch((err) => {

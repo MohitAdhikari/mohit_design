@@ -5,7 +5,9 @@ import { Mail, Check } from 'lucide-react';
 
 export default function NewsletterCTA() {
   const [email, setEmail] = useState('');
+  const [website, setWebsite] = useState(''); // honeypot — real users leave this blank
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [formRenderedAt] = useState(() => Date.now());
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -15,7 +17,7 @@ export default function NewsletterCTA() {
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, website, formRenderedAt }),
       });
       if (!res.ok) throw new Error();
       setStatus('success');
@@ -68,6 +70,16 @@ export default function NewsletterCTA() {
                 </div>
               ) : (
                 <form onSubmit={onSubmit} className="space-y-3">
+                  <input
+                    type="text"
+                    name="website"
+                    value={website}
+                    onChange={(e) => setWebsite(e.target.value)}
+                    tabIndex={-1}
+                    autoComplete="off"
+                    aria-hidden="true"
+                    className="absolute left-[-9999px] w-px h-px opacity-0"
+                  />
                   <label htmlFor="newsletter-email" className="block text-xs font-mono font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest">
                     Your email
                   </label>

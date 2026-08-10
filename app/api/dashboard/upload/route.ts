@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireRole } from '@/lib/dashboard/session';
 import { writeClient } from '@/lib/sanityServer';
+import { sniffImageMimeType } from '@/lib/security/fileSignature';
 
 const MAX_SIZE_BYTES = 8 * 1024 * 1024; // 8MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
@@ -29,9 +30,16 @@ export async function POST(req: NextRequest) {
 
   const buffer = Buffer.from(await file.arrayBuffer());
 
+  // Don't trust the client-declared Content-Type — verify the file's real
+  // format from its magic bytes before handing it to Sanity.
+  const sniffedType = sniffImageMimeType(buffer);
+  if (!sniffedType || !ALLOWED_TYPES.includes(sniffedType)) {
+    return NextResponse.json({ error: 'File content does not match a supported image format.' }, { status: 400 });
+  }
+
   const asset = await writeClient.assets.upload('image', buffer, {
     filename: file.name,
-    contentType: file.type,
+    contentType: sniffedType,
   });
 
   return NextResponse.json({

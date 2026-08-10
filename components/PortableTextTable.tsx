@@ -31,19 +31,19 @@ export default function PortableTextTable({ value }: { value: TableValue }) {
   const rows = bodyLines.map(parseRow)
 
   return (
-    <div className="my-6 w-full overflow-x-auto rounded-lg border border-zinc-700">
+    <div className="my-8 w-full overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800/60 bg-white dark:bg-[#0E0E12] not-prose">
       {!value.hideTitle && value.title && (
-        <p className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-zinc-400 border-b border-zinc-700">
+        <p className="px-4 py-2.5 text-xs font-mono font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-500 border-b border-gray-200 dark:border-gray-800/60">
           {value.title}
         </p>
       )}
       <table className="w-full min-w-[500px] text-sm border-collapse">
         <thead>
-          <tr className="bg-zinc-900">
+          <tr className="bg-gray-50 dark:bg-[#13131A]">
             {headers.map((h, i) => (
               <th
                 key={i}
-                className="px-4 py-2 text-left font-semibold text-white border-b border-zinc-700 whitespace-nowrap"
+                className="px-4 py-2.5 text-left font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-800/60 whitespace-nowrap"
               >
                 {h}
               </th>
@@ -54,12 +54,12 @@ export default function PortableTextTable({ value }: { value: TableValue }) {
           {rows.map((row, ri) => (
             <tr
               key={ri}
-              className={ri % 2 === 0 ? 'bg-zinc-800' : 'bg-zinc-800/50'}
+              className={ri % 2 === 0 ? 'bg-white dark:bg-[#0E0E12]' : 'bg-gray-50/60 dark:bg-[#13131A]/50'}
             >
               {row.map((cell, ci) => (
                 <td
                   key={ci}
-                  className="px-4 py-2 text-zinc-200 border-b border-zinc-700/50 whitespace-nowrap"
+                  className="px-4 py-2.5 text-gray-700 dark:text-gray-300 border-b border-gray-100 dark:border-gray-800/40 whitespace-nowrap"
                 >
                   {cell}
                 </td>
