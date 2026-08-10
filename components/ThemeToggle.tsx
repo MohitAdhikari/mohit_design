@@ -14,12 +14,14 @@ export default function ThemeToggle() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Keep the critical CSS variables in sync with the active theme so the
-  // background/text do not lag behind next-themes class toggles.
+  // Keep the critical CSS variables and classes in sync with the active theme
+  // so the background/text do not lag behind next-themes class toggles.
   useEffect(() => {
     if (!resolvedTheme) return;
     const isDark = resolvedTheme === 'dark';
     const root = document.documentElement;
+    root.classList.remove('light', 'dark');
+    root.classList.add(isDark ? 'dark' : 'light');
     root.style.setProperty('--body-bg', isDark ? '#0B0B0F' : '#ffffff');
     root.style.setProperty('--body-text', isDark ? '#ffffff' : '#111827');
     root.style.colorScheme = isDark ? 'dark' : 'light';

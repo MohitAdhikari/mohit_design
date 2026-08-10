@@ -123,20 +123,17 @@ export default async function RootLayout({children}: {children: React.ReactNode}
         }
         var isDark = theme === 'dark';
         var root = document.documentElement;
+        root.classList.remove('light', 'dark');
+        root.classList.add(isDark ? 'dark' : 'light');
         root.style.setProperty('--body-bg', isDark ? '#0B0B0F' : '#ffffff');
         root.style.setProperty('--body-text', isDark ? '#ffffff' : '#111827');
         root.style.colorScheme = isDark ? 'dark' : 'light';
-        if (isDark) {
-          root.classList.add('dark');
-        } else {
-          root.classList.remove('dark');
-        }
       } catch (e) {}
     })();
   `;
 
   return (
-    <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} dark`} suppressHydrationWarning>
       <head>
         <style dangerouslySetInnerHTML={{ __html: `
           :root { --body-bg: #0B0B0F; --body-text: #ffffff; color-scheme: dark; }
@@ -158,7 +155,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={true}>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={true} disableTransitionOnChange={true}>
           <ClientLayoutShell
             tickerItems={tickerItems}
             settings={settings}
