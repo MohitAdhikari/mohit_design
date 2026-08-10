@@ -121,14 +121,15 @@ export default async function RootLayout({children}: {children: React.ReactNode}
         if (theme === 'system') {
           theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         }
-        if (theme === 'dark') {
-          document.documentElement.classList.add('dark');
-          document.documentElement.style.colorScheme = 'dark';
-          document.documentElement.style.backgroundColor = '#0B0B0F';
+        var isDark = theme === 'dark';
+        var root = document.documentElement;
+        root.style.setProperty('--body-bg', isDark ? '#0B0B0F' : '#ffffff');
+        root.style.setProperty('--body-text', isDark ? '#ffffff' : '#111827');
+        root.style.colorScheme = isDark ? 'dark' : 'light';
+        if (isDark) {
+          root.classList.add('dark');
         } else {
-          document.documentElement.classList.remove('dark');
-          document.documentElement.style.colorScheme = 'light';
-          document.documentElement.style.backgroundColor = '#ffffff';
+          root.classList.remove('dark');
         }
       } catch (e) {}
     })();
@@ -137,13 +138,18 @@ export default async function RootLayout({children}: {children: React.ReactNode}
   return (
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
       <head>
+        <style dangerouslySetInnerHTML={{ __html: `
+          :root { --body-bg: #0B0B0F; --body-text: #ffffff; color-scheme: dark; }
+          html, body { background-color: var(--body-bg); }
+          body { color: var(--body-text); }
+        ` }} />
         <link rel="alternate" type="application/rss+xml" title="PHONEOCEAN" href="/feed.xml" />
         <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://cdn.sanity.io" />
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body className="bg-white dark:bg-[#0B0B0F] text-gray-900 dark:text-white font-sans antialiased min-h-screen flex flex-col" suppressHydrationWarning>
+      <body className="font-sans antialiased min-h-screen flex flex-col" style={{ backgroundColor: 'var(--body-bg)', color: 'var(--body-text)' }} suppressHydrationWarning>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
