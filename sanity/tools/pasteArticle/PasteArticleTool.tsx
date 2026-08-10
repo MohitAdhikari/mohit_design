@@ -20,8 +20,8 @@ import {
 import { useClient } from 'sanity'
 import { useRouter } from 'sanity/router'
 import { nanoid } from 'nanoid'
-import { parseArticleText, type ImportedBlock, type ParseResult } from '@/lib/articleImport/parser'
-import { buildSeoSuggestion, slugify, type SeoSuggestion } from '@/lib/articleImport/seo'
+import { parseArticleText, type ImportedBlock, type ParseResult } from '../../../lib/articleImport/parser'
+import { buildSeoSuggestion, slugify, type SeoSuggestion } from '../../../lib/articleImport/seo'
 
 const API_VERSION = '2024-04-28'
 
