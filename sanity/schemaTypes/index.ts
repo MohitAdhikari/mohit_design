@@ -13,6 +13,7 @@ import { videoEmbedBlock } from './objects/videoEmbedBlock'
 import { codeCopyBlock } from './objects/codeCopyBlock'
 import { scheduleBlock } from './objects/scheduleBlock'
 import { standingsTable } from './objects/standingsTable'
+import { matchParticipant } from './objects/matchParticipant'
 import { author } from './author'
 import { category } from './category'
 import { tag } from './tag'
@@ -35,6 +36,7 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     codeCopyBlock,
     scheduleBlock,
     standingsTable,
+    matchParticipant,
     // Content
     newsPost,
     interview,

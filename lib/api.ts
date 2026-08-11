@@ -257,6 +257,25 @@ export async function getAllNewsSlugs(): Promise<{ slug: string }[]> {
   return client.fetch(query);
 }
 
+// News articles related to esports/tournament coverage — used at the bottom
+// of the /esports hub page. Includes anything tagged with an esports game or
+// referencing a tournament directly.
+export async function getEsportsRelatedNews(limit = 12): Promise<any[]> {
+  if (!projectId) {
+    return [];
+  }
+  const esportsTagNames = ['bgmi', 'free fire', 'pubg mobile', 'valorant', 'esports', 'call of duty mobile', 'mobile legends'];
+  const query = `*[_type == "newsPost" && ${PUBLISHED_NEWSPOST_FILTER} && (
+    defined(tournament) ||
+    lower(category) in $esportsTagNames ||
+    count((tags[]->title)[lower(@) in $esportsTagNames]) > 0
+  )] | order(dateTime(coalesce(publishDate, _createdAt)) desc) [0...$limit] {
+    _id, title, slug, publishDate, "thumbnail": thumbnail.asset->url, category,
+    "tags": tags[]->{ _id, title, "slug": slug.current }
+  }`;
+  return client.fetch(query, { limit, esportsTagNames });
+}
+
 export async function getInterviews(): Promise<any[]> {
   if (!projectId) {
     return sortByTimestamp(mockData.interviews, 'publishDate');
@@ -273,7 +292,7 @@ export async function getGuides(): Promise<any[]> {
     return sortByTimestamp(mockData.guides, 'lastUpdated');
   }
   const query = `*[_type == "guide" && ${PUBLISHED_GUIDE_FILTER}] | order(dateTime(coalesce(publishDate, _createdAt)) desc) {
-    _id, _createdAt, title, slug, gameName, "thumbnail": thumbnail.asset->url, thumbnailAlt, publishDate, lastUpdated, showUpdatedDate, youtubeUrl, instagramUrl
+    _id, _createdAt, title, slug, gameName, "thumbnail": thumbnail.asset->url, thumbnailAlt, publishDate, lastUpdated, showUpdatedDate, youtubeUrl, instagramUrl, showOnHomepage
   }`;
   const guides = await client.fetch(query);
   return sortByTimestamp(guides, 'publishDate');
@@ -287,7 +306,7 @@ export async function getGuideBySlug(slug: string): Promise<any> {
   const sanityClient = isEnabled ? previewClient : client;
   const publishedConstraint = isEnabled ? '' : ` && ${PUBLISHED_GUIDE_FILTER}`;
   const query = `*[_type == "guide" && slug.current == $slug${publishedConstraint}][0] {
-    _id, _createdAt, title, slug, gameName, "thumbnail": thumbnail.asset->url, "heroImage": thumbnail, thumbnailAlt, thumbnailCaption, thumbnailCredit, codesList, codeEntries, publishDate, lastUpdated, showUpdatedDate, youtubeUrl, instagramUrl, wordCount,
+    _id, _createdAt, title, slug, gameName, "thumbnail": thumbnail.asset->url, "heroImage": thumbnail, thumbnailAlt, thumbnailCaption, thumbnailCredit, codesList, codeEntries, codePosition, publishDate, lastUpdated, showUpdatedDate, youtubeUrl, instagramUrl, wordCount,
     content[]{
       ...,
       _type == "image" => {

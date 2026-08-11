@@ -224,12 +224,22 @@ export function getCurrentStageLabel(stages: TournamentStage[]): string | null {
 
 // ─── MATCH TYPES ──────────────────────────────────────────────────────
 
+export interface MatchParticipant {
+  team: { _id: string; name: string; logoUrl: string | null }
+  placement: number | null
+  kills: number | null
+  placementPoints: number | null
+  points: number | null
+}
+
 export interface Match {
   _id: string
-  team1: { name: string; logoUrl: string | null }
-  team2: { name: string; logoUrl: string | null }
+  matchFormat: 'head_to_head' | 'battle_royale'
+  team1: { name: string; logoUrl: string | null } | null
+  team2: { name: string; logoUrl: string | null } | null
   team1Score: number | null
   team2Score: number | null
+  participants: MatchParticipant[]
   status: 'scheduled' | 'live' | 'completed' | 'cancelled'
   stage: string | null
   group: string | null
@@ -287,9 +297,14 @@ export async function getMatches(editionId: string): Promise<Match[]> {
   return client.fetch(
     `*[_type == "match" && edition._ref == $editionId] | order(scheduledAt asc) {
       _id,
+      matchFormat,
       team1->{ name, "logoUrl": logo.asset->url },
       team2->{ name, "logoUrl": logo.asset->url },
       team1Score, team2Score,
+      "participants": participants[]{
+        "team": team->{ _id, name, "logoUrl": logo.asset->url },
+        placement, kills, placementPoints, points
+      } | order(placement asc),
       status, stage, group, matchNumber, map,
       scheduledAt,
       winner->{ name },

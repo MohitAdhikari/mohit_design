@@ -45,20 +45,31 @@ export default async function Home() {
 
   const featured = heroArticle || homepageNews[0];
   const showFeaturedBadge = featured?.featured === true;
+
+  // De-dupe: track every article ID already placed in a section so a single
+  // post never repeats across hero / trending / feed sections.
+  const usedIds = new Set<string>();
+  if (featured?._id) usedIds.add(featured._id);
+
   const latestNews = trendingArticles.length
-    ? trendingArticles.slice(0, 3)
-    : homepageNews.slice(1, 4);
-  const feedNews = homepageNews.length > 3 ? homepageNews.slice(1) : homepageNews;
+    ? trendingArticles.filter((p: any) => !usedIds.has(p._id)).slice(0, 3)
+    : homepageNews.filter((p: any) => !usedIds.has(p._id)).slice(0, 3);
+  latestNews.forEach((p: any) => usedIds.add(p._id));
+
+  const feedNews = homepageNews.filter((p: any) => !usedIds.has(p._id));
 
   /* ── mobile-only hero cycle pool + supporting feed ── */
   const heroPool: any[] = heroArticle
     ? [heroArticle, ...homepageNews.filter((p: any) => p._id !== heroArticle._id).slice(0, 2)]
     : homepageNews.slice(0, 3);
   const heroIds = new Set(heroPool.map((p: any) => p._id));
-  const mobileFeed: any[] = homepageNews.filter((p: any) => !heroIds.has(p._id));
   const mobileTrending: any[] = trendingArticles.length
-    ? trendingArticles.slice(0, 6)
-    : homepageNews.slice(3, 9);
+    ? trendingArticles.filter((p: any) => !heroIds.has(p._id)).slice(0, 6)
+    : homepageNews.filter((p: any) => !heroIds.has(p._id)).slice(0, 6);
+  const mobileTrendingIds = new Set(mobileTrending.map((p: any) => p._id));
+  const mobileFeed: any[] = homepageNews.filter(
+    (p: any) => !heroIds.has(p._id) && !mobileTrendingIds.has(p._id)
+  );
 
   return (
     <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
@@ -561,7 +572,7 @@ export default async function Home() {
             </div>
 
             <div className="flex flex-col divide-y divide-gray-100 dark:divide-gray-800/40">
-              {guides.map((guide) => (
+              {guides.filter((guide: any) => guide.showOnHomepage !== false).map((guide) => (
                 <Link
                   href={`/guides/${guide.slug.current}`}
                   key={guide._id}

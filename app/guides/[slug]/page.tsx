@@ -98,6 +98,37 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
   const authorName = guide.author?.name || 'PHONEOCEAN Staff';
   const readingTimeMinutes = calculateReadingTime(guide.wordCount ?? guide.content);
 
+  const codeEntriesRaw = (guide.codeEntries && guide.codeEntries.length > 0)
+    ? guide.codeEntries
+    : (guide.codesList || []).map((code: string) => ({ code }));
+  const sortedCodeEntries = sortCodeEntries(codeEntriesRaw);
+  const codePosition = guide.codePosition === 'bottom' ? 'bottom' : 'top';
+
+  const codesBlock = sortedCodeEntries.length > 0 ? (
+    <div className={codePosition === 'top' ? 'mb-12' : 'mt-12'}>
+      <div className="p-6 sm:p-8 bg-white dark:bg-[#0a0a0a] border border-purple-300 dark:border-purple-500/30 rounded-2xl shadow-sm dark:shadow-[0_0_30px_rgba(157,0,255,0.05)]">
+        <h2 className="text-2xl font-bold font-space-grotesk mb-6 flex items-center gap-3 text-gray-900 dark:text-white">
+          <span className="text-purple-600 dark:text-purple-400 font-mono tracking-tighter">{"//"}</span>
+          Active Codes
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {sortedCodeEntries.map((entry: any, idx: number) => (
+            <CodeCopyBox
+              key={idx}
+              code={entry.code}
+              reward={entry.reward}
+              showReward={entry.showReward ?? true}
+              isNew={entry.isNew}
+              isExpired={entry.isExpired}
+              isRedeemed={entry.isRedeemed}
+              expiresAt={entry.expiresAt}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  ) : null;
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
@@ -174,37 +205,11 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
           </div>
         )}
 
-        {(() => {
-          const entries = (guide.codeEntries && guide.codeEntries.length > 0)
-            ? guide.codeEntries
-            : (guide.codesList || []).map((code: string) => ({ code }));
-          if (entries.length === 0) return null;
-          const sorted = sortCodeEntries(entries);
-          return (
-            <div className="mb-12 p-6 sm:p-8 bg-white dark:bg-[#0a0a0a] border border-purple-300 dark:border-purple-500/30 rounded-2xl shadow-sm dark:shadow-[0_0_30px_rgba(157,0,255,0.05)]">
-              <h2 className="text-2xl font-bold font-space-grotesk mb-6 flex items-center gap-3 text-gray-900 dark:text-white">
-                <span className="text-purple-600 dark:text-purple-400 font-mono tracking-tighter">{"//"}</span>
-                Active Codes
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {sorted.map((entry: any, idx: number) => (
-                  <CodeCopyBox
-                    key={idx}
-                    code={entry.code}
-                    reward={entry.reward}
-                    showReward={entry.showReward ?? true}
-                    isNew={entry.isNew}
-                    isExpired={entry.isExpired}
-                    isRedeemed={entry.isRedeemed}
-                    expiresAt={entry.expiresAt}
-                  />
-                ))}
-              </div>
-            </div>
-          );
-        })()}
+        {codePosition === 'top' && codesBlock}
 
         <SanityContent content={guide.content} highlightsStyle={highlightsStyle} />
+
+        {codePosition === 'bottom' && codesBlock}
         
         <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-900 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <span className="text-sm font-mono text-gray-500 uppercase tracking-widest">Share this guide</span>

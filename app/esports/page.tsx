@@ -1,25 +1,30 @@
 import { getTournaments } from '@/lib/tournamentApi'
+import { getEsportsRelatedNews } from '@/lib/api'
 import TournamentCard from '@/components/TournamentCard'
 import PageHeader from '@/components/PageHeader'
 import Reveal from '@/components/Reveal'
+import EsportsRelatedNews from '@/components/EsportsRelatedNews'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Esports | PHONEOCEAN',
-  description: 'Browse all BGMI and mobile esports tournaments — results, prize pools, teams, and more.',
+  description: 'Browse every esports tournament we cover — BGMI (flagship), Free Fire, PUBG Mobile, Valorant and more. Results, prize pools, teams, and champions.',
 }
 
 export const revalidate = 60
 
 export default async function TournamentsPage() {
-  const tournaments = await getTournaments()
+  const [tournaments, relatedNews] = await Promise.all([
+    getTournaments(),
+    getEsportsRelatedNews(),
+  ])
 
   return (
     <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12">
       <PageHeader
         eyebrow="Esports Hub"
-        title={<>All <span className="text-blue-600 dark:text-[#00E5FF]">Esports</span></>}
-        description="Track every major BGMI and mobile esports tournament — brackets, prize pools, teams, and champions."
+        title={<>All <span className="text-blue-600 dark:text-[#00E5FF]">Tournaments</span></>}
+        description="BGMI is our flagship coverage, alongside Free Fire, PUBG Mobile, Valorant and other mobile/PC esports — brackets, prize pools, teams, and champions, all in one place."
         accent="cyan"
         meta={
           <span className="inline-flex items-center gap-2 text-[10px] md:text-xs font-mono uppercase tracking-widest text-gray-500 dark:text-gray-500">
@@ -44,6 +49,8 @@ export default async function TournamentsPage() {
           ))}
         </div>
       )}
+
+      <EsportsRelatedNews articles={relatedNews} />
     </div>
   )
 }

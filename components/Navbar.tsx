@@ -108,7 +108,7 @@ export default function Navbar({ logoUrl, siteName, logoTextSpacing = 8, logoOnT
                 {isActive('/guides') && <span className="absolute bottom-[-1.25rem] left-0 w-full h-[3px] bg-[#00E5FF] shadow-[0_0_8px_rgba(0,229,255,0.8)]"></span>}
               </Link>
               <Link href="/esports" className={`relative transition-colors text-sm font-bold uppercase tracking-widest py-2 ${isActive('/esports') ? 'text-blue-600 dark:text-[#00E5FF]' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'}`}>
-                Esports
+                Tournaments
                 {isActive('/esports') && <span className="absolute bottom-[-1.25rem] left-0 w-full h-[3px] bg-[#00E5FF] shadow-[0_0_8px_rgba(0,229,255,0.8)]"></span>}
               </Link>
               <Link href="/videos" className={`relative transition-colors text-sm font-bold uppercase tracking-widest py-2 flex items-center gap-2 ${isActive('/videos') ? 'text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'}`}>
@@ -159,7 +159,7 @@ export default function Navbar({ logoUrl, siteName, logoTextSpacing = 8, logoOnT
         <div className="md:hidden fixed top-20 left-0 right-0 bottom-0 z-[60] overflow-y-auto bg-white dark:bg-[#0B0B0F] border-b border-gray-200 dark:border-gray-800/50 px-4 pt-2 pb-6 space-y-2 shadow-2xl">
           <Link href="/news" onClick={() => setIsOpen(false)} className={`block transition-colors text-base font-bold uppercase tracking-widest p-4 rounded-xl ${isActive('/news') ? 'text-blue-600 dark:text-[#00E5FF] bg-blue-50 dark:bg-blue-900/10' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5'}`}>News</Link>
           <Link href="/guides" onClick={() => setIsOpen(false)} className={`block transition-colors text-base font-bold uppercase tracking-widest p-4 rounded-xl ${isActive('/guides') ? 'text-blue-600 dark:text-[#00E5FF] bg-blue-50 dark:bg-blue-900/10' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5'}`}>Guides</Link>
-          <Link href="/esports" onClick={() => setIsOpen(false)} className={`block transition-colors text-base font-bold uppercase tracking-widest p-4 rounded-xl ${isActive('/esports') ? 'text-blue-600 dark:text-[#00E5FF] bg-blue-50 dark:bg-blue-900/10' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5'}`}>Esports</Link>
+          <Link href="/esports" onClick={() => setIsOpen(false)} className={`block transition-colors text-base font-bold uppercase tracking-widest p-4 rounded-xl ${isActive('/esports') ? 'text-blue-600 dark:text-[#00E5FF] bg-blue-50 dark:bg-blue-900/10' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5'}`}>Tournaments</Link>
           <Link href="/videos" onClick={() => setIsOpen(false)} className={`flex items-center gap-3 transition-colors text-base font-bold uppercase tracking-widest p-4 rounded-xl ${isActive('/videos') ? 'text-gray-900 dark:text-white bg-red-50 dark:bg-red-900/10' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5'}`}>
              <span className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.8)] animate-pulse"></span>
              Videos
