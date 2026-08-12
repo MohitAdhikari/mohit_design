@@ -6,6 +6,7 @@ import CalloutBox from '@/components/blocks/CalloutBox'
 import VideoEmbed from '@/components/VideoEmbed'
 import CodeCopyBox from '@/components/blocks/CodeCopyBox'
 import ScheduleBlock from '@/components/blocks/ScheduleBlock'
+import TournamentTable from '@/components/TournamentTable'
 
 function getComponents(highlightsStyle: HighlightsStyle) {
 return {
@@ -45,6 +46,7 @@ return {
           showReward={value?.showReward ?? true}
           isNew={value?.isNew}
           isExpired={value?.isExpired}
+          isRedeemed={value?.isRedeemed}
           expiresAt={value?.expiresAt}
         />
       </div>
@@ -58,6 +60,7 @@ return {
         days={value?.days || []}
       />
     ),
+    standingsTable: ({ value }: any) => <TournamentTable value={value} />,
     image: ({ value }: any) => {
       const imageUrl = contentImageUrl(value, 1200);
       if (!imageUrl) return null;
@@ -87,8 +90,16 @@ return {
     },
   },
   block: {
-    normal: ({ children }: any) => <p className="mb-6 leading-relaxed text-gray-700 dark:text-gray-300 font-sans text-lg">{children}</p>,
-    h1: ({ children }: any) => <h1 className="text-4xl font-black font-space-grotesk mt-12 mb-6 text-gray-900 dark:text-white">{children}</h1>,
+    normal: ({ children }: any) => {
+      const text = Array.isArray(children)
+        ? children.map((c: any) => (typeof c === 'string' ? c : '')).join('')
+        : typeof children === 'string' ? children : '';
+      if (/^[\|\s\-:]+$/.test(text.trim()) && text.includes('-')) return null;
+      return <p className="mb-6 leading-relaxed text-gray-700 dark:text-gray-300 font-sans">{children}</p>;
+    },
+    // The page's H1 always lives in ArticleHeader — a stray H1 pasted into
+    // the body is demoted to an H2 so each page only ever has one H1 (SEO).
+    h1: ({ children }: any) => <h2 className="text-3xl font-bold font-space-grotesk mt-10 mb-5 text-gray-900 dark:text-white">{children}</h2>,
     h2: ({ children }: any) => <h2 className="text-3xl font-bold font-space-grotesk mt-10 mb-5 text-gray-900 dark:text-white">{children}</h2>,
     h3: ({ children }: any) => <h3 className="text-2xl font-bold font-space-grotesk mt-8 mb-4 text-gray-900 dark:text-white">{children}</h3>,
     blockquote: ({ children }: any) => (
@@ -99,11 +110,20 @@ return {
   },
   marks: {
     strong: ({ children }: any) => <strong className="font-bold text-gray-900 dark:text-white">{children}</strong>,
-    link: ({ children, value }: any) => (
-      <a href={value.href} className="text-blue-600 dark:text-[#00E5FF] hover:text-blue-700 dark:hover:text-cyan-300 underline underline-offset-4" target="_blank" rel="noopener noreferrer">
-        {children}
-      </a>
-    ),
+    link: ({ children, value }: any) => {
+      const href: string = value?.href || '#';
+      const isExternal = /^https?:\/\//i.test(href) && !href.includes('phoneocean.in');
+      return (
+        <a
+          href={href}
+          className="text-blue-600 dark:text-[#00E5FF] hover:text-blue-700 dark:hover:text-cyan-300 underline underline-offset-4"
+          target={isExternal ? '_blank' : undefined}
+          rel={isExternal ? 'noopener noreferrer nofollow ugc' : undefined}
+        >
+          {children}
+        </a>
+      );
+    },
   },
   list: {
     bullet: ({ children }: any) => <ul className="list-disc pl-5 mb-6 text-gray-700 dark:text-gray-300 space-y-2">{children}</ul>,
@@ -121,7 +141,7 @@ export default function SanityContent({
 }) {
   if (!content) return null;
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="article-prose max-w-3xl mx-auto">
       <PortableText value={content} components={getComponents(highlightsStyle)} />
     </div>
   )

@@ -1,7 +1,7 @@
 import { getInterviews } from '@/lib/api';
 import Image from 'next/image';
 import { optimizedImageUrl } from '@/lib/sanityImage';
-import { format } from 'date-fns';
+import { formatDateCompactIST } from '@/utils/formatDate';
 import VideoEmbed from '@/components/VideoEmbed';
 import PageHeader from '@/components/PageHeader';
 import Reveal from '@/components/Reveal';
@@ -66,7 +66,7 @@ export default async function InterviewsPage() {
               <div className="mb-3 inline-flex items-center gap-2 text-[10px] text-purple-600 dark:text-[#9D00FF] font-mono tracking-widest uppercase">
                 <span>{interview.eventName}</span>
                 <span className="w-1 h-1 rounded-full bg-purple-300 dark:bg-purple-500/40" />
-                <span>{format(new Date(interview.publishDate), 'MMM dd, yyyy')}</span>
+                <span>{formatDateCompactIST(interview.publishDate || interview._createdAt)}</span>
               </div>
               <h2 className="text-2xl md:text-3xl font-black font-space-grotesk uppercase mb-2 text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-[#9D00FF] transition-colors">
                 {interview.playerOrCeoName}

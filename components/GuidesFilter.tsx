@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { format } from 'date-fns';
+import { formatDateCompactIST } from '@/utils/formatDate';
 import Reveal from '@/components/Reveal';
 import { optimizedImageUrl } from '@/lib/sanityImage';
 
@@ -92,7 +92,7 @@ export default function GuidesFilter({ guides, games }: Props) {
                   {guide.title}
                 </h3>
                 <div className="mt-auto flex items-center justify-between text-[10px] md:text-xs text-gray-600 dark:text-gray-500 font-mono uppercase tracking-wider">
-                  <span>Updated {format(new Date(guide.lastUpdated), 'MMM dd, yyyy')}</span>
+                  <span>Updated {formatDateCompactIST(guide.lastUpdated)}</span>
                   <span className="inline-flex items-center gap-1 text-green-600 dark:text-[#00FF66] group-hover:gap-2 transition-all">
                     Open <span className="text-base leading-none">→</span>
                   </span>

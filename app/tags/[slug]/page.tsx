@@ -1,9 +1,9 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
-import { getTagBySlug } from '@/lib/api'
+import { getTagBySlug, getTags } from '@/lib/api'
 import { optimizedImageUrl } from '@/lib/sanityImage'
-import { format } from 'date-fns'
+import { formatDateIST } from '@/utils/formatDate'
 import { Metadata } from 'next'
 
 export const revalidate = 60
@@ -45,6 +45,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       canonical: tagUrl,
     },
   }
+}
+
+export async function generateStaticParams() {
+  const tags = await getTags();
+  return tags.map((t: any) => ({ slug: t.slug?.current ?? t.slug }));
 }
 
 export default async function TagPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -110,7 +115,7 @@ export default async function TagPage({ params }: { params: Promise<{ slug: stri
                       {article.title}
                     </h2>
                     <time className="mt-3 text-xs text-gray-500 dark:text-gray-500 font-mono uppercase tracking-wider">
-                      {format(new Date(article.publishDate || article._createdAt), 'MMMM dd, yyyy')}
+                      {formatDateIST(article.publishDate || article._createdAt)}
                     </time>
                   </div>
                 </Link>

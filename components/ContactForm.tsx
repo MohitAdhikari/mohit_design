@@ -9,7 +9,9 @@ export default function ContactForm() {
     subject: '',
     message: ''
   });
+  const [website, setWebsite] = useState(''); // honeypot — real users leave this blank
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [formRenderedAt] = useState(() => Date.now());
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -25,7 +27,7 @@ export default function ContactForm() {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, website, formRenderedAt }),
       });
       if (!res.ok) throw new Error();
       setStatus('success');
@@ -39,7 +41,7 @@ export default function ContactForm() {
     return (
       <div className="bg-white dark:bg-[#111116] border border-[#00FF66]/30 p-8 rounded-2xl shadow-sm dark:shadow-[0_0_15px_rgba(0,255,102,0.1)] text-center">
         <div className="w-16 h-16 bg-[#00FF66]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg className="w-8 h-8 text-green-600 dark:text-[#00FF66]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-green-600 dark:text-[#00FF66]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
           </svg>
         </div>
@@ -59,6 +61,16 @@ export default function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit} className="bg-white dark:bg-[#111116] border border-gray-200 dark:border-gray-800/60 p-6 md:p-8 rounded-2xl shadow-sm space-y-6">
+      <input
+        type="text"
+        name="website"
+        value={website}
+        onChange={(e) => setWebsite(e.target.value)}
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        className="absolute left-[-9999px] w-px h-px opacity-0"
+      />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
           <label htmlFor="name" className="block text-xs font-mono font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest">

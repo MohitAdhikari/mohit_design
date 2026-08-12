@@ -20,6 +20,15 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
         <p className="text-base md:text-lg text-gray-600 dark:text-gray-400 font-sans leading-relaxed mb-8">
           An unexpected error occurred while loading this page. You can try again or head back home.
         </p>
+        {error.message && (
+          <div className="text-left mb-8 p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 overflow-auto">
+            <p className="text-xs font-mono text-red-600 dark:text-red-400 uppercase tracking-widest mb-2">Error details</p>
+            <pre className="text-xs text-red-700 dark:text-red-300 whitespace-pre-wrap break-words">{error.message}</pre>
+            {process.env.NODE_ENV === 'development' && error.stack && (
+              <pre className="text-[10px] text-red-600/70 dark:text-red-400/70 mt-2 whitespace-pre-wrap break-words">{error.stack}</pre>
+            )}
+          </div>
+        )}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <button
             onClick={() => reset()}

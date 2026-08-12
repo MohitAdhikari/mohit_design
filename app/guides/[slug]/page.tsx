@@ -1,7 +1,5 @@
-import { getGuideBySlug, getAppearanceSettings, resolveHighlightsStyle } from '@/lib/api';
-import Image from 'next/image';
-import { optimizedImageUrl } from '@/lib/sanityImage';
-import { format } from 'date-fns';
+import { getGuideBySlug, getGuides, getAppearanceSettings, resolveHighlightsStyle } from '@/lib/api';
+import { formatDateIST } from '@/utils/formatDate';
 import { notFound } from 'next/navigation';
 import SanityContent from '@/components/SanityContent';
 import VideoEmbed from '@/components/VideoEmbed';
@@ -9,6 +7,9 @@ import { Metadata } from 'next';
 import ShareButtons from '@/components/ShareButtons';
 import CodeCopyBox from '@/components/blocks/CodeCopyBox';
 import { sortCodeEntries } from '@/lib/codeEntries';
+import { calculateReadingTime } from '@/lib/readingTime';
+import ArticleHeader from '@/components/article/ArticleHeader';
+import ArticleHero from '@/components/article/ArticleHero';
 
 function extractPlainText(content: any, max = 160): string {
   if (!content) return '';
@@ -70,6 +71,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
+export async function generateStaticParams() {
+  const guides = await getGuides();
+  return guides.map((g: any) => ({ slug: g.slug?.current ?? g.slug }));
+}
+
 export default async function GuidePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const [guide, appearance] = await Promise.all([
@@ -90,20 +96,75 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
   const showUpdatedDate = Boolean(guide.showUpdatedDate && guide.lastUpdated);
   const modifiedIso = guide.lastUpdated ? new Date(guide.lastUpdated).toISOString() : publishedIso;
   const authorName = guide.author?.name || 'PHONEOCEAN Staff';
+  const readingTimeMinutes = calculateReadingTime(guide.wordCount ?? guide.content);
+
+  const codeEntriesRaw = (guide.codeEntries && guide.codeEntries.length > 0)
+    ? guide.codeEntries
+    : (guide.codesList || []).map((code: string) => ({ code }));
+  const sortedCodeEntries = sortCodeEntries(codeEntriesRaw);
+  const codePosition = guide.codePosition === 'bottom' ? 'bottom' : 'top';
+
+  const codesBlock = sortedCodeEntries.length > 0 ? (
+    <div className={codePosition === 'top' ? 'mb-12' : 'mt-12'}>
+      <div className="p-6 sm:p-8 bg-white dark:bg-[#0a0a0a] border border-purple-300 dark:border-purple-500/30 rounded-2xl shadow-sm dark:shadow-[0_0_30px_rgba(157,0,255,0.05)]">
+        <h2 className="text-2xl font-bold font-space-grotesk mb-6 flex items-center gap-3 text-gray-900 dark:text-white">
+          <span className="text-purple-600 dark:text-purple-400 font-mono tracking-tighter">{"//"}</span>
+          Active Codes
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {sortedCodeEntries.map((entry: any, idx: number) => (
+            <CodeCopyBox
+              key={idx}
+              code={entry.code}
+              reward={entry.reward}
+              showReward={entry.showReward ?? true}
+              isNew={entry.isNew}
+              isExpired={entry.isExpired}
+              isRedeemed={entry.isRedeemed}
+              expiresAt={entry.expiresAt}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  ) : null;
 
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
     headline: guide.title,
     image: [
-      guide.thumbnail || 'https://picsum.photos/1200/630'
+      guide.thumbnail || `${baseUrl}/logo_phoneocean.png`,
     ],
     datePublished: publishedIso,
     dateModified: modifiedIso,
     author: [{
         '@type': 'Person',
         name: authorName,
-      }]
+      }],
+    publisher: {
+      '@type': 'Organization',
+      name: 'PHONEOCEAN',
+      url: baseUrl,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${baseUrl}/logo_phoneocean.png`,
+      },
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': canonicalUrl,
+    },
+  };
+
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: baseUrl },
+      { '@type': 'ListItem', position: 2, name: 'Guides', item: `${baseUrl}/guides` },
+      { '@type': 'ListItem', position: 3, name: guide.title, item: canonicalUrl },
+    ],
   };
 
   return (
@@ -112,46 +173,31 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      {/* HERO BANNER */}
-      <div className="relative w-full h-[40vh] md:h-[50vh] border-b border-gray-900 border-b-purple-500/30">
-        <Image 
-          src={optimizedImageUrl(guide.thumbnail, 1920, 'https://picsum.photos/1920/1080')}
-          alt={guide.thumbnailAlt || guide.title}
-          fill
-          sizes="100vw"
-          className="object-cover"
-          priority
-          referrerPolicy="no-referrer"
-        />
-        <div className="absolute inset-0 bg-black/70 bg-gradient-to-t from-[#050505] to-transparent" />
-        
-        <div className="absolute bottom-0 left-0 w-full">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-            <span className="inline-block bg-purple-600 text-white text-[10px] font-mono tracking-widest uppercase px-3 py-1 mb-6 rounded-sm">
-              {guide.gameName} Guide
-            </span>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black font-space-grotesk tracking-tighter leading-tight mb-6 text-white">
-              {guide.title}
-            </h1>
-            <div className="flex flex-wrap items-center text-gray-400 text-xs font-mono gap-4 uppercase tracking-wider">
-              <span>By {authorName}</span>
-              <span>•</span>
-              <span>{format(new Date(publishDate), 'MMMM dd, yyyy')}</span>
-              {showUpdatedDate && (
-                <>
-                  <span>•</span>
-                  <span>Updated {format(new Date(guide.lastUpdated), 'MMM dd, yyyy')}</span>
-                </>
-              )}
-            </div>
-            <div className="mt-6">
-              <ShareButtons title={guide.title} url={canonicalUrl} />
-            </div>
-          </div>
-        </div>
-      </div>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <ArticleHeader
+        eyebrow={`${guide.gameName} Guide`}
+        title={guide.title}
+        authorName={authorName}
+        isoDate={publishedIso}
+        formattedDate={formatDateIST(publishDate)}
+        readingTimeMinutes={readingTimeMinutes}
+        updatedLabel={showUpdatedDate ? formatDateIST(guide.lastUpdated) : null}
+        shareTitle={guide.title}
+        shareUrl={canonicalUrl}
+      />
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-12">
+      <ArticleHero
+        image={guide.heroImage}
+        fallbackUrl={guide.thumbnail}
+        alt={guide.thumbnailAlt || guide.title}
+        caption={guide.thumbnailCaption}
+        credit={guide.thumbnailCredit}
+      />
+
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
         
         {(guide.youtubeUrl || guide.instagramUrl) && (
           <div className="mb-12">
@@ -159,36 +205,11 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
           </div>
         )}
 
-        {(() => {
-          const entries = (guide.codeEntries && guide.codeEntries.length > 0)
-            ? guide.codeEntries
-            : (guide.codesList || []).map((code: string) => ({ code }));
-          if (entries.length === 0) return null;
-          const sorted = sortCodeEntries(entries);
-          return (
-            <div className="mb-12 p-6 sm:p-8 bg-white dark:bg-[#0a0a0a] border border-purple-300 dark:border-purple-500/30 rounded-2xl shadow-sm dark:shadow-[0_0_30px_rgba(157,0,255,0.05)]">
-              <h2 className="text-2xl font-bold font-space-grotesk mb-6 flex items-center gap-3 text-gray-900 dark:text-white">
-                <span className="text-purple-600 dark:text-purple-400 font-mono tracking-tighter">{"//"}</span>
-                Active Codes
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {sorted.map((entry: any, idx: number) => (
-                  <CodeCopyBox
-                    key={idx}
-                    code={entry.code}
-                    reward={entry.reward}
-                    showReward={entry.showReward ?? true}
-                    isNew={entry.isNew}
-                    isExpired={entry.isExpired}
-                    expiresAt={entry.expiresAt}
-                  />
-                ))}
-              </div>
-            </div>
-          );
-        })()}
+        {codePosition === 'top' && codesBlock}
 
         <SanityContent content={guide.content} highlightsStyle={highlightsStyle} />
+
+        {codePosition === 'bottom' && codesBlock}
         
         <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-900 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <span className="text-sm font-mono text-gray-500 uppercase tracking-widest">Share this guide</span>

@@ -18,6 +18,29 @@ export const tournament = defineType({
       options: { source: 'name', maxLength: 96 },
     }),
     defineField({
+      name: 'game',
+      title: 'Game',
+      type: 'string',
+      options: {
+        list: ['PUBG Mobile', 'BGMI', 'Valorant', 'Free Fire', 'Call of Duty Mobile', 'Mobile Legends', 'Other'],
+        layout: 'dropdown',
+      },
+    }),
+    defineField({
+      name: 'region',
+      title: 'Region',
+      type: 'string',
+      options: {
+        list: ['Global', 'South Asia', 'India', 'Southeast Asia', 'Middle East', 'Europe', 'North America', 'Korea', 'Other'],
+        layout: 'dropdown',
+      },
+    }),
+    defineField({
+      name: 'organizer',
+      title: 'Organizer',
+      type: 'string',
+    }),
+    defineField({
       name: 'logo',
       title: 'Logo',
       type: 'image',
@@ -29,14 +52,29 @@ export const tournament = defineType({
       type: 'image',
       options: { hotspot: true },
     }),
-    defineField({ name: 'organizer', title: 'Organizer', type: 'string' }),
-    defineField({ name: 'prizePool', title: 'Prize Pool', type: 'string' }),
-    defineField({ name: 'venue', title: 'Venue', type: 'string' }),
-    defineField({ name: 'startDate', title: 'Start Date', type: 'datetime' }),
-    defineField({ name: 'endDate', title: 'End Date', type: 'datetime' }),
-    defineField({ name: 'description', title: 'Description', type: 'text', rows: 4 }),
+    defineField({
+      name: 'liquipediaUrl',
+      title: 'Liquipedia URL',
+      type: 'url',
+    }),
+    defineField({
+      name: 'officialUrl',
+      title: 'Official Website',
+      type: 'url',
+    }),
+    defineField({
+      name: 'twitterUrl',
+      title: 'Twitter / X URL',
+      type: 'url',
+    }),
+    defineField({
+      name: 'description',
+      title: 'Description',
+      type: 'text',
+      rows: 4,
+    }),
   ],
   preview: {
-    select: { title: 'name', subtitle: 'organizer', media: 'logo' },
+    select: { title: 'name', subtitle: 'game', media: 'logo' },
   },
 })

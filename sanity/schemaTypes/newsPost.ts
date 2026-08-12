@@ -1,5 +1,6 @@
 import { defineType, defineField } from 'sanity'
 import { TagsInput } from '../components/TagsInput'
+import { WordCountInput } from '../components/WordCountInput'
 
 export const newsPost = defineType({
   name: 'newsPost',
@@ -66,7 +67,16 @@ export const newsPost = defineType({
         { type: 'videoEmbedBlock' },
         { type: 'codeCopyBlock' },
         { type: 'scheduleBlock' },
+        { type: 'standingsTable' },
       ],
+    }),
+    defineField({
+      name: 'wordCount',
+      title: 'Word Count',
+      type: 'number',
+      group: 'content',
+      description: 'Auto-calculated word count from the article body. Used for fast read-time estimates on list pages.',
+      components: { input: WordCountInput },
     }),
 
     // ---- MEDIA ----
@@ -99,6 +109,32 @@ export const newsPost = defineType({
       description: 'Optional attribution, e.g. "Photo: Riot Games".',
     }),
     defineField({
+      name: 'hideHeroImage',
+      title: 'Hide Hero Image',
+      type: 'boolean',
+      group: 'media',
+      initialValue: false,
+      description: 'Turn on to suppress the hero banner (e.g. old articles where the image is already in the body).',
+    }),
+    defineField({
+      name: 'bodyImage',
+      title: 'Body Image',
+      type: 'image',
+      group: 'media',
+      description: 'Defaults to the featured image. Upload a different image here to override.',
+      options: { hotspot: true },
+      fields: [
+        defineField({
+          name: 'alt',
+          title: 'Alt Text',
+          type: 'string',
+          description: 'Describe the image for accessibility & SEO.',
+        }),
+        defineField({ name: 'caption', title: 'Caption', type: 'string' }),
+        defineField({ name: 'credit', title: 'Image Credit', type: 'string' }),
+      ],
+    }),
+    defineField({
       name: 'youtubeUrl',
       title: 'YouTube URL',
       type: 'url',
@@ -118,9 +154,15 @@ export const newsPost = defineType({
       title: 'Category (legacy label)',
       type: 'string',
       group: 'relations',
-      description: 'Existing text category used by the current site. Kept for backward compatibility.',
+      description:
+        'Existing text category used by the current site. Kept for backward compatibility. ' +
+        'This is a fixed list — to add a brand-new category (not listed here), use the ' +
+        '"Category" reference field below instead, which supports unlimited custom categories ' +
+        'managed directly in the Studio sidebar under "Categories" — no code changes needed.',
       options: {
         list: [
+          { title: '', value: '' },
+          { title: 'News', value: 'News' },
           { title: 'BGMI News', value: 'BGMI News' },
           { title: 'Tournament', value: 'Tournament' },
           { title: 'Roster Changes', value: 'Roster Changes' },
@@ -142,6 +184,37 @@ export const newsPost = defineType({
       type: 'reference',
       group: 'relations',
       to: [{ type: 'category' }],
+      description:
+        'Preferred way to categorize new articles. Unlike the legacy label above, you can create ' +
+        'as many categories as you need here — click "Create new" in this field, or manage them ' +
+        'under Content → Categories in the Studio sidebar.',
+    }),
+    defineField({
+      name: 'badge',
+      title: 'Badge',
+      type: 'string',
+      group: 'relations',
+      initialValue: 'None',
+      options: {
+        list: [
+          { title: 'None', value: 'None' },
+          { title: 'NEWS', value: 'NEWS' },
+          { title: 'PRESS RELEASE', value: 'PRESS RELEASE' },
+          { title: 'BREAKING', value: 'BREAKING' },
+          { title: 'FEATURED', value: 'FEATURED' },
+          { title: 'TOURNAMENT', value: 'TOURNAMENT' },
+          { title: 'CUSTOM', value: 'CUSTOM' },
+        ],
+      },
+      description: 'Optional label shown on the article. Select "None" to hide the badge.',
+    }),
+    defineField({
+      name: 'badgeCustom',
+      title: 'Custom Badge Label',
+      type: 'string',
+      group: 'relations',
+      hidden: ({ document }) => document?.badge !== 'CUSTOM',
+      description: 'Shown on the site when "Badge" is set to CUSTOM.',
     }),
     defineField({
       name: 'subCategory',
@@ -203,6 +276,7 @@ export const newsPost = defineType({
       group: 'publishing',
       description: 'The official publication date/time shown on the site. Defaults to now — can be backdated or scheduled in the future.',
       initialValue: () => new Date().toISOString(),
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'featured',
@@ -224,6 +298,14 @@ export const newsPost = defineType({
       type: 'boolean',
       group: 'publishing',
       initialValue: false,
+    }),
+    defineField({
+      name: 'showOnHomepage',
+      title: 'Show on Homepage',
+      type: 'boolean',
+      group: 'publishing',
+      initialValue: true,
+      description: 'Turn off to hide from the homepage feed. The article stays published and Google can still index it.',
     }),
 
     // ---- APPEARANCE ----
@@ -293,6 +375,23 @@ export const newsPost = defineType({
       rows: 3,
       group: 'advanced',
       description: 'Feedback from an editor when requesting changes or rejecting.',
+    }),
+    defineField({
+      name: 'dashboardOwnerId',
+      title: 'Dashboard Owner ID',
+      type: 'string',
+      group: 'advanced',
+      readOnly: true,
+      description:
+        'Internal: Supabase user ID of the dashboard user who created this article. Set automatically by the dashboard API — do not edit manually.',
+    }),
+    defineField({
+      name: 'dashboardOwnerEmail',
+      title: 'Dashboard Owner Email',
+      type: 'string',
+      group: 'advanced',
+      readOnly: true,
+      description: 'Internal: email of the dashboard user who created this article, for display only.',
     }),
   ],
   preview: {

@@ -11,6 +11,8 @@ import { SubmitForReviewAction } from './sanity/actions/submitForReview'
 import { PreviewAction } from './sanity/actions/preview'
 import { TagArticlesView } from './sanity/components/TagArticlesView'
 import { TagDeleteAction, TagMergeAction } from './sanity/actions/tagActions'
+import PasteArticleTool from './sanity/tools/pasteArticle/PasteArticleTool'
+import { EditIcon } from '@sanity/icons'
 
 const WRITER_BLOCKED_ACTIONS = ['publish', 'unpublish', 'schedule', 'duplicate', 'delete']
 
@@ -70,5 +72,14 @@ export default defineConfig({
   plugins: [
     structureTool({ structure }),
     visionTool({ defaultApiVersion: apiVersion }),
+  ],
+  tools: (prev) => [
+    ...prev,
+    {
+      name: 'paste-article',
+      title: 'Paste AI Article',
+      icon: EditIcon,
+      component: PasteArticleTool,
+    },
   ],
 })

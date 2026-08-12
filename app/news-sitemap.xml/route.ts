@@ -15,6 +15,15 @@ function escapeXml(unsafe: string): string {
   });
 }
 
+/**
+ * Google News requires RFC3339 timestamps. `Date.toISOString()` includes
+ * milliseconds (e.g. 2026-08-03T08:51:27.000Z), which Google's validator
+ * flags — strip the fractional seconds to get 2026-08-03T08:51:27Z.
+ */
+function toRfc3339(date: Date): string {
+  return date.toISOString().replace(/\.\d{3}Z$/, 'Z');
+}
+
 export async function GET() {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in';
   const siteName = 'PHONEOCEAN';
@@ -28,7 +37,7 @@ export async function GET() {
   const urls = recent
     .map((post: any) => {
       const loc = `${baseUrl}/news/${post.slug.current}`;
-      const pubDate = new Date(post.publishDate || post._createdAt).toISOString();
+      const pubDate = toRfc3339(new Date(post.publishDate || post._createdAt));
       return `  <url>
     <loc>${escapeXml(loc)}</loc>
     <news:news>
@@ -51,7 +60,7 @@ ${urls}
 
   return new Response(xml, {
     headers: {
-      'Content-Type': 'application/xml',
+      'Content-Type': 'application/xml; charset=utf-8',
       'Cache-Control': 'public, max-age=300, s-maxage=300',
     },
   });

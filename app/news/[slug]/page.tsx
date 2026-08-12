@@ -1,146 +1,121 @@
-import { getNewsPostBySlug, getAppearanceSettings, resolveHighlightsStyle } from '@/lib/api';
-import Image from 'next/image';
-import { optimizedImageUrl } from '@/lib/sanityImage';
-import { format } from 'date-fns';
-import { notFound } from 'next/navigation';
-import SanityContent from '@/components/SanityContent';
-import VideoEmbed from '@/components/VideoEmbed';
-import ShareButtons from '@/components/ShareButtons';
-import { Metadata } from 'next';
+import { notFound } from 'next/navigation'
+import type { Metadata } from 'next'
+import Link from 'next/link'
+import {
+  getNewsPostBySlug,
+  getAllNewsSlugs,
+  getAppearanceSettings,
+  resolveHighlightsStyle,
+} from '@/lib/api'
+import { calculateReadingTime } from '@/lib/readingTime'
+import { formatDateIST } from '@/utils/formatDate'
+import ArticleHeader from '@/components/article/ArticleHeader'
+import ArticleHero from '@/components/article/ArticleHero'
+import SanityContent from '@/components/SanityContent'
+import VideoEmbed from '@/components/VideoEmbed'
+import ShareButtons from '@/components/ShareButtons'
 
-function extractPlainText(content: any, max = 160): string {
-  if (!content) return '';
-  if (typeof content === 'string') return content.slice(0, max);
-  if (Array.isArray(content)) {
-    const text = content
-      .map((block: any) =>
-        (block?.children || [])
-          .map((c: any) => c?.text || '')
-          .join(' ')
-      )
-      .join(' ')
-      .trim();
-    return text.slice(0, max);
-  }
-  return '';
+type Props = { params: Promise<{ slug: string }> }
+
+export const revalidate = 60
+
+export async function generateStaticParams() {
+  const slugs = await getAllNewsSlugs()
+  return slugs.map((s) => ({ slug: s.slug }))
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const { slug } = await params;
-  const post = await getNewsPostBySlug(slug);
-
-  if (!post) {
-    return {
-      title: 'Post Not Found',
-    };
+function extractPlainText(content: any, max = 160): string {
+  if (!content) return ''
+  if (Array.isArray(content)) {
+    return content
+      .map((b: any) => (b?.children || []).map((c: any) => c?.text || '').join(' '))
+      .join(' ')
+      .trim()
+      .slice(0, max)
   }
+  return ''
+}
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in';
-  // Prefer CMS-authored SEO fields, then excerpt, then extracted body text.
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params
+  const article = await getNewsPostBySlug(slug)
+  if (!article) return {}
+
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in'
+  const title = article.seo?.seoTitle || article.title
   const description =
-    post.seo?.metaDescription || post.excerpt || extractPlainText(post.content) || 'PHONEOCEAN gaming news.';
-  const seoTitle = post.seo?.seoTitle || `${post.title} | PHONEOCEAN`;
-  const shareImage = post.seo?.socialShareImage || post.thumbnail || 'https://picsum.photos/1200/630';
-  const imageAlt = post.imageAlt || post.title;
-  const pageUrl = `${baseUrl}/news/${post.slug?.current || slug}`;
-  // Only override canonical if the editor explicitly set one (e.g. syndicated content).
-  const canonical = post.seo?.canonicalUrl || pageUrl;
-  const keywords = [
-    post.seo?.focusKeyword,
-    ...(post.tags?.map((t: any) => t?.title).filter(Boolean) || []),
-  ].filter(Boolean) as string[];
-  const publishDate = post.publishDate || post._createdAt || new Date().toISOString();
-  const publishedIso = new Date(publishDate).toISOString();
+    article.seo?.metaDescription || article.excerpt || extractPlainText(article.content) ||
+    `${article.title} — latest esports and gaming news on PHONEOCEAN.`
+  const image = article.seo?.socialShareImage || article.thumbnail || `${baseUrl}/logo_phoneocean.png`
+  const canonicalUrl = article.seo?.canonicalUrl || `${baseUrl}/news/${article.slug?.current || slug}`
+  const publishDate = article.publishDate || article._createdAt || new Date().toISOString()
+  const publishedIso = new Date(publishDate).toISOString()
+  const modifiedIso = article._updatedAt ? new Date(article._updatedAt).toISOString() : publishedIso
 
   return {
-    title: seoTitle,
+    title: `${title} | PHONEOCEAN`,
     description,
-    ...(keywords.length ? { keywords } : {}),
-    authors: [{ name: post.author?.name || post.authorName || 'PHONEOCEAN Staff' }],
     openGraph: {
-      title: seoTitle,
+      title,
       description,
+      images: [{ url: image, width: 1200, height: 630, alt: article.title }],
       type: 'article',
       publishedTime: publishedIso,
-      modifiedTime: publishedIso,
-      url: pageUrl,
-      images: [
-        {
-          url: shareImage,
-          width: 1200,
-          height: 630,
-          alt: imageAlt,
-        },
-      ],
+      modifiedTime: modifiedIso,
+      url: canonicalUrl,
     },
     twitter: {
       card: 'summary_large_image',
-      title: seoTitle,
+      title,
       description,
-      images: [shareImage],
+      images: [image],
     },
     alternates: {
-      canonical,
+      canonical: canonicalUrl,
     },
-  };
+  }
 }
 
-export default async function NewsArticlePage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
-  const [post, appearance] = await Promise.all([
+export default async function NewsArticlePage({ params }: Props) {
+  const { slug } = await params
+  const [article, appearance] = await Promise.all([
     getNewsPostBySlug(slug),
     getAppearanceSettings(),
-  ]);
+  ])
+  if (!article) notFound()
 
-  if (!post) {
-    notFound();
-  }
+  const highlightsStyle = resolveHighlightsStyle(article, appearance)
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in'
+  const canonicalUrl = `${baseUrl}/news/${article.slug?.current || slug}`
+  const publishDate = article.publishDate || article._createdAt || new Date().toISOString()
+  const publishedIso = new Date(publishDate).toISOString()
+  const modifiedIso = article._updatedAt ? new Date(article._updatedAt).toISOString() : publishedIso
+  const authorName = article.author?.name || article.authorName || 'PHONEOCEAN Staff'
+  const readingTimeMinutes = calculateReadingTime(article.wordCount ?? article.content)
 
-  const highlightsStyle = resolveHighlightsStyle(post, appearance);
+  const badge = article.badge && article.badge !== 'None'
+    ? (article.badge === 'CUSTOM' ? article.badgeCustom : article.badge)
+    : null
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://phoneocean.in';
-  const canonicalUrl = `${baseUrl}/news/${post.slug?.current || slug}`;
-  const publishDate = post.publishDate || post._createdAt || new Date().toISOString();
-  const publishedIso = new Date(publishDate).toISOString();
-
-  const authorName = post.author?.name || post.authorName || 'PHONEOCEAN Staff';
-  const articleSection = post.categoryRef?.title || post.category;
-  const keywords = (post.tags?.map((t: any) => t?.title).filter(Boolean) || []) as string[];
-  const description = post.seo?.metaDescription || post.excerpt || extractPlainText(post.content) || undefined;
-  const heroImage = post.seo?.socialShareImage || post.thumbnail || 'https://picsum.photos/1200/630';
+  const categoryLabel = article.categoryRef?.title || article.category || null
+  const categoryHref = article.categoryRef?.slug ? `/tags/${article.categoryRef.slug}` : null
 
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'NewsArticle',
-    headline: post.title,
-    ...(description ? { description } : {}),
-    image: {
-      '@type': 'ImageObject',
-      url: heroImage,
-      width: 1200,
-      height: 630,
-    },
+    headline: article.title,
+    image: [article.thumbnail || `${baseUrl}/logo_phoneocean.png`],
     datePublished: publishedIso,
-    dateModified: publishedIso,
-    ...(articleSection ? { articleSection } : {}),
-    ...(keywords.length ? { keywords: keywords.join(', ') } : {}),
-    mainEntityOfPage: {
-      '@type': 'WebPage',
-      '@id': canonicalUrl,
-    },
-    author: [{
-        '@type': 'Person',
-        name: authorName,
-      }],
+    dateModified: modifiedIso,
+    author: [{ '@type': 'Person', name: authorName }],
     publisher: {
       '@type': 'Organization',
       name: 'PHONEOCEAN',
-      logo: {
-        '@type': 'ImageObject',
-        url: `${baseUrl}/logo.svg`,
-      },
+      url: baseUrl,
+      logo: { '@type': 'ImageObject', url: `${baseUrl}/logo_phoneocean.png` },
     },
-  };
+    mainEntityOfPage: { '@type': 'WebPage', '@id': canonicalUrl },
+  }
 
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
@@ -148,9 +123,9 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home', item: baseUrl },
       { '@type': 'ListItem', position: 2, name: 'News', item: `${baseUrl}/news` },
-      { '@type': 'ListItem', position: 3, name: post.title, item: canonicalUrl },
+      { '@type': 'ListItem', position: 3, name: article.title, item: canonicalUrl },
     ],
-  };
+  }
 
   return (
     <article className="pb-20">
@@ -162,53 +137,60 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
-      {/* HERO BANNER */}
-      <div className="relative w-full h-[40vh] md:h-[60vh] border-b border-gray-900">
-        <Image 
-          src={optimizedImageUrl(post.thumbnail, 1920, 'https://picsum.photos/1920/1080')}
-          alt={post.imageAlt || post.title}
-          fill
-          sizes="100vw"
-          className="object-cover"
-          priority
-          referrerPolicy="no-referrer"
-        />
-        <div className="absolute inset-0 bg-black/60 bg-gradient-to-t from-[#050505] to-transparent" />
-        
-        <div className="absolute bottom-0 left-0 w-full">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-            <span className="inline-block bg-blue-600 text-white text-[10px] font-mono tracking-widest uppercase px-3 py-1 mb-6 rounded-sm">
-              {post.category}
-            </span>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black font-space-grotesk tracking-tighter leading-tight mb-6 text-white">
-              {post.title}
-            </h1>
-            <div className="flex flex-wrap items-center text-gray-400 text-xs font-mono gap-4 uppercase tracking-wider">
-              <span>By {authorName}</span>
-              <span>•</span>
-              <span>{format(new Date(publishDate), 'MMMM dd, yyyy')}</span>
-            </div>
-            <div className="mt-6">
-              <ShareButtons title={post.title} url={canonicalUrl} />
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-12">
-        {(post.youtubeUrl || post.instagramUrl) && (
-          <div className="mb-12">
-            <VideoEmbed youtubeUrl={post.youtubeUrl} instagramUrl={post.instagramUrl} title={post.title} />
+      <ArticleHeader
+        badge={badge}
+        categoryLabel={categoryLabel}
+        categoryHref={categoryHref}
+        title={article.title}
+        authorName={authorName}
+        isoDate={publishedIso}
+        formattedDate={formatDateIST(publishDate)}
+        readingTimeMinutes={readingTimeMinutes}
+        shareTitle={article.title}
+        shareUrl={canonicalUrl}
+      />
+
+      {!article.hideHeroImage && (
+        <ArticleHero
+          image={article.heroImage}
+          fallbackUrl={article.thumbnail}
+          alt={article.imageAlt || article.title}
+          caption={article.imageCaption}
+          credit={article.imageCredit}
+        />
+      )}
+
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-0">
+        {(article.youtubeUrl || article.instagramUrl) && (
+          <div className="mb-10">
+            <VideoEmbed youtubeUrl={article.youtubeUrl} instagramUrl={article.instagramUrl} title={article.title} />
           </div>
         )}
 
-        <SanityContent content={post.content} highlightsStyle={highlightsStyle} />
-        
-        <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-900 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        {article.content && (
+          <SanityContent content={article.content} highlightsStyle={highlightsStyle} />
+        )}
+
+        {article.tags?.length > 0 && (
+          <div className="mt-10 flex flex-wrap gap-2">
+            {article.tags.map((tag: any) => (
+              <Link
+                key={tag.slug}
+                href={`/tags/${tag.slug}`}
+                className="text-xs font-mono uppercase tracking-wider px-3 py-1.5 rounded-full border border-gray-300 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:border-blue-500 dark:hover:border-[#00E5FF] hover:text-blue-600 dark:hover:text-[#00E5FF] transition-colors"
+              >
+                #{tag.title}
+              </Link>
+            ))}
+          </div>
+        )}
+
+        <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-900 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <span className="text-sm font-mono text-gray-500 uppercase tracking-widest">Share this article</span>
-          <ShareButtons title={post.title} url={canonicalUrl} />
+          <ShareButtons title={article.title} url={canonicalUrl} />
         </div>
       </div>
     </article>
-  );
+  )
 }

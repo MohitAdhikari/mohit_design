@@ -2,6 +2,8 @@ import { type SchemaTypeDefinition } from 'sanity'
 import { newsPost } from './newsPost'
 import { interview } from './interview'
 import { guide } from './guide'
+import { match } from './match'
+import { standing } from './standing'
 import { siteSettings } from './siteSettings'
 import { appearanceSettings } from './appearanceSettings'
 import { seo } from './objects/seo'
@@ -10,10 +12,13 @@ import { calloutBox } from './objects/calloutBox'
 import { videoEmbedBlock } from './objects/videoEmbedBlock'
 import { codeCopyBlock } from './objects/codeCopyBlock'
 import { scheduleBlock } from './objects/scheduleBlock'
+import { standingsTable } from './objects/standingsTable'
+import { matchParticipant } from './objects/matchParticipant'
 import { author } from './author'
 import { category } from './category'
 import { tag } from './tag'
 import { tournament } from './tournament'
+import { tournamentEdition } from './tournamentEdition'
 import { team } from './team'
 import { player } from './player'
 import { subscriber } from './subscriber'
@@ -30,16 +35,21 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     videoEmbedBlock,
     codeCopyBlock,
     scheduleBlock,
+    standingsTable,
+    matchParticipant,
     // Content
     newsPost,
     interview,
     guide,
     // Taxonomy & entities
+    match,
+    standing,
     author,
     category,
     subCategory,
     tag,
     tournament,
+    tournamentEdition,
     team,
     player,
     // Form submissions

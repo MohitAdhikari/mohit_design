@@ -1,6 +1,7 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
-@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant dark (&:where(html:not(.light), html:not(.light) *));
 
 @theme {
   --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
@@ -78,6 +79,15 @@ html {
   font-family: var(--font-sans);
 }
 
+/* ── MOBILE_PERF_v3 ─────────────────────────── */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar { display: none; }
+.snap-x { -webkit-overflow-scrolling: touch; }
+/* ─────────────────────────────────────────────── */
+
 @utility hide-scrollbar {
   /* IE and Edge */
   -ms-overflow-style: none;
@@ -142,24 +152,20 @@ html {
 /* Dynamic UI enhancements                                       */
 /* ============================================================= */
 
-/* Scroll reveal — element fades/slides in when .is-visible added */
+/* Scroll reveal — element fades in when .is-visible added */
 .reveal {
   opacity: 0;
-  transform: translateY(28px);
   transition:
-    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: opacity, transform;
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity;
 }
 .reveal.is-visible {
   opacity: 1;
-  transform: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .reveal {
     opacity: 1 !important;
-    transform: none !important;
     transition: none !important;
   }
   .animate-kenburns,
@@ -168,7 +174,6 @@ html {
   .animate-float,
   .animate-float-slow,
   .animate-aurora,
-  .animate-gradient-x,
   .animate-shimmer-sheen {
     animation: none !important;
   }
@@ -195,16 +200,6 @@ html {
 }
 .animate-float-slow {
   animation: float 9s ease-in-out infinite;
-}
-
-/* Animated gradient background position (for gradient text/borders) */
-@keyframes gradientX {
-  0%, 100% { background-position: 0% 50%; }
-  50%      { background-position: 100% 50%; }
-}
-.animate-gradient-x {
-  background-size: 200% 200%;
-  animation: gradientX 6s ease infinite;
 }
 
 /* Shine sweep across an element on hover */
@@ -270,4 +265,132 @@ html {
   background-size: 40px 40px;
   -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 40%, transparent 100%);
   mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 40%, transparent 100%);
+}
+
+/* =======================================================================
+   PHONEOCEAN-UI-PATCH-v1 — auto-applied by apply_ui_fixes.sh
+   ======================================================================= */
+
+/* =======================================================================
+   ARTICLE TYPOGRAPHY SYSTEM — single source of truth for news/guide/
+   interview body copy. Used via the `.article-prose` class together with
+   Tailwind Typography's `prose` class in SanityContent. Mobile-first:
+   comfortable 17px body copy that scales up on desktop.
+   ======================================================================= */
+.article-prose {
+  --tw-prose-body: theme(colors.gray.700);
+  --tw-prose-headings: theme(colors.gray.900);
+  --tw-prose-links: theme(colors.blue.600);
+  --tw-prose-bold: theme(colors.gray.900);
+  --tw-prose-bullets: theme(colors.gray.400);
+  --tw-prose-quotes: theme(colors.gray.600);
+  --tw-prose-quote-borders: theme(colors.blue.500);
+  font-size: 1.0625rem; /* 17px */
+  line-height: 1.75;
+}
+.dark .article-prose {
+  --tw-prose-body: theme(colors.gray.300);
+  --tw-prose-headings: theme(colors.white);
+  --tw-prose-links: theme(colors.cyan.300);
+  --tw-prose-bold: theme(colors.white);
+  --tw-prose-bullets: theme(colors.gray.600);
+  --tw-prose-quotes: theme(colors.gray.400);
+  --tw-prose-quote-borders: theme(colors.cyan.400);
+}
+@media (min-width: 768px) {
+  .article-prose {
+    font-size: 1.125rem; /* 18px */
+    line-height: 1.8;
+  }
+}
+.article-prose img,
+.article-prose figure img {
+  border-radius: 8px;
+}
+
+/* ── Instagram embed dark-mode fix ──
+   Prevents the blinding white iframe box on dark backgrounds.          */
+.instagram-embed-wrapper {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #1a1a2e;
+}
+.instagram-embed-wrapper iframe,
+.instagram-embed-wrapper blockquote.instagram-media {
+  border-radius: 12px !important;
+  margin: 0 !important;
+  min-width: 0 !important;
+  width: 100% !important;
+}
+.instagram-media,
+.instagram-media-rendered {
+  background: transparent !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Force dark color-scheme on all embedded iframes in dark mode */
+.dark iframe {
+  color-scheme: dark;
+}
+
+/* ── ShareButtons — ensure they never occlude body copy on mobile ── */
+@media (max-width: 768px) {
+  .share-buttons-float {
+    position: static !important;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* ── Ticker fade edges (use CSS var so themes can override) ── */
+.ticker-fade-left {
+  background: linear-gradient(
+    to right,
+    var(--ticker-bg, #fff) 0%,
+    transparent 100%
+  );
+}
+.ticker-fade-right {
+  background: linear-gradient(
+    to left,
+    var(--ticker-bg, #fff) 0%,
+    transparent 100%
+  );
+}
+
+/* ── Prevent horizontal scroll on mobile ── */
+@media (max-width: 640px) {
+  body {
+    overflow-x: hidden;
+  }
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ── HOMEPAGE_MOBILE_PATCH ── */
+@media (max-width: 639px) {
+  /* Feed cards: prevent image stretching */
+  .feed-card-img {
+    flex-shrink: 0 !important;
+    width: 88px !important;
+    height: 66px !important;
+  }
+  /* Hero title */
+  .hero-title {
+    font-size: 1.25rem;
+    line-height: 1.3;
+  }
+  /* Trending scroll — swipeable */
+  .trending-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+  }
+  .trending-scroll > * {
+    scroll-snap-align: start;
+  }
 }

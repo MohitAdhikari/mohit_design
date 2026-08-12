@@ -1,3 +1,5 @@
+import './studio.css'
+
 export const metadata = {
   title: 'PHONEOCEAN CMS Studio',
   description: 'Manage content for PHONEOCEAN',

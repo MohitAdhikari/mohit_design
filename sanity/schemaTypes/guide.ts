@@ -1,6 +1,8 @@
 import { defineType, defineField } from 'sanity'
 import { ReadingTimeInput } from '../components/ReadingTimeInput'
+import { WordCountInput } from '../components/WordCountInput'
 import { TagsInput } from '../components/TagsInput'
+import { BulkCodePasteInput } from '../components/BulkCodePasteInput'
 
 export const guide = defineType({
   name: 'guide',
@@ -81,12 +83,37 @@ export const guide = defineType({
       title: 'Code Entries',
       type: 'array',
       of: [{ type: 'codeCopyBlock' }],
-      description: 'Full-featured codes with expiry, new badge and reward text. Working codes sort first, expired last.',
+      description:
+        'Full-featured codes with expiry, new badge and reward text. Working codes sort first, expired last. Use "Bulk add codes" above the list to paste many codes at once — one per line, optionally "CODE | reward".',
+      components: { input: BulkCodePasteInput },
+    }),
+    defineField({
+      name: 'codePosition',
+      title: 'Code Block Position',
+      type: 'string',
+      description: 'Where the Active Codes box renders relative to the Guide Content below. Default is above the content.',
+      options: {
+        list: [
+          { title: 'Top (before content)', value: 'top' },
+          { title: 'Bottom (after content)', value: 'bottom' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'top',
+    }),
+    defineField({
+      name: 'showOnHomepage',
+      title: 'Show on Homepage',
+      type: 'boolean',
+      initialValue: true,
+      description: 'Include this guide/redeem-code post in the homepage "Guides & Codes" section.',
     }),
     defineField({
       name: 'content',
       title: 'Guide Content',
       type: 'array',
+      description:
+        'To place codes at a specific spot in the body (not just top/bottom), insert a "Code Copy Box" block directly here via the + menu.',
       of: [
         { type: 'block' },
         {
@@ -112,6 +139,13 @@ export const guide = defineType({
       ],
     }),
     defineField({
+      name: 'wordCount',
+      title: 'Word Count',
+      type: 'number',
+      description: 'Auto-calculated word count from the guide body. Used for fast read-time estimates on list pages.',
+      components: { input: WordCountInput },
+    }),
+    defineField({
       name: 'author',
       title: 'Author',
       type: 'reference',
@@ -123,6 +157,7 @@ export const guide = defineType({
       type: 'datetime',
       description: 'The official publication date/time shown on the site. Defaults to now — can be backdated or scheduled in the future.',
       initialValue: () => new Date().toISOString(),
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'lastUpdated',
@@ -154,7 +189,7 @@ export const guide = defineType({
       title: 'Estimated Read Time',
       type: 'string',
       readOnly: true,
-      description: 'Automatically calculated from the guide content. Internal editorial reference only — never shown to readers.',
+      description: 'Automatically calculated from the guide content. The same calculation is shown to readers on the published guide page.',
       components: { input: ReadingTimeInput },
     }),
     defineField({

@@ -54,3 +54,33 @@ export function contentImageUrl(value: any, width = 1200): string | null {
   }
   return null;
 }
+
+/**
+ * Resolve a hotspot-aware, fixed-aspect-ratio image URL for hero banners.
+ * Unlike `optimizedImageUrl` (which only resizes width), this locks both
+ * width AND height and crops around the editor-selected focal point/hotspot
+ * in Sanity, so the subject of the photo is never cut off on tall or wide
+ * source images.
+ */
+export function heroImageUrl(
+  source: SanityImageSource | string | null | undefined,
+  width: number,
+  height: number,
+  fallback: string = FALLBACK_IMAGE
+): string {
+  if (!source) return fallback;
+  if (typeof source === 'string' && !source.includes('cdn.sanity.io')) {
+    return source;
+  }
+  try {
+    return urlFor(source)
+      .width(width)
+      .height(height)
+      .fit('crop')
+      .crop('focalpoint')
+      .auto('format')
+      .url();
+  } catch {
+    return typeof source === 'string' ? source : fallback;
+  }
+}

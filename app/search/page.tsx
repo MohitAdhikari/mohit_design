@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { getGuides, getInterviews, getNewsPosts } from '@/lib/api';
+import { getGuides, getInterviews, getPublicNewsPosts } from '@/lib/api';
 import SearchClient from './SearchClient';
 
 export const metadata = {
@@ -11,7 +11,7 @@ export const revalidate = 60;
 
 export default async function SearchPage() {
   const [news, interviews, guides] = await Promise.all([
-    getNewsPosts(),
+    getPublicNewsPosts(),
     getInterviews(),
     getGuides(),
   ]);

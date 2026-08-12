@@ -1,7 +1,5 @@
-'use client'
-
 import { useEffect, useState } from 'react'
-import { useClient, useFormValue, set, type StringInputProps } from 'sanity'
+import { useClient, useFormValue, set, PatchEvent, type StringInputProps } from 'sanity'
 import { useRouter } from 'sanity/router'
 import { Box, Button, Card, Inline, Stack, Text, TextInput } from '@sanity/ui'
 
@@ -25,9 +23,11 @@ export function TagTitleInput(props: StringInputProps) {
       return
     }
     const t = setTimeout(async () => {
+      const id = docId.replace(/^drafts\./, '')
+      const draftsId = id ? `drafts.${id}` : ''
       const res = await client.fetch<ExistingTag | null>(
-        `*[_type == "tag" && title == $title && _id != $id && _id != "drafts." + $id][0]{ _id, title, slug }`,
-        { title: value.trim(), id: docId.replace(/^drafts\./, '') }
+        `*[_type == "tag" && title == $title && _id != $id && _id != $draftsId][0]{ _id, title, slug }`,
+        { title: value.trim(), id, draftsId }
       )
       setExisting(res)
     }, 250)
@@ -45,7 +45,7 @@ export function TagTitleInput(props: StringInputProps) {
     <Stack space={3}>
       <TextInput
         value={value}
-        onChange={(e) => onChange([set(e.currentTarget.value)])}
+        onChange={(e) => onChange(PatchEvent.from(set(e.currentTarget.value)))}
         readOnly={readOnly}
       />
       {existing && (
