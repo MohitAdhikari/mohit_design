@@ -89,10 +89,24 @@ const r = (rank, teamName, placementPoints, kills) => ({
 // Then fill in each match's results below.
 
 const TEAMS = [
-  'TBD', 'TBD', 'TBD', 'TBD',
-  'TBD', 'TBD', 'TBD', 'TBD',
-  'TBD', 'TBD', 'TBD', 'TBD',
-  'TBD', 'TBD', 'TBD', 'TBD',
+  // Group Stage direct qualifiers
+  '4Thrives Esports',   // 1
+  'Orangutan',          // 2
+  'Aurora Gaming',      // 3
+  'Team Flash',         // 4
+  'Nigma Galaxy',       // 5
+  'Team Vitality',      // 6
+  'IDA Esports',        // 7
+  'GodLike Esports',    // 8
+  'Horaa Esports',      // 9
+  'S2G Esports',        // 10
+  // Survival Stage qualifiers
+  'Tianba',             // 11
+  'AlUla Club Esports', // 12
+  'NongShim RedForce',  // 13
+  'FURIA Esports',      // 14
+  'ULF Esports',        // 15
+  'eArena',             // 16
 ]
 
 // Place the 16 teams in each match in placement order.
