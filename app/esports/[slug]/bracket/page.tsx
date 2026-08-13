@@ -37,6 +37,7 @@ interface Match {
   matchNumber: number
   matchFormat: 'battle_royale' | 'head_to_head'
   stage: string
+  group?: string
   map?: string
   status: 'scheduled' | 'live' | 'completed' | 'cancelled'
   scheduledAt: string
@@ -51,7 +52,7 @@ interface Match {
 // ─── GROQ query ───────────────────────────────────────────────────────────────
 
 const MATCHES_QUERY = `*[_type == "match" && edition._ref == $editionId] | order(matchNumber asc) {
-  _id, matchNumber, matchFormat, stage, map, status, scheduledAt,
+  _id, matchNumber, matchFormat, stage, group, map, status, scheduledAt,
   participants[] {
     _key,
     teamName,
@@ -165,13 +166,43 @@ export default async function BracketPage({
         {/* Content */}
         <div className="mt-8 space-y-12">
           {hasMatches ? (
-            Object.entries(grouped).map(([stage, stageMatches]) => (
-              <BracketStage
-                key={stage}
-                label={STAGE_LABELS[stage] ?? stage}
-                matches={stageMatches}
-              />
-            ))
+            Object.entries(grouped).map(([stage, stageMatches]) => {
+              if (stage === 'group_stage') {
+                const groupA = stageMatches.filter((m) => m.group === 'Group A')
+                const groupB = stageMatches.filter((m) => m.group === 'Group B')
+                const ungrouped = stageMatches.filter((m) => !m.group)
+                return (
+                  <div key={stage} className="space-y-10">
+                    <h2 className="text-xs font-mono uppercase tracking-widest text-blue-400">
+                      {STAGE_LABELS[stage]}
+                    </h2>
+                    {groupA.length > 0 && (
+                      <BracketStage
+                        label={slug === 'pmwc-2026' ? 'Group A · Aug 6–7' : 'Group A'}
+                        matches={groupA}
+                      />
+                    )}
+                    {groupB.length > 0 && (
+                      <BracketStage
+                        label={slug === 'pmwc-2026' ? 'Group B · Aug 8–9' : 'Group B'}
+                        matches={groupB}
+                      />
+                    )}
+                    {ungrouped.length > 0 && (
+                      <BracketStage label="Group Stage" matches={ungrouped} />
+                    )}
+                  </div>
+                )
+              }
+
+              return (
+                <BracketStage
+                  key={stage}
+                  label={STAGE_LABELS[stage] ?? stage}
+                  matches={stageMatches}
+                />
+              )
+            })
           ) : (
             <div className="rounded-xl border border-white/10 bg-white/5 px-6 py-16 text-center">
               <p className="text-lg font-semibold text-gray-300">No matches yet</p>

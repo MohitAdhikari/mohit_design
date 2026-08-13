@@ -69,15 +69,22 @@ export default function BracketStage({ label, matches }: { label: string; matche
               >
                 {/* Match header */}
                 <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm font-semibold text-white">
-                      Match {match.matchNumber}
-                    </span>
-                    {match.map && (
-                      <span className="rounded bg-white/10 px-2 py-0.5 text-xs text-gray-300">
-                        {MAP_LABELS[match.map] ?? match.map}
+                  <div className="flex flex-col items-start gap-1">
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-semibold text-white">
+                        Match {match.matchNumber}
                       </span>
-                    )}
+                      {match.map && (
+                        <span className="rounded bg-white/10 px-2 py-0.5 text-xs text-gray-300">
+                          {MAP_LABELS[match.map] ?? match.map}
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-sm font-mono uppercase tracking-widest text-gray-500">
+                      {match.matchFormat === 'battle_royale'
+                        ? `${match.participants?.length ?? 16} Teams · Battle Royale`
+                        : 'Head to Head'}
+                    </span>
                   </div>
                   <span
                     className={`rounded px-2 py-0.5 text-xs font-medium capitalize ${
