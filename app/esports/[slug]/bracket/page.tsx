@@ -18,7 +18,7 @@ import BracketStage from '@/components/esports/BracketStage'
 import PrizePoolTable from '@/components/esports/PrizePoolTable'
 import type { TournamentEdition } from '@/lib/tournamentApi'
 
-export const revalidate = 300
+export const revalidate = 60 // 1 min during live event
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
