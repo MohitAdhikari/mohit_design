@@ -10,13 +10,43 @@ export const editionParticipant = defineType({
       title: 'Team',
       type: 'reference',
       to: [{ type: 'team' }],
-      validation: (Rule) => Rule.required(),
+      description: 'Preferred. If team doc does not exist, use Team Name Fallback below.',
+    }),
+    defineField({
+      name: 'teamName',
+      title: 'Team Name Fallback',
+      type: 'string',
+      description: 'Used when team reference is not yet available.',
+    }),
+    defineField({
+      name: 'region',
+      title: 'Region',
+      type: 'string',
+      description: 'e.g. South Asia, Southeast Asia, East Asia, MENA, Americas, EECA.',
     }),
     defineField({
       name: 'group',
       title: 'Group',
       type: 'string',
       description: 'e.g. Group A, Group B',
+    }),
+    defineField({
+      name: 'groupFinish',
+      title: 'Group Finish',
+      type: 'number',
+      description: 'Final placement in group stage.',
+    }),
+    defineField({
+      name: 'survivalFinish',
+      title: 'Survival Finish',
+      type: 'number',
+      description: 'Final placement in survival stage (if reached).',
+    }),
+    defineField({
+      name: 'finalsFinish',
+      title: 'Grand Finals Finish',
+      type: 'number',
+      description: 'Final placement in grand finals (if reached).',
     }),
     defineField({
       name: 'seed',
@@ -55,13 +85,14 @@ export const editionParticipant = defineType({
   ],
   preview: {
     select: {
-      teamName: 'team.name',
+      teamName: 'teamName',
+      team: 'team.name',
       group: 'group',
       seed: 'seed',
       status: 'status',
       media: 'team.logo',
     },
-    prepare({ teamName, group, seed, status, media }) {
+    prepare({ teamName, team, group, seed, status, media }) {
       const subtitle = [
         status,
         group ? `Group ${group}` : null,
@@ -71,7 +102,7 @@ export const editionParticipant = defineType({
         .join(' · ')
 
       return {
-        title: teamName || 'Participant',
+        title: teamName || team || 'Participant',
         subtitle: subtitle || undefined,
         media: media as any,
       }
