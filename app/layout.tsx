@@ -4,6 +4,7 @@ import './globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import ClientLayoutShell from '@/components/ClientLayoutShell';
 import { getNewsPosts, getSiteSettings } from '@/lib/api';
+import { applyTournamentSpotlight } from '@/lib/tournamentSpotlight';
 import { GoogleAnalytics } from '@next/third-parties/google';
 
 const spaceGrotesk = Space_Grotesk({
@@ -79,7 +80,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function RootLayout({children}: {children: React.ReactNode}) {
   const [news, settings] = await Promise.all([getNewsPosts(), getSiteSettings()]);
-  const tickerItems = news.slice(0, 6).map((n: any) => ({
+  const spotlightedNews = applyTournamentSpotlight(news).sort(
+    (a: any, b: any) => new Date(b.publishDate || b._createdAt || 0).getTime() - new Date(a.publishDate || a._createdAt || 0).getTime(),
+  );
+  const tickerItems = spotlightedNews.slice(0, 6).map((n: any) => ({
     title: n.title,
     href: `/news/${n.slug.current}`,
     showOnHomepage: n.showOnHomepage,

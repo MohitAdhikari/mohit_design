@@ -4,6 +4,7 @@ import TournamentCard from '@/components/TournamentCard'
 import PageHeader from '@/components/PageHeader'
 import Reveal from '@/components/Reveal'
 import EsportsRelatedNews from '@/components/EsportsRelatedNews'
+import { Trophy } from 'lucide-react'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -34,10 +35,13 @@ export default async function TournamentsPage() {
       />
 
       {tournaments.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
-          <span className="text-5xl">🏆</span>
-          <p className="text-gray-500 dark:text-gray-500 font-mono uppercase tracking-widest text-sm">
-            No tournaments yet. Check back soon.
+        <div className="flex flex-col items-center justify-center py-24 gap-2 text-center">
+          <Trophy className="w-16 h-16 text-gray-400 dark:text-gray-600" />
+          <p className="text-gray-900 dark:text-gray-100 font-semibold text-base">
+            No tournaments yet
+          </p>
+          <p className="text-gray-500 dark:text-gray-500 text-sm max-w-md">
+            Check back soon for upcoming BGMI, PUBG Mobile, Free Fire, and Valorant coverage.
           </p>
         </div>
       ) : (

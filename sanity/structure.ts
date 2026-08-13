@@ -88,7 +88,10 @@ export const structure: StructureResolver = (S) =>
                         )
                     )
                 ),
+              S.documentTypeListItem('tournamentEdition').title('Tournament Editions'),
               S.documentTypeListItem('team').title('Teams'),
+              S.documentTypeListItem('standing').title('Standings'),
+              S.documentTypeListItem('match').title('Matches'),
               S.documentTypeListItem('player').title('Players'),
             ])
         ),

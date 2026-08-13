@@ -109,6 +109,20 @@ export const guide = defineType({
       description: 'Include this guide/redeem-code post in the homepage "Guides & Codes" section.',
     }),
     defineField({
+      name: 'featured',
+      title: 'Featured',
+      type: 'boolean',
+      initialValue: false,
+      description: 'Prioritize this guide/code for the homepage Hero rotation, ahead of pure recency. Same as the "Featured" toggle on News Posts.',
+    }),
+    defineField({
+      name: 'trending',
+      title: 'Trending',
+      type: 'boolean',
+      initialValue: false,
+      description: 'Prioritize this guide/code in the homepage "Trending Now" section, ahead of pure recency.',
+    }),
+    defineField({
       name: 'content',
       title: 'Guide Content',
       type: 'array',

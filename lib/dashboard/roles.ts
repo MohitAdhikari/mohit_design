@@ -23,7 +23,8 @@ export type Permission =
   | 'homepage:manage'
   | 'taxonomy:manage'
   | 'media:manage'
-  | 'activity_log:view';
+  | 'activity_log:view'
+  | 'match:import';
 
 export const ROLE_PERMISSIONS: Record<DashboardRole, Permission[]> = {
   editor: [
@@ -44,6 +45,7 @@ export const ROLE_PERMISSIONS: Record<DashboardRole, Permission[]> = {
     'taxonomy:manage',
     'media:manage',
     'activity_log:view',
+    'match:import',
   ],
 };
 
@@ -67,4 +69,5 @@ export const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard/articles/new', label: 'New Article', roles: ['admin', 'editor'] },
   { href: '/dashboard/admin', label: 'Admin', roles: ['admin'] },
   { href: '/dashboard/admin/users', label: 'Users', roles: ['admin'] },
+  { href: '/dashboard/admin/match-import', label: 'Smart Import', roles: ['admin'] },
 ];

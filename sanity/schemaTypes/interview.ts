@@ -66,6 +66,27 @@ export const interview = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'showOnHomepage',
+      title: 'Show on Homepage',
+      type: 'boolean',
+      initialValue: true,
+      description: 'Include this interview on the homepage (feed, trending, hero and Interviews section).',
+    }),
+    defineField({
+      name: 'featured',
+      title: 'Featured',
+      type: 'boolean',
+      initialValue: false,
+      description: 'Prioritize this interview for the homepage Hero rotation, ahead of pure recency. Same as the "Featured" toggle on News Posts.',
+    }),
+    defineField({
+      name: 'trending',
+      title: 'Trending',
+      type: 'boolean',
+      initialValue: false,
+      description: 'Prioritize this interview in the homepage "Trending Now" section, ahead of pure recency.',
+    }),
+    defineField({
       name: 'categoryRef',
       title: 'Category',
       type: 'reference',

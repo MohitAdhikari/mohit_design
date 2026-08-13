@@ -1,5 +1,7 @@
 import { getActiveEdition, getMatches } from '@/lib/tournamentApi'
 import type { Match } from '@/lib/tournamentApi'
+import TeamLogo from '@/components/TeamLogo'
+import { CalendarDays } from 'lucide-react'
 
 const STAGE_LABELS: Record<string, string> = {
   group_stage: 'Group Stage',
@@ -48,10 +50,13 @@ export default async function SchedulePage() {
       </div>
 
       {matches.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-16 gap-3 text-center border border-dashed border-gray-300 dark:border-gray-800 rounded-2xl">
-          <span className="text-4xl">🗓️</span>
-          <p className="text-gray-500 dark:text-gray-500 font-mono uppercase tracking-widest text-xs">
+        <div className="flex flex-col items-center justify-center py-16 gap-2 text-center border border-dashed border-gray-300 dark:border-gray-800 rounded-2xl">
+          <CalendarDays className="w-12 h-12 text-gray-400 dark:text-gray-600" />
+          <p className="text-gray-900 dark:text-gray-100 font-semibold text-sm">
             No matches scheduled yet
+          </p>
+          <p className="text-gray-500 dark:text-gray-500 text-xs max-w-md">
+            The match schedule will appear here once fixtures are confirmed.
           </p>
         </div>
       )}
@@ -70,7 +75,7 @@ export default async function SchedulePage() {
                       {match.participants?.length ?? 0} teams · Battle Royale
                     </span>
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_BADGE[match.status]}`}>
-                      {match.status === 'live' ? '🔴 LIVE' : match.status.toUpperCase()}
+                      {match.status.toUpperCase()}
                     </span>
                   </div>
                   {match.participants && match.participants.length > 0 ? (
@@ -86,11 +91,13 @@ export default async function SchedulePage() {
                         </thead>
                         <tbody className="divide-y divide-gray-100 dark:divide-gray-800/40">
                           {match.participants.map((p, i) => (
-                            <tr key={p.team._id || i}>
+                            <tr key={p.team?._id || i}>
                               <td className="px-2 py-1.5 text-gray-400 dark:text-gray-600 font-mono">{p.placement ?? '—'}</td>
-                              <td className="px-2 py-1.5 flex items-center gap-2">
-                                {p.team.logoUrl && <img src={p.team.logoUrl} alt={p.team.name} className="w-5 h-5 object-contain" />}
-                                <span className="font-semibold text-gray-900 dark:text-gray-100 truncate">{p.team.name}</span>
+                              <td className="px-2 py-1.5">
+                                <div className="flex items-center gap-2">
+                                  <TeamLogo src={p.team?.logoUrl ?? null} name={p.team?.name ?? 'TBD'} size={20} className="w-5 h-5" />
+                                  <span className="font-semibold text-gray-900 dark:text-gray-100 truncate">{p.team?.name ?? 'TBD'}</span>
+                                </div>
                               </td>
                               <td className="px-2 py-1.5 text-center text-gray-700 dark:text-gray-300">{p.kills ?? 0}</td>
                               <td className="px-2 py-1.5 text-center font-bold text-yellow-600 dark:text-yellow-400">{p.points ?? 0}</td>
@@ -108,9 +115,7 @@ export default async function SchedulePage() {
 
                   {/* Team 1 */}
                   <div className="flex items-center gap-3 w-1/3">
-                    {match.team1?.logoUrl && (
-                      <img src={match.team1.logoUrl} alt={match.team1.name} className="w-8 h-8 object-contain" />
-                    )}
+                    <TeamLogo src={match.team1?.logoUrl ?? null} name={match.team1?.name ?? 'TBD'} size={32} className="w-8 h-8" />
                     <span className="font-semibold text-gray-900 dark:text-gray-100 truncate">{match.team1?.name ?? 'TBD'}</span>
                   </div>
 
@@ -118,22 +123,20 @@ export default async function SchedulePage() {
                   <div className="flex flex-col items-center min-w-[80px]">
                     {match.status === 'completed' ? (
                       <span className="text-2xl font-bold text-gray-900 dark:text-white">
-                        {match.team1Score} — {match.team2Score}
+                        {match.team1Score ?? 0} — {match.team2Score ?? 0}
                       </span>
                     ) : (
                       <span className="text-gray-400 dark:text-gray-500 text-sm font-medium">VS</span>
                     )}
                     <span className={`mt-1 text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_BADGE[match.status]}`}>
-                      {match.status === 'live' ? '🔴 LIVE' : match.status.toUpperCase()}
+                      {match.status.toUpperCase()}
                     </span>
                   </div>
 
                   {/* Team 2 */}
                   <div className="flex items-center gap-3 w-1/3 justify-end">
                     <span className="font-semibold text-gray-900 dark:text-gray-100 truncate text-right">{match.team2?.name ?? 'TBD'}</span>
-                    {match.team2?.logoUrl && (
-                      <img src={match.team2.logoUrl} alt={match.team2.name} className="w-8 h-8 object-contain" />
-                    )}
+                    <TeamLogo src={match.team2?.logoUrl ?? null} name={match.team2?.name ?? 'TBD'} size={32} className="w-8 h-8" />
                   </div>
 
                 </div>

@@ -3,12 +3,21 @@ import Link from 'next/link';
 import { getPublicNewsPosts, getInterviews, getGuides, getSiteSettings, getHomepage } from '@/lib/api';
 import { optimizedImageUrl } from '@/lib/sanityImage';
 import { formatDateCompactIST, formatDateDayMonthIST } from '@/utils/formatDate';
-import { calculateReadingTime } from '@/lib/readingTime';
+import { calculateReadingTime, calculateWordCount } from '@/lib/readingTime';
 import Reveal from '@/components/Reveal';
 import GamesMarquee from '@/components/GamesMarquee';
-import HeroCycle from '@/components/HeroCycle';
+import HeroCycle, { HomepageItem } from '@/components/HeroCycle';
+import { applyTournamentSpotlight } from '@/lib/tournamentSpotlight';
 
 export const revalidate = 60;
+
+/* ── route helper for mixed content types in homepage feeds ── */
+function getItemHref(item: { _type?: string; slug?: { current?: string } }) {
+  if (!item?.slug?.current) return '#';
+  if (item._type === 'guide') return `/guides/${item.slug.current}`;
+  if (item._type === 'interview') return '/interviews';
+  return `/news/${item.slug.current}`;
+}
 
 /* ── category dot color map (mobile trending/feed) ── */
 const CAT_DOT: Record<string, string> = {
@@ -37,13 +46,83 @@ export default async function Home() {
     getHomepage(),
   ]);
 
-  const withReadTime = (p: any) => ({ ...p, readMins: calculateReadingTime(p.wordCount ?? p.content) });
+  const withReadTime = <T extends { wordCount?: number; content?: any }>(p: T) => {
+    const wordCount = typeof p?.wordCount === 'number' ? p.wordCount : calculateWordCount(p?.content);
+    return { ...p, readMins: calculateReadingTime(wordCount) };
+  };
 
-  const homepageNews = news.filter((post) => post.showOnHomepage !== false).map(withReadTime);
-  const trendingArticles = (homepage.trendingArticles || []).map(withReadTime);
-  const heroArticle = homepage.heroArticle ? withReadTime(homepage.heroArticle) : null;
+  const normalizeForHome = (item: any): HomepageItem | null => {
+    if (!item) return null;
+    const isGuide = item._type === 'guide';
+    const isInterview = item._type === 'interview';
+    const base = withReadTime(item);
+    return {
+      ...base,
+      _id: item._id,
+      _type: item._type,
+      slug: item.slug,
+      href: getItemHref(item),
+      title: isInterview ? item.playerOrCeoName || item.title : item.title,
+      category: item.category || item.gameName || item.eventName || (isGuide ? 'Guide' : isInterview ? 'Interview' : 'News'),
+      authorName: item.authorName || item.author?.name || 'PHONEOCEAN',
+      featured: item.featured === true,
+      badge: item.badge || 'None',
+      badgeCustom: item.badgeCustom || '',
+      excerpt: item.excerpt || '',
+      publishDate: item.publishDate || item._createdAt,
+      readMins: isInterview ? null : base.readMins,
+    };
+  };
 
-  const featured = heroArticle || homepageNews[0];
+  // Combined homepage content pool: news already respects showOnHomepage.
+  // Tournament match/standings updates get rotated so only the freshest one
+  // per tournament is ever eligible for the feed (see applyTournamentSpotlight).
+  const spotlightedNews = applyTournamentSpotlight(news);
+  const homepageContent: HomepageItem[] = [
+    ...spotlightedNews.map(normalizeForHome),
+    ...guides
+      .filter((g: any) => g.showOnHomepage !== false)
+      .map(normalizeForHome),
+    ...interviews
+      .filter((i: any) => i.showOnHomepage !== false)
+      .map(normalizeForHome),
+  ]
+    .filter((p): p is HomepageItem => Boolean(p))
+    .sort((a, b) => new Date(b?.publishDate || 0).getTime() - new Date(a?.publishDate || 0).getTime());
+
+  const useAutoLayout = homepage.useAutoLayout !== false;
+
+  // Editors can flag any article, guide/code or interview as "Featured" /
+  // "Trending" to bump it ahead of pure recency in the automatic hero /
+  // trending pools, without needing to touch the Homepage Manager.
+  const prioritize = (pool: HomepageItem[], flag: 'featured' | 'trending'): HomepageItem[] => [
+    ...pool.filter((p) => (p as any)[flag] === true),
+    ...pool.filter((p) => (p as any)[flag] !== true),
+  ];
+
+  /* ── HERO: manual array or legacy single ref, otherwise auto fallback ── */
+  const rawManualHero = !useAutoLayout
+    ? (homepage.heroArticles?.length
+        ? homepage.heroArticles
+        : homepage.heroArticle
+          ? [homepage.heroArticle]
+          : [])
+    : [];
+
+  const heroManual: HomepageItem[] = rawManualHero
+    .map(normalizeForHome)
+    .filter((p): p is HomepageItem => Boolean(p));
+
+  const heroAuto: HomepageItem[] = homepage.heroArticle
+    ? [
+        normalizeForHome(homepage.heroArticle),
+        ...homepageContent.filter((p) => p._id !== homepage.heroArticle._id).slice(0, 2),
+      ].filter((p): p is HomepageItem => Boolean(p))
+    : prioritize(homepageContent, 'featured').slice(0, 3);
+
+  const heroPool: HomepageItem[] = (heroManual.length ? heroManual : heroAuto).slice(0, 3);
+
+  const featured = heroPool[0] || null;
   const showFeaturedBadge = featured?.featured === true;
 
   // De-dupe: track every article ID already placed in a section so a single
@@ -51,25 +130,40 @@ export default async function Home() {
   const usedIds = new Set<string>();
   if (featured?._id) usedIds.add(featured._id);
 
-  const latestNews = trendingArticles.length
-    ? trendingArticles.filter((p: any) => !usedIds.has(p._id)).slice(0, 3)
-    : homepageNews.filter((p: any) => !usedIds.has(p._id)).slice(0, 3);
-  latestNews.forEach((p: any) => usedIds.add(p._id));
+  /* ── TRENDING: manual list when auto is OFF, otherwise auto fallback after hero ── */
+  const rawTrendingManual = !useAutoLayout ? (homepage.trendingArticles || []) : [];
+  const trendingManual: HomepageItem[] = rawTrendingManual
+    .map(normalizeForHome)
+    .filter((p): p is HomepageItem => Boolean(p))
+    .filter((p) => !usedIds.has(p._id));
 
-  const feedNews = homepageNews.filter((p: any) => !usedIds.has(p._id));
-
-  /* ── mobile-only hero cycle pool + supporting feed ── */
-  const heroPool: any[] = heroArticle
-    ? [heroArticle, ...homepageNews.filter((p: any) => p._id !== heroArticle._id).slice(0, 2)]
-    : homepageNews.slice(0, 3);
-  const heroIds = new Set(heroPool.map((p: any) => p._id));
-  const mobileTrending: any[] = trendingArticles.length
-    ? trendingArticles.filter((p: any) => !heroIds.has(p._id)).slice(0, 6)
-    : homepageNews.filter((p: any) => !heroIds.has(p._id)).slice(0, 6);
-  const mobileTrendingIds = new Set(mobileTrending.map((p: any) => p._id));
-  const mobileFeed: any[] = homepageNews.filter(
-    (p: any) => !heroIds.has(p._id) && !mobileTrendingIds.has(p._id)
+  const trendingAuto: HomepageItem[] = prioritize(
+    homepageContent.filter((p) => !usedIds.has(p._id)),
+    'trending',
   );
+
+  const trendingPool: HomepageItem[] = (trendingManual.length ? trendingManual : trendingAuto).slice(0, 3);
+  const latestNews: HomepageItem[] = trendingPool.slice(0, 3);
+  latestNews.forEach((p) => usedIds.add(p._id));
+
+  /* ── FEED: manual list when auto is OFF, otherwise auto fallback after hero+trending ── */
+  const rawFeedManual = !useAutoLayout ? (homepage.feedArticles || []) : [];
+  const feedManual: HomepageItem[] = rawFeedManual
+    .map(normalizeForHome)
+    .filter((p): p is HomepageItem => Boolean(p))
+    .filter((p) => !usedIds.has(p._id));
+
+  const feedAuto: HomepageItem[] = homepageContent.filter((p) => !usedIds.has(p._id));
+  const feedNews: HomepageItem[] = feedManual.length ? feedManual : feedAuto;
+
+  /* ── mobile-only pools: distinct from desktop trending/feed ── */
+  const heroIds = new Set(heroPool.map((p) => p._id));
+  const mobileUsedIds = new Set([...usedIds, ...heroIds]);
+  const mobileTrending: HomepageItem[] = homepageContent
+    .filter((p) => !mobileUsedIds.has(p._id))
+    .slice(0, 6);
+  mobileTrending.forEach((p) => mobileUsedIds.add(p._id));
+  const mobileFeed: HomepageItem[] = homepageContent.filter((p) => !mobileUsedIds.has(p._id));
 
   return (
     <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
@@ -98,12 +192,12 @@ export default async function Home() {
                 </Link>
               </div>
               <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-none pb-1 -mx-3 px-3">
-                {mobileTrending.map((post: any, i: number) => {
+                {mobileTrending.map((post, i: number) => {
                   const tag = post.category || post.tags?.[0]?.title || post.tags?.[0] || '';
                   return (
                     <Link
                       key={post._id || i}
-                      href={`/news/${post.slug.current}`}
+                      href={post.href}
                       className="group flex-none w-[136px] snap-start"
                     >
                       <div className="relative w-full h-[86px] rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800/60">
@@ -146,13 +240,13 @@ export default async function Home() {
             </Link>
           </div>
           <div className="flex flex-col divide-y divide-gray-100 dark:divide-gray-800/60 rounded-2xl border border-gray-200 dark:border-gray-800/60 overflow-hidden bg-white dark:bg-[#111116]">
-            {mobileFeed.slice(0, 8).map((post: any, i: number) => {
+            {mobileFeed.slice(0, 8).map((post, i: number) => {
               const tag = post.category || post.tags?.[0]?.title || post.tags?.[0] || '';
               const dot = catDot(tag);
               return (
                 <Reveal key={post._id || i} delay={i * 40} initial={i < 2}>
                   <Link
-                    href={`/news/${post.slug.current}`}
+                    href={post.href}
                     className="group flex flex-row items-start gap-2.5 p-3 hover:bg-gray-50 dark:hover:bg-white/[0.03] transition-colors"
                   >
                     <span className="flex-none w-5 text-[10px] font-black font-mono text-[#00E5FF] mt-1 select-none">
@@ -182,8 +276,12 @@ export default async function Home() {
                       </h3>
                       <div className="flex items-center gap-1.5 text-[10px] text-gray-600 dark:text-gray-400 font-mono uppercase tracking-wider mt-auto">
                         <span>{formatDateCompactIST(post.publishDate || post._createdAt)}</span>
-                        <span className="w-0.5 h-0.5 rounded-full bg-gray-300 dark:bg-gray-700" />
-                        <span>{post.readMins} min read</span>
+                        {post.readMins != null && (
+                          <>
+                            <span className="w-0.5 h-0.5 rounded-full bg-gray-300 dark:bg-gray-700" />
+                            <span>{post.readMins} min read</span>
+                          </>
+                        )}
                       </div>
                     </div>
                   </Link>
@@ -204,13 +302,13 @@ export default async function Home() {
               </h2>
             </div>
             <div className="flex flex-col divide-y divide-gray-100 dark:divide-gray-800/60 rounded-2xl border border-gray-200 dark:border-gray-800/60 overflow-hidden bg-white dark:bg-[#111116]">
-              {mobileFeed.slice(8, 16).map((post: any, i: number) => {
+              {mobileFeed.slice(8, 16).map((post, i: number) => {
                 const tag = post.category || post.tags?.[0]?.title || post.tags?.[0] || '';
                 const dot = catDot(tag);
                 return (
                   <Reveal key={post._id || i} delay={i * 40}>
                     <Link
-                      href={`/news/${post.slug.current}`}
+                      href={post.href}
                       className="group flex flex-row items-start gap-2.5 p-3 hover:bg-gray-50 dark:hover:bg-white/[0.03] transition-colors"
                     >
                       <span className="flex-none w-5 text-[10px] font-black font-mono text-gray-300 dark:text-gray-600 mt-1 select-none">
@@ -240,8 +338,12 @@ export default async function Home() {
                         </h3>
                         <div className="flex items-center gap-1.5 text-[10px] text-gray-600 dark:text-gray-400 font-mono uppercase tracking-wider mt-auto">
                           <span>{formatDateCompactIST(post.publishDate || post._createdAt)}</span>
-                          <span className="w-0.5 h-0.5 rounded-full bg-gray-300 dark:bg-gray-700" />
-                          <span>{post.readMins} min read</span>
+                          {post.readMins != null && (
+                            <>
+                              <span className="w-0.5 h-0.5 rounded-full bg-gray-300 dark:bg-gray-700" />
+                              <span>{post.readMins} min read</span>
+                            </>
+                          )}
                         </div>
                       </div>
                     </Link>
@@ -279,7 +381,7 @@ export default async function Home() {
               {/* Glow halo on hover */}
               <div className="pointer-events-none absolute -inset-px rounded-2xl bg-gradient-to-r from-[#00E5FF]/0 via-[#00E5FF]/20 to-[#9D00FF]/0 opacity-0 group-hover:opacity-100 blur-2xl transition-opacity duration-700" />
 
-              <Link href={`/news/${featured.slug.current}`} className="sheen-parent block relative w-full h-full">
+              <Link href={featured.href} className="sheen-parent block relative w-full h-full">
                 {/* Background image */}
                 <div className="absolute inset-0 overflow-hidden">
                   <Image
@@ -364,7 +466,7 @@ export default async function Home() {
             <div className="flex flex-col gap-4">
               {feedNews.slice(0, 3).map((post) => (
                 <Link
-                  href={`/news/${post.slug.current}`}
+                  href={post.href}
                   key={post._id}
                   className="group flex flex-row gap-3 sm:gap-5 bg-white dark:bg-[#111116] p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-200 dark:border-gray-800/50 hover:border-[#00E5FF]/30 dark:hover:border-[#00E5FF]/20 transition-all duration-300 shadow-sm dark:shadow-none hover:shadow-md dark:hover:shadow-[0_4px_24px_rgba(0,0,0,0.4)] hover:-translate-y-0.5"
                 >
@@ -394,8 +496,12 @@ export default async function Home() {
                       <span>{formatDateCompactIST(post.publishDate || post._createdAt)}</span>
                       <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700" />
                       <span>By {post.authorName || 'PHONEOCEAN'}</span>
-                      <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700" />
-                      <span>{post.readMins} min read</span>
+                      {post.readMins != null && (
+                        <>
+                          <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700" />
+                          <span>{post.readMins} min read</span>
+                        </>
+                      )}
                     </div>
                   </div>
                 </Link>
@@ -427,7 +533,7 @@ export default async function Home() {
             <div className="w-full h-px bg-gray-200 dark:bg-gray-800/60" />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              {interviews.slice(0, 4).map((interview) => (
+              {interviews.filter((i: any) => i.showOnHomepage !== false).slice(0, 4).map((interview) => (
                 <Link
                   href="/interviews"
                   key={interview._id}
@@ -500,7 +606,7 @@ export default async function Home() {
             <div className="hidden lg:flex lg:flex-col divide-y divide-gray-100 dark:divide-gray-800/40">
               {latestNews.map((post, index) => (
                 <Link
-                  href={`/news/${post.slug.current}`}
+                  href={post.href}
                   key={post._id}
                   className="group flex items-start gap-4 p-5 hover:bg-gray-50 dark:hover:bg-[#13131A] transition-colors duration-200"
                 >
@@ -526,8 +632,12 @@ export default async function Home() {
                       <span className="text-[9px] text-gray-600 dark:text-gray-400 font-mono uppercase tracking-wider">{post.category}</span>
                       <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700" />
                       <span className="text-[9px] text-gray-600 dark:text-gray-400 font-mono">{formatDateDayMonthIST(post.publishDate || post._createdAt)}</span>
-                      <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700" />
-                      <span className="text-[9px] text-gray-600 dark:text-gray-400 font-mono">{post.readMins} min</span>
+                      {post.readMins != null && (
+                        <>
+                          <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700" />
+                          <span className="text-[9px] text-gray-600 dark:text-gray-400 font-mono">{post.readMins} min</span>
+                        </>
+                      )}
                     </div>
                   </div>
                 </Link>
@@ -538,7 +648,7 @@ export default async function Home() {
             <div className="flex lg:hidden overflow-x-auto gap-4 p-4 snap-x snap-mandatory hide-scrollbar">
               {latestNews.map((post, index) => (
                 <Link
-                  href={`/news/${post.slug.current}`}
+                  href={post.href}
                   key={post._id}
                   className="snap-start group flex flex-col min-w-[260px] bg-gray-50 dark:bg-[#13131A] rounded-xl border border-gray-200 dark:border-gray-800/40 p-3 flex-shrink-0"
                 >

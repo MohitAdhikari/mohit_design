@@ -29,7 +29,7 @@ function formatDateRange(start: string | null, end: string | null): string {
 }
 
 export default function TournamentCard({ tournament }: { tournament: Tournament }) {
-  const latestEdition = (tournament as any).latestEdition
+  const latestEdition = tournament.latestEdition
   const status = getTournamentStatus(
     latestEdition?.startDate ?? null,
     latestEdition?.endDate ?? null,
@@ -47,7 +47,7 @@ export default function TournamentCard({ tournament }: { tournament: Tournament 
 
   return (
     <Link
-      href={`/esports/${tournament.slug.current}`}
+      href={tournament.slug?.current ? `/esports/${tournament.slug.current}` : '#'}
       className="group relative flex flex-col h-full bg-white dark:bg-[#0E0E12] rounded-2xl border border-gray-200 dark:border-gray-800/60 hover:border-blue-500/40 dark:hover:border-[#00E5FF]/40 transition-all duration-300 shadow-sm hover:shadow-md dark:hover:shadow-[0_4px_24px_rgba(0,229,255,0.05)] overflow-hidden hover:-translate-y-1"
     >
       <div className="relative flex items-center justify-center bg-gray-100 dark:bg-[#13131A] aspect-video border-b border-gray-200 dark:border-gray-800/60 overflow-hidden">

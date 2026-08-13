@@ -110,6 +110,8 @@ export const match = defineType({
       options: {
         list: [
           { title: 'Group Stage', value: 'group_stage' },
+          { title: 'Survival Stage', value: 'survival_stage' },
+          { title: 'League Stage', value: 'league_stage' },
           { title: 'Quarterfinals', value: 'quarterfinals' },
           { title: 'Semifinals', value: 'semifinals' },
           { title: 'Grand Finals', value: 'grand_finals' },

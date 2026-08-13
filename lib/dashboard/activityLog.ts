@@ -1,6 +1,6 @@
 import { createSupabaseAdminClient } from '@/lib/supabase/server';
 
-export type ActivityAction = 'article.created' | 'article.updated' | 'article.deleted' | 'article.status_changed' | 'user.invited';
+export type ActivityAction = 'article.created' | 'article.updated' | 'article.deleted' | 'article.status_changed' | 'user.invited' | 'match.imported';
 
 export async function logActivity({
   userId, userEmail, action, targetId, targetTitle, meta,

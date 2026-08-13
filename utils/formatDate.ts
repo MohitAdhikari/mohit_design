@@ -63,3 +63,11 @@ export function formatTimeIST(input?: string | Date | null): string {
 export function formatDateISTServer(input?: string | Date | null): string {
   return formatDateIST(input);
 }
+
+/**
+ * IST calendar-day key: "2026-08-12". Useful for grouping/comparing dates
+ * by day regardless of the exact time-of-day, in the IST timezone.
+ */
+export function dayKeyIST(input?: string | Date | null): string {
+  return safeFormat(input, 'yyyy-MM-dd');
+}

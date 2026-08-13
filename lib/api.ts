@@ -181,13 +181,10 @@ const PUBLISHED_CONTENT_FILTER   = `(
 
 function isPublishedDoc(doc: any): boolean {
   if (!doc) return false;
-  if (
-    doc._type === 'newsPost' &&
-    doc.status &&
-    doc.status !== 'published'
-  ) return false;
+  // The status field only exists on newsPost and guide; interviews do not have it.
+  if (doc.status && doc.status !== 'published') return false;
   if (doc.publishDate && new Date(doc.publishDate).getTime() > Date.now()) return false;
-  if (doc._type === 'newsPost' && doc.showOnHomepage === false) return false;
+  if (doc.showOnHomepage === false) return false;
   return true;
 }
 
@@ -196,7 +193,8 @@ export async function getNewsPosts(): Promise<any[]> {
     return sortByTimestamp(mockData.newsPosts);
   }
   const query = `*[_type == "newsPost" && ${PUBLISHED_NEWSPOST_FILTER}] | order(dateTime(coalesce(publishDate, _createdAt)) desc) {
-    _id, _createdAt, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, excerpt, authorName, youtubeUrl, instagramUrl, featured, badge, badgeCustom, showOnHomepage,
+    _id, _createdAt, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, excerpt, authorName, youtubeUrl, instagramUrl, featured, trending, badge, badgeCustom, showOnHomepage,
+    "tournament": tournament->{ _id, name, slug },
     wordCount,
     !defined(wordCount) => { content }
   }`;
@@ -209,7 +207,8 @@ export async function getPublicNewsPosts(): Promise<any[]> {
     return sortByTimestamp(mockData.newsPosts.filter((p: any) => p.showOnHomepage !== false));
   }
   const query = `*[_type == "newsPost" && ${NEWSPOST_PUBLIC_FILTER}] | order(dateTime(coalesce(publishDate, _createdAt)) desc) {
-    _id, _createdAt, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, excerpt, authorName, youtubeUrl, instagramUrl, featured, badge, badgeCustom, showOnHomepage,
+    _id, _createdAt, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, excerpt, authorName, youtubeUrl, instagramUrl, featured, trending, badge, badgeCustom, showOnHomepage,
+    "tournament": tournament->{ _id, name, slug },
     wordCount,
     !defined(wordCount) => { content }
   }`;
@@ -226,6 +225,7 @@ export async function getNewsPostBySlug(slug: string): Promise<any> {
   const publishedConstraint = isEnabled ? '' : ` && ${PUBLISHED_NEWSPOST_FILTER}`;
   const query = `*[_type == "newsPost" && slug.current == $slug${publishedConstraint}][0] {
     _id, _createdAt, _updatedAt, title, slug, "thumbnail": thumbnail.asset->url, "heroImage": thumbnail, "bodyImage": bodyImage{"url": asset->url, alt, caption, credit}, category, publishDate, authorName, youtubeUrl, instagramUrl, featured, badge, badgeCustom, hideHeroImage, wordCount,
+    "tournament": tournament->{ _id, name, slug },
     content[]{
       ...,
       _type == "image" => {
@@ -281,7 +281,7 @@ export async function getInterviews(): Promise<any[]> {
     return sortByTimestamp(mockData.interviews, 'publishDate');
   }
   const query = `*[_type == "interview" && ${PUBLISHED_INTERVIEW_FILTER}] | order(dateTime(coalesce(publishDate, _createdAt)) desc) {
-    _id, _createdAt, playerOrCeoName, eventName, "thumbnail": thumbnail.asset->url, thumbnailAlt, thumbnailCaption, thumbnailCredit, youtubeUrl, instagramUrl, publishDate, keyHighlights
+    _id, _createdAt, playerOrCeoName, eventName, "thumbnail": thumbnail.asset->url, thumbnailAlt, thumbnailCaption, thumbnailCredit, youtubeUrl, instagramUrl, publishDate, keyHighlights, slug, showOnHomepage, featured, trending
   }`;
   const interviews = await client.fetch(query);
   return sortByTimestamp(interviews, 'publishDate');
@@ -292,7 +292,8 @@ export async function getGuides(): Promise<any[]> {
     return sortByTimestamp(mockData.guides, 'lastUpdated');
   }
   const query = `*[_type == "guide" && ${PUBLISHED_GUIDE_FILTER}] | order(dateTime(coalesce(publishDate, _createdAt)) desc) {
-    _id, _createdAt, title, slug, gameName, "thumbnail": thumbnail.asset->url, thumbnailAlt, publishDate, lastUpdated, showUpdatedDate, youtubeUrl, instagramUrl, showOnHomepage
+    _id, _createdAt, title, slug, gameName, "thumbnail": thumbnail.asset->url, thumbnailAlt, publishDate, lastUpdated, showUpdatedDate, youtubeUrl, instagramUrl, showOnHomepage, featured, trending, excerpt, wordCount,
+    "author": author->{ name }
   }`;
   const guides = await client.fetch(query);
   return sortByTimestamp(guides, 'publishDate');
@@ -470,37 +471,52 @@ export function resolveHighlightsStyle(
 }
 
 export async function getHomepage(): Promise<{
+  useAutoLayout: boolean;
   heroArticle: any | null;
+  heroArticles: any[];
   featuredArticles: any[];
   trendingArticles: any[];
   editorsPicks: any[];
+  feedArticles: any[];
 }> {
   const empty = {
+    useAutoLayout: true,
     heroArticle: null,
+    heroArticles: [],
     featuredArticles: [],
     trendingArticles: [],
     editorsPicks: [],
+    feedArticles: [],
   };
   if (!projectId) return empty;
   const articleProjection = `{
-    _id, _type, _createdAt, status, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, authorName, featured, badge, badgeCustom, showOnHomepage,
+    _id, _type, _createdAt, status, publishDate, "thumbnail": thumbnail.asset->url, slug,
+    title, playerOrCeoName, gameName, eventName, category, authorName,
+    featured, badge, badgeCustom, excerpt,
+    "author": author->{ name },
     wordCount,
     !defined(wordCount) => { content }
   }`;
   const query = `*[_type == "homepage"][0] {
+    useAutoLayout,
     "heroArticle": heroArticle->${articleProjection},
+    "heroArticles": heroArticles[]->${articleProjection},
     "featuredArticles": featuredArticles[]->${articleProjection},
     "trendingArticles": trendingArticles[]->${articleProjection},
-    "editorsPicks": editorsPicks[]->${articleProjection}
+    "editorsPicks": editorsPicks[]->${articleProjection},
+    "feedArticles": feedArticles[]->${articleProjection}
   }`;
   const data = await client.fetch(query);
   return {
     ...empty,
+    useAutoLayout: data?.useAutoLayout !== false,
     heroArticle: isPublishedDoc(data?.heroArticle) ? data.heroArticle : null,
     // strip any null refs that were deleted and enforce publish timing
+    heroArticles: (data?.heroArticles || []).filter(isPublishedDoc),
     featuredArticles: (data?.featuredArticles || []).filter(isPublishedDoc),
     trendingArticles: (data?.trendingArticles || []).filter(isPublishedDoc),
     editorsPicks: (data?.editorsPicks || []).filter(isPublishedDoc),
+    feedArticles: (data?.feedArticles || []).filter(isPublishedDoc),
   };
 }
 

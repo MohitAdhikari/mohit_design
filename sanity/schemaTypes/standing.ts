@@ -1,98 +1,205 @@
-import { defineType, defineField } from 'sanity'
+import { defineField, defineType } from 'sanity'
 
 export const standing = defineType({
   name: 'standing',
-  title: 'Standing',
+  title: 'Standing Table',
   type: 'document',
   fields: [
     defineField({
+      name: 'title',
+      title: 'Table Title',
+      type: 'string',
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'tournament',
+      title: 'Tournament',
+      type: 'reference',
+      to: [{ type: 'tournament' }],
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
       name: 'edition',
-      title: 'Edition',
+      title: 'Tournament Edition',
       type: 'reference',
       to: [{ type: 'tournamentEdition' }],
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: 'team',
-      title: 'Team',
-      type: 'reference',
-      to: [{ type: 'team' }],
-      validation: (Rule) => Rule.required(),
+      name: 'stage',
+      title: 'Stage',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Group Stage', value: 'group_stage' },
+          { title: 'Survival Stage', value: 'survival_stage' },
+          { title: 'Grand Finals', value: 'grand_finals' },
+          { title: 'League Stage', value: 'league_stage' },
+          { title: 'Finals', value: 'finals' },
+          { title: 'Overall', value: 'overall' },
+        ],
+      },
     }),
     defineField({
       name: 'group',
       title: 'Group',
       type: 'string',
-      description: 'e.g. Group A. Leave blank for overall standings.',
+      description: 'Example: Group A, Group B, Overall',
     }),
     defineField({
-      name: 'rank',
-      title: 'Rank',
+      name: 'day',
+      title: 'Day',
       type: 'number',
-      validation: (Rule) => Rule.required().min(1),
     }),
     defineField({
-      name: 'wins',
-      title: 'Wins',
+      name: 'afterMatch',
+      title: 'After Match',
       type: 'number',
-      initialValue: 0,
+      description: 'Example: standings after match 6',
     }),
     defineField({
-      name: 'losses',
-      title: 'Losses',
-      type: 'number',
-      initialValue: 0,
-    }),
-    defineField({
-      name: 'points',
-      title: 'Points',
-      type: 'number',
-      initialValue: 0,
-      validation: (Rule) => Rule.required().min(0),
-    }),
-    defineField({
-      name: 'kills',
-      title: 'Total Kills',
-      type: 'number',
-      initialValue: 0,
-      description: 'BGMI-specific: total elimination points.',
-    }),
-    defineField({
-      name: 'placementPoints',
-      title: 'Placement Points',
-      type: 'number',
-      initialValue: 0,
-    }),
-    defineField({
-      name: 'matchesPlayed',
-      title: 'Matches Played',
-      type: 'number',
-      initialValue: 0,
-    }),
-    defineField({
-      name: 'wwcd',
-      title: 'WWCD (Chicken Dinners)',
-      type: 'number',
-      initialValue: 0,
+      name: 'status',
+      title: 'Status',
+      type: 'string',
+      initialValue: 'published',
+      options: {
+        list: [
+          { title: 'Draft', value: 'draft' },
+          { title: 'Published', value: 'published' },
+          { title: 'Archived', value: 'archived' },
+        ],
+      },
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'lastUpdated',
       title: 'Last Updated',
       type: 'datetime',
-      initialValue: () => new Date().toISOString(),
+    }),
+    defineField({
+      name: 'rows',
+      title: 'Rows',
+      type: 'array',
+      validation: (Rule) => Rule.required().min(1),
+      of: [
+        {
+          type: 'object',
+          name: 'standingRow',
+          title: 'Standing Row',
+          fields: [
+            defineField({
+              name: 'rank',
+              title: 'Rank',
+              type: 'number',
+              validation: (Rule) => Rule.required().min(1),
+            }),
+            defineField({
+              name: 'team',
+              title: 'Team Reference',
+              type: 'reference',
+              to: [{ type: 'team' }],
+            }),
+            defineField({
+              name: 'teamName',
+              title: 'Team Name Fallback',
+              type: 'string',
+              description: 'Used when team reference is missing.',
+            }),
+            defineField({
+              name: 'matchesPlayed',
+              title: 'Matches Played',
+              type: 'number',
+              initialValue: 0,
+            }),
+            defineField({
+              name: 'wins',
+              title: 'Wins',
+              type: 'number',
+              initialValue: 0,
+            }),
+            defineField({
+              name: 'losses',
+              title: 'Losses',
+              type: 'number',
+              initialValue: 0,
+            }),
+            defineField({
+              name: 'wwcd',
+              title: 'WWCD',
+              type: 'number',
+              initialValue: 0,
+            }),
+            defineField({
+              name: 'placementPoints',
+              title: 'Placement Points',
+              type: 'number',
+              initialValue: 0,
+            }),
+            defineField({
+              name: 'kills',
+              title: 'Kills',
+              type: 'number',
+              initialValue: 0,
+            }),
+            defineField({
+              name: 'points',
+              title: 'Total Points',
+              type: 'number',
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: 'change',
+              title: 'Rank Change',
+              type: 'number',
+              description: 'Positive/negative rank movement if available.',
+            }),
+            defineField({
+              name: 'qualified',
+              title: 'Qualified',
+              type: 'boolean',
+              initialValue: false,
+            }),
+            defineField({
+              name: 'eliminated',
+              title: 'Eliminated',
+              type: 'boolean',
+              initialValue: false,
+            }),
+            defineField({
+              name: 'notes',
+              title: 'Notes',
+              type: 'string',
+            }),
+          ],
+          preview: {
+            select: {
+              rank: 'rank',
+              teamName: 'teamName',
+              team: 'team.name',
+              points: 'points',
+            },
+            prepare({ rank, teamName, team, points }) {
+              return {
+                title: `${rank ?? '-'} — ${team || teamName || 'Team'}`,
+                subtitle: `${points ?? 0} pts`,
+              }
+            },
+          },
+        },
+      ],
     }),
   ],
   preview: {
     select: {
-      team: 'team.name',
-      rank: 'rank',
-      points: 'points',
-      edition: 'edition.title',
+      title: 'title',
+      edition: 'edition.year',
+      tournament: 'tournament.name',
+      status: 'status',
     },
-    prepare({ team, rank, points, edition }) {
+    prepare({ title, edition, tournament, status }) {
       return {
-        title: `#${rank} ${team}`,
-        subtitle: `${points} pts · ${edition}`,
+        title,
+        subtitle: `${tournament || 'Tournament'} ${edition ? `• ${edition}` : ''} • ${status || 'draft'}`,
       }
     },
   },

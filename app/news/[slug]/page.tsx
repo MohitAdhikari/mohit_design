@@ -8,12 +8,14 @@ import {
   resolveHighlightsStyle,
 } from '@/lib/api'
 import { calculateReadingTime } from '@/lib/readingTime'
-import { formatDateIST } from '@/utils/formatDate'
+import { formatDateIST, dayKeyIST } from '@/utils/formatDate'
 import ArticleHeader from '@/components/article/ArticleHeader'
 import ArticleHero from '@/components/article/ArticleHero'
 import SanityContent from '@/components/SanityContent'
 import VideoEmbed from '@/components/VideoEmbed'
 import ShareButtons from '@/components/ShareButtons'
+import TournamentDayContext from '@/components/article/TournamentDayContext'
+import { getActiveEditionByTournamentId, getMatches, getStandings, getClosestStandingTable } from '@/lib/tournamentApi'
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -100,6 +102,28 @@ export default async function NewsArticlePage({ params }: Props) {
   const categoryLabel = article.categoryRef?.title || article.category || null
   const categoryHref = article.categoryRef?.slug ? `/tags/${article.categoryRef.slug}` : null
 
+  // Tournament match/standings articles get a live-data panel below the body:
+  // every match played on the same day, or — if none is available yet —
+  // the closest published standings table.
+  let dayMatches: Awaited<ReturnType<typeof getMatches>> = []
+  let closestStandings: Awaited<ReturnType<typeof getStandings>>[number] | null = null
+  let editionTitle: string | null = null
+  if (article.category === 'results' && article.tournament?._id) {
+    const edition = await getActiveEditionByTournamentId(article.tournament._id)
+    if (edition) {
+      editionTitle = edition.title
+      const [matches, standings] = await Promise.all([
+        getMatches(edition._id),
+        getStandings(edition._id),
+      ])
+      const articleDayKey = dayKeyIST(publishDate)
+      dayMatches = matches.filter((m) => dayKeyIST(m.scheduledAt) === articleDayKey)
+      if (!dayMatches.length) {
+        closestStandings = getClosestStandingTable(standings, publishDate)
+      }
+    }
+  }
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'NewsArticle',
@@ -170,6 +194,15 @@ export default async function NewsArticlePage({ params }: Props) {
 
         {article.content && (
           <SanityContent content={article.content} highlightsStyle={highlightsStyle} />
+        )}
+
+        {(dayMatches.length > 0 || closestStandings) && (
+          <TournamentDayContext
+            editionTitle={editionTitle}
+            tournamentSlug={article.tournament?.slug?.current}
+            matches={dayMatches}
+            standings={closestStandings}
+          />
         )}
 
         {article.tags?.length > 0 && (

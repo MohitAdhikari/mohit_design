@@ -24,24 +24,31 @@ function getCategoryColor(tag: string) {
   return CATEGORY_COLORS.default;
 }
 
-interface Post {
+export interface HomepageItem {
   _id: string;
-  slug: { current: string };
+  _type?: 'newsPost' | 'guide' | 'interview' | string;
+  slug?: { current?: string };
   title: string;
   thumbnail: any;
-  category?: string;
+  category: string;
   tags?: any[];
   publishDate?: string;
   _createdAt: string;
   featured?: boolean;
   content?: any;
-  readMins?: number;
+  wordCount?: number;
+  readMins: number | null;
+  href: string;
+  authorName?: string;
+  excerpt?: string;
+  badge?: string;
+  badgeCustom?: string;
 }
 
 export default function HeroCycle({
   posts,
 }: {
-  posts: Post[];
+  posts: HomepageItem[];
 }) {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -91,7 +98,7 @@ export default function HeroCycle({
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent z-10" />
 
         <Link
-          href={`/news/${post.slug.current}`}
+          href={post.href || (post.slug?.current ? `/news/${post.slug.current}` : '/news')}
           className="absolute inset-0 z-20 flex flex-col justify-end p-4 group"
         >
           <div className="flex items-center gap-2 mb-2">
@@ -112,8 +119,12 @@ export default function HeroCycle({
           </h1>
           <div className="flex items-center gap-3 text-[11px] text-white/90 font-mono uppercase tracking-wider">
             <span>{formatDateCompactIST(post.publishDate || post._createdAt)}</span>
-            <span className="w-1 h-1 rounded-full bg-white/70" />
-            <span>{post.readMins ?? 1} min read</span>
+            {post.readMins != null && (
+              <>
+                <span className="w-1 h-1 rounded-full bg-white/70" />
+                <span>{post.readMins} min read</span>
+              </>
+            )}
             <span className="w-1 h-1 rounded-full bg-white/70" />
             <span className="text-[#00E5FF]">Read →</span>
           </div>
