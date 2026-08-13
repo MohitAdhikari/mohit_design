@@ -13,6 +13,7 @@ import { formatCurrency } from '@/lib/currency'
 import TeamLogo from '@/components/TeamLogo'
 import PrizePoolDisplay from '@/components/PrizePoolDisplay'
 import EditionTimeline from '@/components/EditionTimeline'
+import PrizePoolTable from '@/components/esports/PrizePoolTable'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -411,6 +412,13 @@ export default async function TournamentDetailPage({
               {latestPrize && <span className="text-sm font-mono uppercase tracking-widest text-[#00E5FF]">{latestPrize}</span>}
             </div>
             <PrizeSection editions={editions} />
+            {latest?.prizePlacements && latest.prizePlacements.length > 0 && (
+              <PrizePoolTable
+                placements={latest.prizePlacements}
+                rate={84}
+                totalUSD={latest.totalPrizePool}
+              />
+            )}
           </div>
 
           {/* TEAMS */}
