@@ -15,6 +15,8 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { EditionTabs } from '@/components/EditionTabs'
 import BracketStage from '@/components/esports/BracketStage'
+import PrizePoolTable from '@/components/esports/PrizePoolTable'
+import type { TournamentEdition } from '@/lib/tournamentApi'
 
 export const revalidate = 300
 
@@ -116,11 +118,13 @@ export default async function BracketPage({
   if (!tournament) notFound()
 
   const editions = await getTournamentEditions(tournament._id).catch(() => [])
-  const latest = editions[0] ?? null
+  const latest: TournamentEdition | null = editions[0] ?? null
 
   const matches: Match[] = latest
     ? await client.fetch(MATCHES_QUERY, { editionId: latest._id }).catch(() => [])
     : []
+
+  const hasPrizePlacements = (latest?.prizePlacements?.length ?? 0) > 0
 
   // Group by stage, preserve STAGE_ORDER
   const grouped = STAGE_ORDER.reduce<Record<string, Match[]>>((acc, s) => {
@@ -175,6 +179,16 @@ export default async function BracketPage({
                 Results will appear here once the tournament is underway.
               </p>
             </div>
+          )}
+
+          {hasPrizePlacements && latest && (
+            <section>
+              <PrizePoolTable
+                placements={latest.prizePlacements}
+                totalUSD={latest.totalPrizePool}
+                rate={84}
+              />
+            </section>
           )}
         </div>
       </div>
