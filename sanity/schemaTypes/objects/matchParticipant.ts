@@ -10,7 +10,13 @@ export const matchParticipant = defineType({
       title: 'Team',
       type: 'reference',
       to: [{ type: 'team' }],
-      validation: (Rule) => Rule.required(),
+      description: 'Preferred. If a reference is not available, use Team Name Fallback below.',
+    }),
+    defineField({
+      name: 'teamName',
+      title: 'Team Name Fallback',
+      type: 'string',
+      description: 'Used when team reference is not yet available (e.g. seeding from external results).',
     }),
     defineField({
       name: 'placement',

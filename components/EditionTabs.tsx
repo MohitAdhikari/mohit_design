@@ -5,12 +5,13 @@ export function EditionTabs({
   active,
 }: {
   slug: string
-  active: 'overview' | 'matches' | 'standings'
+  active: 'overview' | 'matches' | 'standings' | 'bracket'
 }) {
   const tabs = [
     { label: 'Overview', href: `/esports/${slug}`, key: 'overview' as const },
     { label: 'Matches', href: `/esports/${slug}/matches`, key: 'matches' as const },
     { label: 'Standings', href: `/esports/${slug}/standings`, key: 'standings' as const },
+    { label: 'Bracket', href: `/esports/${slug}/bracket`, key: 'bracket' as const },
   ]
 
   return (

@@ -1,5 +1,6 @@
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { timingSafeEqual } from 'crypto'
+import { client } from '@/lib/sanityClient'
 
 function constantTimeEquals(a: string, b: string): boolean {
   const bufA = Buffer.from(a)
@@ -19,6 +20,8 @@ const TYPE_PATHS: Record<string, string[]> = {
   interview: ['/', '/interviews'],
   tournamentEdition: ['/', '/esports'],
   tournament: ['/esports'],
+  match: ['/esports'],
+  standing: ['/esports'],
   homepage: ['/'],
   siteSettings: ['/'],
 }
@@ -31,7 +34,7 @@ const TYPE_PATHS: Record<string, string[]> = {
  * Configure in Sanity: Studio → API → Webhooks
  *   URL: https://<site>/api/revalidate?secret=<SANITY_REVALIDATE_SECRET>
  *   Trigger on: Create, Update, Delete
- *   Filter: _type in ["newsPost","guide","interview","tournamentEdition","tournament","homepage","siteSettings"]
+ *   Filter: _type in ["newsPost","guide","interview","tournamentEdition","tournament","match","standing","homepage","siteSettings"]
  */
 export async function POST(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -54,6 +57,8 @@ export async function POST(request: Request) {
 
   const type: string | undefined = body?._type
   const slug: string | undefined = body?.slug?.current
+  const id: string | undefined = body?._id
+  const editionRef: string | undefined = body?.edition?._ref
 
   const paths = new Set<string>(type ? TYPE_PATHS[type] ?? [] : ['/'])
 
@@ -61,6 +66,22 @@ export async function POST(request: Request) {
     if (type === 'newsPost') paths.add(`/news/${slug}`)
     if (type === 'guide') paths.add(`/guides/${slug}`)
     if (type === 'tournamentEdition' || type === 'tournament') paths.add(`/esports/${slug}`)
+  }
+
+  // Match / standing documents need the parent tournament slug to revalidate
+  // the bracket, matches, and standings sub-routes.
+  if ((type === 'match' || type === 'standing') && (editionRef || id)) {
+    const lookupId = editionRef ?? id
+    const tourSlug = await client.fetch(
+      `*[_id == $id][0]{ 'slug': edition->tournament->slug.current }`,
+      { id: lookupId },
+    )
+    if (tourSlug) {
+      paths.add(`/esports/${tourSlug}`)
+      paths.add(`/esports/${tourSlug}/bracket`)
+      paths.add(`/esports/${tourSlug}/matches`)
+      paths.add(`/esports/${tourSlug}/standings`)
+    }
   }
 
   for (const path of paths) revalidatePath(path)
