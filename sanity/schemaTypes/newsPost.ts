@@ -68,6 +68,7 @@ export const newsPost = defineType({
         { type: 'codeCopyBlock' },
         { type: 'scheduleBlock' },
         { type: 'standingsTable' },
+        { type: 'tableBlock' },
       ],
     }),
     defineField({

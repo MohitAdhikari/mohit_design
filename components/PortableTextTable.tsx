@@ -1,3 +1,8 @@
+'use client'
+
+import { useMemo } from 'react'
+import CopyButton from '@/components/CopyButton'
+
 type TableValue = {
   title?: string
   hideTitle?: boolean
@@ -16,26 +21,48 @@ function isSeparatorLine(line: string): boolean {
 }
 
 export default function PortableTextTable({ value }: { value: TableValue }) {
+  const { lines, headerLine, bodyLines, headers, rows, copyText } = useMemo(() => {
+    if (!value?.rawText) {
+      return { lines: [], headerLine: null, bodyLines: [], headers: [], rows: [], copyText: '' }
+    }
+
+    const allLines = value.rawText
+      .trim()
+      .split('\n')
+      .filter((line) => line.trim() !== '')
+
+    const cleanLines = allLines.filter((line) => !isSeparatorLine(line))
+
+    if (cleanLines.length < 2) {
+      return { lines: allLines, headerLine: null, bodyLines: [], headers: [], rows: [], copyText: cleanLines.join('\n') }
+    }
+
+    const [h, ...b] = cleanLines
+    const headerCells = parseRow(h)
+    const bodyRows = b.map(parseRow)
+
+    return {
+      lines: allLines,
+      headerLine: h,
+      bodyLines: b,
+      headers: headerCells,
+      rows: bodyRows,
+      copyText: cleanLines.join('\n'),
+    }
+  }, [value?.rawText])
+
   if (!value?.rawText) return null
-
-  const lines = value.rawText
-    .trim()
-    .split('\n')
-    .filter((line) => line.trim() !== '')
-    .filter((line) => !isSeparatorLine(line))
-
   if (lines.length < 2) return null
-
-  const [headerLine, ...bodyLines] = lines
-  const headers = parseRow(headerLine)
-  const rows = bodyLines.map(parseRow)
 
   return (
     <div className="my-8 w-full overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800/60 bg-white dark:bg-[#0E0E12] not-prose">
       {!value.hideTitle && value.title && (
-        <p className="px-4 py-2.5 text-xs font-mono font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-500 border-b border-gray-200 dark:border-gray-800/60">
-          {value.title}
-        </p>
+        <div className="px-4 py-2.5 flex items-center justify-between border-b border-gray-200 dark:border-gray-800/60">
+          <p className="text-xs font-mono font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-500">
+            {value.title}
+          </p>
+          <CopyButton value={copyText} label="Copy table" copiedLabel="Copied!" timeout={2000} className="shrink-0" />
+        </div>
       )}
       <table className="w-full min-w-[500px] text-sm border-collapse">
         <thead>

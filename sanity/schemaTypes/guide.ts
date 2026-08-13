@@ -150,6 +150,7 @@ export const guide = defineType({
         { type: 'videoEmbedBlock' },
         { type: 'codeCopyBlock' },
         { type: 'scheduleBlock' },
+        { type: 'tableBlock' },
       ],
     }),
     defineField({
