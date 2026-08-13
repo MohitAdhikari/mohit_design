@@ -1,0 +1,827 @@
+[
+  {
+    "tournamentName": "BGMI Masters Series",
+    "year": "Season 2 2023",
+    "slug": "season-2-2023",
+    "tournamentStatus": "completed",
+    "startDate": "2023-08-04T00:00:00.000Z",
+    "endDate": "2023-08-27T00:00:00.000Z",
+    "venue": "India",
+    "format": "LAN",
+    "prizePool": "₹2.1 Crore",
+    "totalTeams": 24,
+    "publishStatus": "published",
+    "description": "BGMI Masters Series Season 2 was held from August 4 to August 27, 2023, featuring 24 teams and a ₹2.1 Crore prize pool.",
+    "winner": "Gladiators Esports",
+    "runnerUp": "Orangutan",
+    "mvp": "",
+    "stages": [],
+    "teams": [],
+    "broadcastLinks": [],
+    "prizeBreakdown": []
+  },
+  {
+    "tournamentName": "BGMI Masters Series",
+    "year": "Season 3 2024",
+    "slug": "season-3-2024",
+    "tournamentStatus": "completed",
+    "startDate": "2024-07-19T00:00:00.000Z",
+    "endDate": "2024-08-11T00:00:00.000Z",
+    "venue": "India",
+    "format": "LAN",
+    "prizePool": "₹1 Crore",
+    "totalTeams": 24,
+    "publishStatus": "published",
+    "description": "BGMI Masters Series Season 3 was held from July 19 to August 11, 2024, featuring 24 teams and a ₹1 Crore prize pool.",
+    "winner": "Team SouL",
+    "runnerUp": "Entity",
+    "mvp": "",
+    "stages": [],
+    "teams": [],
+    "broadcastLinks": [],
+    "prizeBreakdown": []
+  },
+  {
+    "tournamentName": "BGMI Masters Series",
+    "year": "Season 4 2025",
+    "slug": "season-4-2025",
+    "tournamentStatus": "completed",
+    "startDate": "2025-08-18T00:00:00.000Z",
+    "endDate": "2025-09-14T00:00:00.000Z",
+    "venue": "India",
+    "format": "LAN",
+    "prizePool": "₹1.43 Crore",
+    "totalTeams": 28,
+    "publishStatus": "published",
+    "description": "BGMI Masters Series Season 4 was held from August 18 to September 14, 2025, featuring 28 teams and a ₹1.43 Crore prize pool.",
+    "winner": "K9 Esports",
+    "runnerUp": "Sinewy Esports",
+    "mvp": "",
+    "stages": [],
+    "teams": [],
+    "broadcastLinks": [],
+    "prizeBreakdown": []
+  },
+  {
+    "tournamentName": "BGMI Masters Series",
+    "year": "Season 5 2026",
+    "slug": "season-5-2026",
+    "tournamentStatus": "group_stage",
+    "startDate": "2026-08-10T00:00:00.000Z",
+    "endDate": "2026-09-06T00:00:00.000Z",
+    "venue": "Delhi NCR, India",
+    "format": "LAN",
+    "prizePool": "₹1.01 Crore",
+    "totalTeams": 26,
+    "publishStatus": "published",
+    "description": "BGMI Masters Series Season 5 is a NODWIN Gaming LAN event running from August 10 to September 6, 2026, featuring 26 teams and a ₹1.01 Crore prize pool.",
+    "winner": "",
+    "runnerUp": "",
+    "mvp": "",
+    "stages": [
+      {
+        "name": "League Stage",
+        "status": "group_stage",
+        "startDate": "2026-08-10T00:00:00.000Z",
+        "endDate": "2026-09-02T00:00:00.000Z",
+        "venue": "Delhi NCR, India",
+        "format": "LAN",
+        "totalTeams": 26,
+        "teamsAdvancing": null,
+        "notes": "League phase of BGMI Masters Series Season 5."
+      },
+      {
+        "name": "Grand Finals",
+        "status": "upcoming",
+        "startDate": "2026-09-04T00:00:00.000Z",
+        "endDate": "2026-09-06T00:00:00.000Z",
+        "venue": "Delhi NCR, India",
+        "format": "LAN",
+        "totalTeams": null,
+        "teamsAdvancing": 1,
+        "notes": "Final stage of BGMI Masters Series Season 5."
+      }
+    ],
+    "teams": [],
+    "broadcastLinks": [],
+    "prizeBreakdown": []
+  },
+  {
+    "tournamentName": "Battlegrounds Mobile India Showdown",
+    "year": "2022",
+    "slug": "2022",
+    "tournamentStatus": "completed",
+    "startDate": "2022-07-21T00:00:00.000Z",
+    "endDate": "2022-07-24T00:00:00.000Z",
+    "venue": "India",
+    "format": "LAN",
+    "prizePool": "₹15 Lakh",
+    "totalTeams": 24,
+    "publishStatus": "published",
+    "description": "Battlegrounds Mobile India Showdown 2022 was the inaugural BMSD edition, featuring 24 invited teams and a ₹15 Lakh prize pool.",
+    "winner": "7Sea Esports",
+    "runnerUp": "",
+    "mvp": "",
+    "stages": [
+      {
+        "name": "Main Event",
+        "status": "completed",
+        "startDate": "2022-07-21T00:00:00.000Z",
+        "endDate": "2022-07-24T00:00:00.000Z",
+        "venue": "India",
+        "format": "LAN",
+        "totalTeams": 24,
+        "teamsAdvancing": 1,
+        "notes": "Winner qualified for PMWI 2022 Afterparty Showdown."
+      }
+    ],
+    "teams": [],
+    "broadcastLinks": [],
+    "prizeBreakdown": []
+  },
+  {
+    "tournamentName": "Battlegrounds Mobile India Showdown",
+    "year": "2025",
+    "slug": "2025",
+    "tournamentStatus": "completed",
+    "startDate": "2025-09-18T00:00:00.000Z",
+    "endDate": "2025-10-12T00:00:00.000Z",
+    "venue": "Tesseract Arena, Hyderabad, India",
+    "format": "LAN",
+    "prizePool": "₹1 Crore",
+    "totalTeams": 48,
+    "publishStatus": "published",
+    "description": "Battlegrounds Mobile India Showdown 2025 marked the return of BMSD, featuring 48 teams, a ₹1 Crore prize pool, and a PMGC qualification pathway.",
+    "winner": "Orangutan",
+    "runnerUp": "",
+    "mvp": "",
+    "stages": [],
+    "teams": [],
+    "broadcastLinks": [],
+    "prizeBreakdown": [
+      {
+        "place": "Champion",
+        "amount": "₹30 Lakh"
+      },
+      {
+        "place": "Total Prize Pool",
+        "amount": "₹1 Crore"
+      }
+    ]
+  },
+  {
+    "tournamentName": "Battlegrounds Mobile India Showdown",
+    "year": "2026",
+    "slug": "2026",
+    "tournamentStatus": "upcoming",
+    "startDate": "2026-09-22T00:00:00.000Z",
+    "endDate": "2026-10-18T00:00:00.000Z",
+    "venue": "India",
+    "format": "Hybrid",
+    "prizePool": "₹1 Crore",
+    "totalTeams": 48,
+    "publishStatus": "published",
+    "description": "Battlegrounds Mobile India Showdown 2026 is an invite-only BGMI event organized by KRAFTON India, featuring 48 Indian teams and a ₹1 Crore prize pool. The top six teams qualify for BMIC 2026.",
+    "winner": "",
+    "runnerUp": "",
+    "mvp": "",
+    "stages": [
+      {
+        "name": "Promotion / Relegation and Survival Stages",
+        "status": "survival_stage",
+        "startDate": "2026-09-22T00:00:00.000Z",
+        "endDate": "2026-10-13T00:00:00.000Z",
+        "venue": "India",
+        "format": "Online",
+        "totalTeams": 48,
+        "teamsAdvancing": null,
+        "notes": "Invite-only domestic stage based on KIE Leaderboard, BGIS, and BMPS performances."
+      },
+      {
+        "name": "LAN Grand Finals",
+        "status": "upcoming",
+        "startDate": "2026-10-16T00:00:00.000Z",
+        "endDate": "2026-10-18T00:00:00.000Z",
+        "venue": "India",
+        "format": "LAN",
+        "totalTeams": null,
+        "teamsAdvancing": 6,
+        "notes": "Top six teams qualify for BGMI International Cup 2026."
+      }
+    ],
+    "teams": [],
+    "broadcastLinks": [],
+    "prizeBreakdown": []
+  },
+  {
+    "tournamentName": "BGMI India-Korea Invitational",
+    "year": "2023",
+    "slug": "2023",
+    "tournamentStatus": "completed",
+    "startDate": "2023-10-26T00:00:00.000Z",
+    "endDate": "2023-10-28T00:00:00.000Z",
+    "venue": "Pragati Maidan, Bharat Mandapam, New Delhi, India",
+    "format": "LAN",
+    "prizePool": "₹1 Crore",
+    "totalTeams": 16,
+    "publishStatus": "published",
+    "description": "BGMI India-Korea Invitational 2023 was a cross-regional LAN event featuring eight Indian teams and eight South Korean teams.",
+    "winner": "Dplus KIA",
+    "runnerUp": "",
+    "mvp": "",
+    "stages": [
+      {
+        "name": "Main Event",
+        "status": "completed",
+        "startDate": "2023-10-26T00:00:00.000Z",
+        "endDate": "2023-10-28T00:00:00.000Z",
+        "venue": "Pragati Maidan, Bharat Mandapam, New Delhi, India",
+        "format": "LAN",
+        "totalTeams": 16,
+        "teamsAdvancing": 1,
+        "notes": "Eight Indian teams and eight South Korean teams competed."
+      }
+    ],
+    "teams": [],
+    "broadcastLinks": [],
+    "prizeBreakdown": []
+  },
+  {
+    "tournamentName": "BGMI International Cup",
+    "year": "Season 1 2025",
+    "slug": "season-1-2025",
+    "tournamentStatus": "completed",
+    "startDate": "2025-10-31T00:00:00.000Z",
+    "endDate": "2025-11-02T00:00:00.000Z",
+    "venue": "Yashobhoomi Convention Centre, New Delhi, India",
+    "format": "LAN",
+    "prizePool": "₹1 Crore",
+    "totalTeams": 16,
+    "publishStatus": "published",
+    "description": "BGMI International Cup Season 1 was held from October 31 to November 2, 2025, featuring teams from India, South Korea, and Japan.",
+    "winner": "DRX",
+    "runnerUp": "True Rippers",
+    "mvp": "",
+    "stages": [
+      {
+        "name": "Main Event",
+        "status": "completed",
+        "startDate": "2025-10-31T00:00:00.000Z",
+        "endDate": "2025-11-02T00:00:00.000Z",
+        "venue": "Yashobhoomi Convention Centre, New Delhi, India",
+        "format": "LAN",
+        "totalTeams": 16,
+        "teamsAdvancing": 2,
+        "notes": "Featured Indian, South Korean, and Japanese teams, with PMGC 2025 qualification slots attached."
+      }
+    ],
+    "teams": [],
+    "broadcastLinks": [],
+    "prizeBreakdown": []
+  },
+  {
+    "tournamentName": "BGMI International Cup",
+    "year": "Season 2 2026",
+    "slug": "season-2-2026",
+    "tournamentStatus": "upcoming",
+    "startDate": "2026-10-30T00:00:00.000Z",
+    "endDate": "2026-11-01T00:00:00.000Z",
+    "venue": "The Dome, SVP Indoor Stadium, Mumbai, India",
+    "format": "LAN",
+    "prizePool": "₹1 Crore",
+    "totalTeams": 16,
+    "publishStatus": "published",
+    "description": "BGMI International Cup Season 2 2026 is a cross-regional LAN event featuring 16 teams from India, South Korea, and Japan. The champion qualifies for PMGC 2026.",
+    "winner": "",
+    "runnerUp": "",
+    "mvp": "",
+    "stages": [
+      {
+        "name": "Main Event",
+        "status": "upcoming",
+        "startDate": "2026-10-30T00:00:00.000Z",
+        "endDate": "2026-11-01T00:00:00.000Z",
+        "venue": "The Dome, SVP Indoor Stadium, Mumbai, India",
+        "format": "LAN",
+        "totalTeams": 16,
+        "teamsAdvancing": 1,
+        "notes": "16 teams: 6 from India, 5 from South Korea, and 5 from Japan. Champion qualifies for PMGC 2026."
+      }
+    ],
+    "teams": [],
+    "broadcastLinks": [],
+    "prizeBreakdown": []
+  },
+  {
+    "tournamentName": "PUBG Mobile World Cup",
+    "year": "2024",
+    "slug": "2024",
+    "tournamentStatus": "completed",
+    "startDate": "2024-07-19T00:00:00.000Z",
+    "endDate": "2024-07-28T00:00:00.000Z",
+    "venue": "Boulevard Riyadh City, Riyadh, Saudi Arabia",
+    "format": "LAN",
+    "prizePool": "$3,000,000",
+    "totalTeams": 28,
+    "publishStatus": "published",
+    "description": "PUBG Mobile World Cup 2024 was the inaugural PMWC edition, held in Riyadh from July 19 to July 28, 2024, with 28 teams and a $3 million prize pool.",
+    "winner": "Alpha7 Esports",
+    "runnerUp": "",
+    "mvp": "",
+    "stages": [
+      {
+        "name": "Group Stage",
+        "status": "completed",
+        "startDate": "2024-07-19T00:00:00.000Z",
+        "endDate": "2024-07-21T00:00:00.000Z",
+        "venue": "Boulevard Riyadh City, Riyadh, Saudi Arabia",
+        "format": "LAN",
+        "totalTeams": 24,
+        "teamsAdvancing": null,
+        "notes": "Opening group stage of PMWC 2024."
+      },
+      {
+        "name": "Survival Stage",
+        "status": "completed",
+        "startDate": "2024-07-23T00:00:00.000Z",
+        "endDate": "2024-07-24T00:00:00.000Z",
+        "venue": "Boulevard Riyadh City, Riyadh, Saudi Arabia",
+        "format": "LAN",
+        "totalTeams": null,
+        "teamsAdvancing": null,
+        "notes": "Survival stage before the final stage."
+      },
+      {
+        "name": "Main Tournament",
+        "status": "completed",
+        "startDate": "2024-07-26T00:00:00.000Z",
+        "endDate": "2024-07-28T00:00:00.000Z",
+        "venue": "Boulevard Riyadh City, Riyadh, Saudi Arabia",
+        "format": "LAN",
+        "totalTeams": 16,
+        "teamsAdvancing": 1,
+        "notes": "Final stage of PMWC 2024."
+      }
+    ],
+    "teams": [],
+    "broadcastLinks": [],
+    "prizeBreakdown": [
+      {
+        "place": "Total Prize Pool",
+        "amount": "$3,000,000"
+      }
+    ]
+  },
+  {
+    "tournamentName": "PUBG Mobile World Cup",
+    "year": "2025",
+    "slug": "2025",
+    "tournamentStatus": "completed",
+    "startDate": "2025-07-25T00:00:00.000Z",
+    "endDate": "2025-08-03T00:00:00.000Z",
+    "venue": "Boulevard City, Riyadh, Saudi Arabia",
+    "format": "LAN",
+    "prizePool": "$3,050,000",
+    "totalTeams": 24,
+    "publishStatus": "published",
+    "description": "PUBG Mobile World Cup 2025 was held from July 25 to August 3, 2025, in Riyadh, featuring 24 teams and a $3 million prize pool.",
+    "winner": "Yangon Galacticos",
+    "runnerUp": "",
+    "mvp": "",
+    "stages": [
+      {
+        "name": "Group Stage",
+        "status": "completed",
+        "startDate": "2025-07-25T00:00:00.000Z",
+        "endDate": "2025-07-27T00:00:00.000Z",
+        "venue": "Boulevard City, Riyadh, Saudi Arabia",
+        "format": "LAN",
+        "totalTeams": 24,
+        "teamsAdvancing": null,
+        "notes": "Opening group stage of PMWC 2025."
+      },
+      {
+        "name": "Survival Stage",
+        "status": "completed",
+        "startDate": "2025-07-29T00:00:00.000Z",
+        "endDate": "2025-07-30T00:00:00.000Z",
+        "venue": "Boulevard City, Riyadh, Saudi Arabia",
+        "format": "LAN",
+        "totalTeams": null,
+        "teamsAdvancing": null,
+        "notes": "Survival stage before the Grand Finals."
+      },
+      {
+        "name": "Grand Finals",
+        "status": "completed",
+        "startDate": "2025-08-01T00:00:00.000Z",
+        "endDate": "2025-08-03T00:00:00.000Z",
+        "venue": "Boulevard City, Riyadh, Saudi Arabia",
+        "format": "LAN",
+        "totalTeams": 16,
+        "teamsAdvancing": 1,
+        "notes": "Final stage of PMWC 2025."
+      }
+    ],
+    "teams": [],
+    "broadcastLinks": [],
+    "prizeBreakdown": [
+      {
+        "place": "Total Prize Pool",
+        "amount": "$3,050,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Group Stage Pool",
+        "amount": "$1,000,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Group Stage 1st Place",
+        "amount": "$80,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Group Stage 2nd Place",
+        "amount": "$77,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Group Stage 3rd Place",
+        "amount": "$75,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Group Stage 4th Place",
+        "amount": "$73,500",
+        "currency": "USD"
+      },
+      {
+        "place": "Group Stage 5th Place",
+        "amount": "$72,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Group Stage 6th Place",
+        "amount": "$70,500",
+        "currency": "USD"
+      },
+      {
+        "place": "Group Stage 7th Place",
+        "amount": "$69,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Group Stage 8th Place",
+        "amount": "$68,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Group Stage 9th Place",
+        "amount": "$31,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Group Stage 10th Place",
+        "amount": "$30,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Group Stage 11th Place",
+        "amount": "$29,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Group Stage 12th Place",
+        "amount": "$28,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Group Stage 13th Place",
+        "amount": "$27,500",
+        "currency": "USD"
+      },
+      {
+        "place": "Group Stage 14th Place",
+        "amount": "$27,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Group Stage 15th Place",
+        "amount": "$26,500",
+        "currency": "USD"
+      },
+      {
+        "place": "Group Stage 16th Place",
+        "amount": "$26,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Group Stage 17th Place",
+        "amount": "$25,500",
+        "currency": "USD"
+      },
+      {
+        "place": "Group Stage 18th Place",
+        "amount": "$25,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Group Stage 19th Place",
+        "amount": "$24,500",
+        "currency": "USD"
+      },
+      {
+        "place": "Group Stage 20th Place",
+        "amount": "$24,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Group Stage 21st Place",
+        "amount": "$23,500",
+        "currency": "USD"
+      },
+      {
+        "place": "Group Stage 22nd Place",
+        "amount": "$23,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Group Stage 23rd Place",
+        "amount": "$22,500",
+        "currency": "USD"
+      },
+      {
+        "place": "Group Stage 24th Place",
+        "amount": "$22,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Survival Stage Pool",
+        "amount": "$280,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Survival Stage 1st Place",
+        "amount": "$25,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Survival Stage 2nd Place",
+        "amount": "$24,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Survival Stage 3rd Place",
+        "amount": "$23,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Survival Stage 4th Place",
+        "amount": "$22,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Survival Stage 5th Place",
+        "amount": "$21,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Survival Stage 6th Place",
+        "amount": "$20,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Survival Stage 7th Place",
+        "amount": "$19,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Survival Stage 8th Place",
+        "amount": "$18,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Survival Stage 9th Place",
+        "amount": "$17,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Survival Stage 10th Place",
+        "amount": "$16,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Survival Stage 11th Place",
+        "amount": "$15,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Survival Stage 12th Place",
+        "amount": "$14,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Survival Stage 13th Place",
+        "amount": "$13,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Survival Stage 14th Place",
+        "amount": "$12,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Survival Stage 15th Place",
+        "amount": "$11,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Survival Stage 16th Place",
+        "amount": "$10,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Grand Finals Pool",
+        "amount": "$1,700,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Grand Finals 1st Place",
+        "amount": "$500,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Grand Finals 2nd Place",
+        "amount": "$250,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Grand Finals 3rd Place",
+        "amount": "$150,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Grand Finals 4th Place",
+        "amount": "$120,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Grand Finals 5th Place",
+        "amount": "$100,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Grand Finals 6th Place",
+        "amount": "$90,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Grand Finals 7th Place",
+        "amount": "$80,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Grand Finals 8th Place",
+        "amount": "$70,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Grand Finals 9th Place",
+        "amount": "$60,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Grand Finals 10th Place",
+        "amount": "$55,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Grand Finals 11th Place",
+        "amount": "$50,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Grand Finals 12th Place",
+        "amount": "$45,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Grand Finals 13th Place",
+        "amount": "$40,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Grand Finals 14th Place",
+        "amount": "$35,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Grand Finals 15th Place",
+        "amount": "$30,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Grand Finals 16th Place",
+        "amount": "$25,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Showmatch Total",
+        "amount": "$20,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Showmatch WWCD",
+        "amount": "$10,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Showmatch Most Eliminations",
+        "amount": "$10,000",
+        "currency": "USD"
+      },
+      {
+        "place": "Tournament MVP",
+        "amount": "$50,000",
+        "currency": "USD"
+      }
+    ]
+  },
+  {
+    "tournamentName": "PUBG Mobile World Cup",
+    "year": "2026",
+    "slug": "2026",
+    "tournamentStatus": "survival_stage",
+    "startDate": "2026-08-06T00:00:00.000Z",
+    "endDate": "2026-08-16T00:00:00.000Z",
+    "venue": "Paris Expo Porte de Versailles, Paris, France",
+    "format": "LAN",
+    "prizePool": "$3,000,000",
+    "totalTeams": 32,
+    "publishStatus": "published",
+    "description": "PUBG Mobile World Cup 2026 is a global PUBG Mobile LAN championship held in Paris, featuring 32 teams and a $3 million prize pool across Group Stage, Survival Stage, and Grand Finals.",
+    "winner": "",
+    "runnerUp": "",
+    "mvp": "",
+    "stages": [
+      {
+        "name": "Group Stage",
+        "status": "completed",
+        "startDate": "2026-08-06T00:00:00.000Z",
+        "endDate": "2026-08-09T00:00:00.000Z",
+        "venue": "Paris Expo Porte de Versailles, Paris, France",
+        "format": "LAN",
+        "totalTeams": 32,
+        "teamsAdvancing": 10,
+        "notes": "Top five teams from each group advanced directly to the Grand Finals."
+      },
+      {
+        "name": "Survival Stage",
+        "status": "survival_stage",
+        "startDate": "2026-08-11T00:00:00.000Z",
+        "endDate": "2026-08-12T00:00:00.000Z",
+        "venue": "Paris Expo Porte de Versailles, Paris, France",
+        "format": "LAN",
+        "totalTeams": 16,
+        "teamsAdvancing": 6,
+        "notes": "Teams placed 6th to 13th from the Group Stage compete for the final six Grand Finals slots."
+      },
+      {
+        "name": "Grand Finals",
+        "status": "upcoming",
+        "startDate": "2026-08-14T00:00:00.000Z",
+        "endDate": "2026-08-16T00:00:00.000Z",
+        "venue": "Paris Expo Porte de Versailles, Paris, France",
+        "format": "LAN",
+        "totalTeams": 16,
+        "teamsAdvancing": 1,
+        "notes": "10 Group Stage qualifiers and six Survival Stage qualifiers compete for the PMWC 2026 title."
+      }
+    ],
+    "teams": [],
+    "broadcastLinks": [],
+    "prizeBreakdown": [
+      {
+        "place": "Total Prize Pool",
+        "amount": "$3,000,000"
+      },
+      {
+        "place": "Grand Finals Allocation",
+        "amount": "$1,700,000"
+      },
+      {
+        "place": "Group Stage Allocation",
+        "amount": "$1,148,000"
+      },
+      {
+        "place": "Survival Stage Allocation",
+        "amount": "$152,000"
+      },
+      {
+        "place": "Tournament MVP",
+        "amount": "$25,000"
+      }
+    ]
+  }
+]

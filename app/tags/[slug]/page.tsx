@@ -6,7 +6,7 @@ import { optimizedImageUrl } from '@/lib/sanityImage'
 import { formatDateIST } from '@/utils/formatDate'
 import { Metadata } from 'next'
 
-export const revalidate = 60
+export const revalidate = 1800
 
 const pathSegment = (value: string) =>
   value

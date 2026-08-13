@@ -7,7 +7,7 @@ export const metadata = {
   description: 'Search across PHONEOCEAN news, interviews, and guides.',
 };
 
-export const revalidate = 60;
+export const revalidate = 1800;
 
 export default async function SearchPage() {
   const [news, interviews, guides] = await Promise.all([

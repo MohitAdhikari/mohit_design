@@ -7,9 +7,13 @@ import { calculateReadingTime, calculateWordCount } from '@/lib/readingTime';
 import Reveal from '@/components/Reveal';
 import GamesMarquee from '@/components/GamesMarquee';
 import HeroCycle, { HomepageItem } from '@/components/HeroCycle';
-import { applyTournamentSpotlight } from '@/lib/tournamentSpotlight';
+import {
+  applyTournamentSpotlight,
+  suppressMatchRecaps,
+} from '@/lib/tournamentSpotlight';
+import { homepageSort } from '@/lib/homepageSort';
 
-export const revalidate = 60;
+export const revalidate = 300;
 
 /* ── route helper for mixed content types in homepage feeds ── */
 function getItemHref(item: { _type?: string; slug?: { current?: string } }) {
@@ -78,8 +82,9 @@ export default async function Home() {
   // Tournament match/standings updates get rotated so only the freshest one
   // per tournament is ever eligible for the feed (see applyTournamentSpotlight).
   const spotlightedNews = applyTournamentSpotlight(news);
-  const homepageContent: HomepageItem[] = [
-    ...spotlightedNews.map(normalizeForHome),
+  const suppressedNews = suppressMatchRecaps(spotlightedNews);
+  const homepageContentRaw = [
+    ...suppressedNews.map(normalizeForHome),
     ...guides
       .filter((g: any) => g.showOnHomepage !== false)
       .map(normalizeForHome),
@@ -87,8 +92,9 @@ export default async function Home() {
       .filter((i: any) => i.showOnHomepage !== false)
       .map(normalizeForHome),
   ]
-    .filter((p): p is HomepageItem => Boolean(p))
-    .sort((a, b) => new Date(b?.publishDate || 0).getTime() - new Date(a?.publishDate || 0).getTime());
+    .filter((p): p is HomepageItem => Boolean(p));
+
+  const homepageContent: HomepageItem[] = homepageSort(homepageContentRaw as any[]) as HomepageItem[];
 
   const useAutoLayout = homepage.useAutoLayout !== false;
 

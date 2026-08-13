@@ -13,6 +13,8 @@ interface NavbarProps {
   siteName?: string;
   logoTextSpacing?: number;
   logoOnTop?: boolean;
+  isLive?: boolean;
+  liveSlug?: string;
 }
 
 function getLogoTextStyle(spacing: number, logoOnTop: boolean): React.CSSProperties {
@@ -29,7 +31,7 @@ function getLogoImageStyle(spacing: number, logoOnTop: boolean): React.CSSProper
   return {};
 }
 
-export default function Navbar({ logoUrl, siteName, logoTextSpacing = 8, logoOnTop = true }: NavbarProps) {
+export default function Navbar({ logoUrl, siteName, logoTextSpacing = 8, logoOnTop = true, isLive = false, liveSlug = '' }: NavbarProps) {
   const textStyle = getLogoTextStyle(logoTextSpacing, logoOnTop);
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);

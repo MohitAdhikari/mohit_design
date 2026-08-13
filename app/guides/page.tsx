@@ -7,7 +7,7 @@ export const metadata = {
   description: 'Tutorials, redeem codes, and meta breakdowns for the most popular esports titles.',
 };
 
-export const revalidate = 60;
+export const revalidate = 86400;
 
 export default async function GuidesPage() {
   const guides = await getGuides();

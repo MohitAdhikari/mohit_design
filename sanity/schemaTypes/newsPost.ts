@@ -268,6 +268,41 @@ export const newsPost = defineType({
       of: [{ type: 'reference', to: [{ type: 'player' }] }],
     }),
 
+    defineField({
+      name: 'matchMeta',
+      title: 'Match Meta (Esports)',
+      type: 'object',
+      group: 'relations',
+      description: 'Optional fields used to cluster match recaps and day standings on the homepage.',
+      fields: [
+        {
+          name: 'articleType',
+          title: 'Article Type',
+          type: 'string',
+          options: {
+            list: [
+              { title: 'Match Recap', value: 'match_recap' },
+              { title: 'Day Standings', value: 'day_standings' },
+              { title: 'Stage Wrap', value: 'stage_wrap' },
+              { title: 'None', value: 'none' },
+            ],
+          },
+        },
+        {
+          name: 'tournamentEdition',
+          title: 'Tournament Edition',
+          type: 'reference',
+          to: [{ type: 'tournamentEdition' }],
+        },
+        {
+          name: 'matchDay',
+          title: 'Match Day Number',
+          type: 'number',
+          description: 'e.g. 1 for Day 1, 2 for Day 2',
+        },
+      ],
+    }),
+
     // ---- PUBLISHING ----
     defineField({
       name: 'publishDate',
@@ -298,6 +333,22 @@ export const newsPost = defineType({
       type: 'boolean',
       group: 'publishing',
       initialValue: false,
+    }),
+    defineField({
+      name: 'isLive',
+      title: 'Live Coverage',
+      type: 'boolean',
+      group: 'publishing',
+      initialValue: false,
+      description: 'Mark this article as live coverage to pin it to the top of the homepage feed.',
+    }),
+    defineField({
+      name: 'isFeatured',
+      title: 'Featured / Trending (manual)',
+      type: 'boolean',
+      group: 'publishing',
+      initialValue: false,
+      description: 'Editor-picked trending boost. Gets a higher score in homepage sort.',
     }),
     defineField({
       name: 'showOnHomepage',

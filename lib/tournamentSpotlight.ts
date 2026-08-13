@@ -48,3 +48,56 @@ export function applyTournamentSpotlight<T extends SpotlightCandidate>(posts: T[
 
   return [...untouched, ...spotlighted];
 }
+
+export type HomepagePost = {
+  _id: string;
+  _type: string;
+  publishDate?: string;
+  _createdAt?: string;
+  matchMeta?: {
+    articleType?: string;
+    tournamentEdition?: { _ref: string };
+    matchDay?: number;
+  };
+  [key: string]: any;
+};
+
+/**
+ * suppressMatchRecaps
+ *
+ * Given a list of homepage posts, removes individual match recap
+ * articles for any day where a "day standings" article exists
+ * for the same tournament edition + same day number.
+ *
+ * Match recaps are NOT deleted — they stay on the site,
+ * just hidden from the homepage feed.
+ */
+export function suppressMatchRecaps(posts: HomepagePost[]): HomepagePost[] {
+  // Build a Set of "editionRef__dayNumber" combos that have standings posted
+  const standingKeys = new Set<string>();
+
+  for (const post of posts) {
+    const meta = post.matchMeta;
+    if (
+      meta?.articleType === 'day_standings' &&
+      meta?.tournamentEdition?._ref &&
+      meta?.matchDay != null
+    ) {
+      standingKeys.add(`${meta.tournamentEdition._ref}__${meta.matchDay}`);
+    }
+  }
+
+  // If no standings exist yet → return everything unchanged
+  if (standingKeys.size === 0) return posts;
+
+  // Filter out match recaps that are covered by a standings post
+  return posts.filter((post) => {
+    const meta = post.matchMeta;
+    if (meta?.articleType !== 'match_recap') return true; // not a recap → keep
+
+    const key = `${meta?.tournamentEdition?._ref}__${meta?.matchDay}`;
+    if (standingKeys.has(key)) return false; // standings exists → suppress
+
+    return true; // no standings yet → keep
+  });
+}

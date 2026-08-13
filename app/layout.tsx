@@ -4,6 +4,7 @@ import './globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import ClientLayoutShell from '@/components/ClientLayoutShell';
 import { getNewsPosts, getSiteSettings } from '@/lib/api';
+import { getActiveEdition, getTournamentStatus } from '@/lib/tournamentApi';
 import { applyTournamentSpotlight } from '@/lib/tournamentSpotlight';
 import { GoogleAnalytics } from '@next/third-parties/google';
 
@@ -22,7 +23,6 @@ const jetbrainsMono = JetBrains_Mono({
   variable: '--font-mono',
 });
 
-export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
@@ -79,7 +79,20 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RootLayout({children}: {children: React.ReactNode}) {
-  const [news, settings] = await Promise.all([getNewsPosts(), getSiteSettings()]);
+  const [news, settings, activeEdition] = await Promise.all([
+    getNewsPosts(),
+    getSiteSettings(),
+    getActiveEdition(),
+  ]);
+
+  const isLive = activeEdition
+    ? getTournamentStatus(
+        activeEdition.startDate ?? null,
+        activeEdition.endDate ?? null,
+        activeEdition.tournamentStatus ?? null,
+      ) === 'ONGOING'
+    : false;
+  const liveSlug = (activeEdition as any)?.tournament?.slug?.current ?? '';
   const spotlightedNews = applyTournamentSpotlight(news).sort(
     (a: any, b: any) => new Date(b.publishDate || b._createdAt || 0).getTime() - new Date(a.publishDate || a._createdAt || 0).getTime(),
   );
@@ -167,6 +180,8 @@ export default async function RootLayout({children}: {children: React.ReactNode}
             siteName={settings.siteName}
             logoTextSpacing={settings.logoTextSpacing}
             logoOnTop={settings.logoOnTop}
+            isLive={isLive}
+            liveSlug={liveSlug}
           >
             {children}
           </ClientLayoutShell>

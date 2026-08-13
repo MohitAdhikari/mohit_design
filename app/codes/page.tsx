@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { getGameCodes } from '@/lib/api';
 import GameCodesClient from '@/components/GameCodesClient';
 
-export const revalidate = 60;
+export const revalidate = 86400;
 
 export const metadata: Metadata = {
   title: 'Game Redeem Codes | PHONEOCEAN',

@@ -5,7 +5,7 @@ import type { CodeItem, PollOption } from '@/components/game-codes/GameCodePage'
 import { getGuideBySlug } from '@/lib/api';
 import { formatDateCompactIST } from '@/utils/formatDate';
 
-export const revalidate = 60;
+export const revalidate = 86400;
 
 export const metadata: Metadata = {
   title: 'Blox Fruits Codes | PHONEOCEAN',

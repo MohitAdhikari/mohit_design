@@ -470,11 +470,15 @@ export async function getAllArticleSlugs(): Promise<{ slug: string }[]> {
   )
 }
 
-export async function getActiveEdition(): Promise<{ _id: string; name: string } | null> {
+export async function getActiveEdition(): Promise<any | null> {
   return client.fetch(
     `*[_type == "tournamentEdition" && publishStatus == "published"]
      | order(startDate desc)[0]{
-       _id, "name": tournament->name + " — " + year
+       _id,
+       startDate,
+       endDate,
+       tournamentStatus,
+       "tournament": tournament->{ name, "slug": slug.current }
      }`,
   )
 }

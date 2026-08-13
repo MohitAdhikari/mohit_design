@@ -1,4 +1,5 @@
 import { draftMode } from 'next/headers'
+import { unstable_cache } from 'next/cache'
 import { projectId } from '../sanity/env'
 import { client } from './sanityClient'
 import { previewClient } from './sanityServer'
@@ -202,19 +203,33 @@ export async function getNewsPosts(): Promise<any[]> {
   return sortByTimestamp(posts);
 }
 
-export async function getPublicNewsPosts(): Promise<any[]> {
+async function fetchPublicNewsPosts(): Promise<any[]> {
   if (!projectId) {
     return sortByTimestamp(mockData.newsPosts.filter((p: any) => p.showOnHomepage !== false));
   }
   const query = `*[_type == "newsPost" && ${NEWSPOST_PUBLIC_FILTER}] | order(dateTime(coalesce(publishDate, _createdAt)) desc) {
     _id, _createdAt, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, excerpt, authorName, youtubeUrl, instagramUrl, featured, trending, badge, badgeCustom, showOnHomepage,
     "tournament": tournament->{ _id, name, slug },
+    matchMeta {
+      articleType,
+      "tournamentEdition": tournamentEdition->{ _id },
+      matchDay
+    },
     wordCount,
     !defined(wordCount) => { content }
   }`;
   const posts = await client.fetch(query);
   return sortByTimestamp(posts);
 }
+
+// Cached: shares one Sanity query across every ISR render that requests the
+// homepage feed within the cache window, instead of hitting Sanity per page.
+// Busted instantly via revalidateTag('homepage-feed') from /api/revalidate.
+export const getPublicNewsPosts = unstable_cache(
+  fetchPublicNewsPosts,
+  ['public-news-posts'],
+  { revalidate: 300, tags: ['homepage-feed'] },
+);
 
 export async function getNewsPostBySlug(slug: string): Promise<any> {
   if (!projectId) {
@@ -276,7 +291,7 @@ export async function getEsportsRelatedNews(limit = 12): Promise<any[]> {
   return client.fetch(query, { limit, esportsTagNames });
 }
 
-export async function getInterviews(): Promise<any[]> {
+async function fetchInterviews(): Promise<any[]> {
   if (!projectId) {
     return sortByTimestamp(mockData.interviews, 'publishDate');
   }
@@ -287,7 +302,13 @@ export async function getInterviews(): Promise<any[]> {
   return sortByTimestamp(interviews, 'publishDate');
 }
 
-export async function getGuides(): Promise<any[]> {
+export const getInterviews = unstable_cache(
+  fetchInterviews,
+  ['interviews'],
+  { revalidate: 300, tags: ['homepage-feed'] },
+);
+
+async function fetchGuides(): Promise<any[]> {
   if (!projectId) {
     return sortByTimestamp(mockData.guides, 'lastUpdated');
   }
@@ -298,6 +319,12 @@ export async function getGuides(): Promise<any[]> {
   const guides = await client.fetch(query);
   return sortByTimestamp(guides, 'publishDate');
 }
+
+export const getGuides = unstable_cache(
+  fetchGuides,
+  ['guides'],
+  { revalidate: 300, tags: ['homepage-feed'] },
+);
 
 export async function getGuideBySlug(slug: string): Promise<any> {
   if (!projectId) {
@@ -322,7 +349,7 @@ export async function getGuideBySlug(slug: string): Promise<any> {
   return sanityClient.fetch(query, { slug });
 }
 
-export async function getSiteSettings(): Promise<{
+async function fetchSiteSettings(): Promise<{
   logoUrl: string;
   siteName: string;
   discordUrl: string;
@@ -363,6 +390,12 @@ export async function getSiteSettings(): Promise<{
     logoOnTop: data?.logoOnTop !== false,
   };
 }
+
+export const getSiteSettings = unstable_cache(
+  fetchSiteSettings,
+  ['site-settings'],
+  { revalidate: 300, tags: ['homepage-feed'] },
+);
 
 export type HighlightsStyleValue = 'premium' | 'minimal' | 'plain';
 
@@ -470,7 +503,7 @@ export function resolveHighlightsStyle(
   return appearance.highlightsDefaultStyle;
 }
 
-export async function getHomepage(): Promise<{
+async function fetchHomepage(): Promise<{
   useAutoLayout: boolean;
   heroArticle: any | null;
   heroArticles: any[];
@@ -519,6 +552,12 @@ export async function getHomepage(): Promise<{
     feedArticles: (data?.feedArticles || []).filter(isPublishedDoc),
   };
 }
+
+export const getHomepage = unstable_cache(
+  fetchHomepage,
+  ['homepage'],
+  { revalidate: 300, tags: ['homepage-feed'] },
+);
 
 export async function getGameCodes(): Promise<any[]> {
   if (!projectId) {

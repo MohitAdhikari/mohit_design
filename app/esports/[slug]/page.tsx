@@ -21,7 +21,7 @@ import Tabs from '@/components/Tabs'
 import { EditionTabs } from '@/components/EditionTabs'
 import type { Metadata } from 'next'
 
-export const revalidate = 60
+export const revalidate = 300
 
 export async function generateStaticParams() {
   const slugs = await getAllTournamentSlugs()

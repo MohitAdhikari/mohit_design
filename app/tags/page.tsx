@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { getTags } from '@/lib/api'
 import { Metadata } from 'next'
 
-export const revalidate = 60
+export const revalidate = 1800
 
 const pathSegment = (value: string) =>
   value

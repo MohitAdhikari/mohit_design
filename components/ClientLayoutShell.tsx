@@ -14,11 +14,14 @@ interface Props {
   siteName?: string;
   logoTextSpacing?: number;
   logoOnTop?: boolean;
+  isLive?: boolean;
+  liveSlug?: string;
 }
 
 export default function ClientLayoutShell({
   tickerItems, settings, children,
   logoUrl, siteName, logoTextSpacing, logoOnTop,
+  isLive, liveSlug,
 }: Props) {
   const pathname = usePathname();
   const isDashboard = pathname?.startsWith('/dashboard');
@@ -40,6 +43,8 @@ export default function ClientLayoutShell({
         siteName={siteName}
         logoTextSpacing={logoTextSpacing}
         logoOnTop={logoOnTop}
+        isLive={isLive}
+        liveSlug={liveSlug}
       />
       <div className="pt-[80px]">
         <BreakingTicker items={visibleTickerItems} />

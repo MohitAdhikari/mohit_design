@@ -1,0 +1,506 @@
+{
+  "results11": [
+    {
+      "teamName": "AlUla Club Esports",
+      "placement": 1,
+      "kills": 13,
+      "points": 23
+    },
+    {
+      "teamName": "DOPENESS",
+      "placement": 2,
+      "kills": 9,
+      "points": 15
+    },
+    {
+      "teamName": "Wolves Esports",
+      "placement": 3,
+      "kills": 7,
+      "points": 12
+    },
+    {
+      "teamName": "GOAT Team",
+      "placement": 4,
+      "kills": 5,
+      "points": 9
+    },
+    {
+      "teamName": "Tianba",
+      "placement": 5,
+      "kills": 6,
+      "points": 9
+    },
+    {
+      "teamName": "RRQ RYU",
+      "placement": 6,
+      "kills": 5,
+      "points": 7
+    },
+    {
+      "teamName": "Kiwoom DRX",
+      "placement": 7,
+      "kills": 4,
+      "points": 5
+    },
+    {
+      "teamName": "Yangon Galacticos",
+      "placement": 8,
+      "kills": 3,
+      "points": 4
+    },
+    {
+      "teamName": "NongShim RedForce",
+      "placement": 9,
+      "kills": 4,
+      "points": 4
+    },
+    {
+      "teamName": "ULF Esports",
+      "placement": 10,
+      "kills": 3,
+      "points": 3
+    },
+    {
+      "teamName": "eArena",
+      "placement": 11,
+      "kills": 1,
+      "points": 1
+    },
+    {
+      "teamName": "GS 721",
+      "placement": 12,
+      "kills": 1,
+      "points": 1
+    },
+    {
+      "teamName": "Geekay Esports",
+      "placement": 13,
+      "kills": 0,
+      "points": 0
+    },
+    {
+      "teamName": "FURIA Esports",
+      "placement": 14,
+      "kills": 0,
+      "points": 0
+    },
+    {
+      "teamName": "Alpha7 Esports",
+      "placement": 15,
+      "kills": 0,
+      "points": 0
+    },
+    {
+      "teamName": "AG.AL",
+      "placement": 16,
+      "kills": 0,
+      "points": 0
+    }
+  ],
+  "results12": [
+    {
+      "teamName": "ULF Esports",
+      "placement": 1,
+      "kills": 7,
+      "points": 17
+    },
+    {
+      "teamName": "eArena",
+      "placement": 2,
+      "kills": 5,
+      "points": 11
+    },
+    {
+      "teamName": "DOPENESS",
+      "placement": 3,
+      "kills": 4,
+      "points": 9
+    },
+    {
+      "teamName": "NongShim RedForce",
+      "placement": 4,
+      "kills": 10,
+      "points": 14
+    },
+    {
+      "teamName": "AG.AL",
+      "placement": 5,
+      "kills": 9,
+      "points": 12
+    },
+    {
+      "teamName": "AlUla Club Esports",
+      "placement": 6,
+      "kills": 7,
+      "points": 9
+    },
+    {
+      "teamName": "FURIA Esports",
+      "placement": 7,
+      "kills": 5,
+      "points": 6
+    },
+    {
+      "teamName": "Wolves Esports",
+      "placement": 8,
+      "kills": 0,
+      "points": 1
+    },
+    {
+      "teamName": "RRQ RYU",
+      "placement": 9,
+      "kills": 3,
+      "points": 3
+    },
+    {
+      "teamName": "Yangon Galacticos",
+      "placement": 10,
+      "kills": 3,
+      "points": 3
+    },
+    {
+      "teamName": "Kiwoom DRX",
+      "placement": 11,
+      "kills": 3,
+      "points": 3
+    },
+    {
+      "teamName": "Tianba",
+      "placement": 12,
+      "kills": 2,
+      "points": 2
+    },
+    {
+      "teamName": "GOAT Team",
+      "placement": 13,
+      "kills": 2,
+      "points": 2
+    },
+    {
+      "teamName": "Alpha7 Esports",
+      "placement": 14,
+      "kills": 2,
+      "points": 2
+    },
+    {
+      "teamName": "Geekay Esports",
+      "placement": 15,
+      "kills": 0,
+      "points": 0
+    },
+    {
+      "teamName": "GS 721",
+      "placement": 16,
+      "kills": 0,
+      "points": 0
+    }
+  ],
+  "standings11": [
+    {
+      "rank": 1,
+      "teamName": "Tianba",
+      "points": 107,
+      "kills": 68,
+      "placementPoints": 39,
+      "wwcd": 2,
+      "matchesPlayed": 11
+    },
+    {
+      "rank": 2,
+      "teamName": "AlUla Club Esports",
+      "points": 82,
+      "kills": 55,
+      "placementPoints": 27,
+      "wwcd": 1,
+      "matchesPlayed": 11
+    },
+    {
+      "rank": 3,
+      "teamName": "FURIA Esports",
+      "points": 79,
+      "kills": 56,
+      "placementPoints": 23,
+      "wwcd": 0,
+      "matchesPlayed": 11
+    },
+    {
+      "rank": 4,
+      "teamName": "Wolves Esports",
+      "points": 78,
+      "kills": 55,
+      "placementPoints": 23,
+      "wwcd": 0,
+      "matchesPlayed": 11
+    },
+    {
+      "rank": 5,
+      "teamName": "GOAT Team",
+      "points": 76,
+      "kills": 58,
+      "placementPoints": 18,
+      "wwcd": 1,
+      "matchesPlayed": 11
+    },
+    {
+      "rank": 6,
+      "teamName": "NongShim RedForce",
+      "points": 75,
+      "kills": 49,
+      "placementPoints": 26,
+      "wwcd": 2,
+      "matchesPlayed": 11
+    },
+    {
+      "rank": 7,
+      "teamName": "Alpha7 Esports",
+      "points": 70,
+      "kills": 47,
+      "placementPoints": 23,
+      "wwcd": 0,
+      "matchesPlayed": 11
+    },
+    {
+      "rank": 8,
+      "teamName": "eArena",
+      "points": 68,
+      "kills": 41,
+      "placementPoints": 27,
+      "wwcd": 1,
+      "matchesPlayed": 11
+    },
+    {
+      "rank": 9,
+      "teamName": "ULF Esports",
+      "points": 67,
+      "kills": 41,
+      "placementPoints": 26,
+      "wwcd": 1,
+      "matchesPlayed": 11
+    },
+    {
+      "rank": 10,
+      "teamName": "Geekay Esports",
+      "points": 65,
+      "kills": 45,
+      "placementPoints": 20,
+      "wwcd": 1,
+      "matchesPlayed": 11
+    },
+    {
+      "rank": 11,
+      "teamName": "RRQ RYU",
+      "points": 60,
+      "kills": 44,
+      "placementPoints": 16,
+      "wwcd": 0,
+      "matchesPlayed": 11
+    },
+    {
+      "rank": 12,
+      "teamName": "AG.AL",
+      "points": 58,
+      "kills": 39,
+      "placementPoints": 19,
+      "wwcd": 2,
+      "matchesPlayed": 11
+    },
+    {
+      "rank": 13,
+      "teamName": "DOPENESS",
+      "points": 57,
+      "kills": 39,
+      "placementPoints": 18,
+      "wwcd": 1,
+      "matchesPlayed": 11
+    },
+    {
+      "rank": 14,
+      "teamName": "Yangon Galacticos",
+      "points": 50,
+      "kills": 31,
+      "placementPoints": 19,
+      "wwcd": 0,
+      "matchesPlayed": 11
+    },
+    {
+      "rank": 15,
+      "teamName": "GS 721",
+      "points": 45,
+      "kills": 34,
+      "placementPoints": 11,
+      "wwcd": 0,
+      "matchesPlayed": 11
+    },
+    {
+      "rank": 16,
+      "teamName": "Kiwoom DRX",
+      "points": 44,
+      "kills": 27,
+      "placementPoints": 17,
+      "wwcd": 1,
+      "matchesPlayed": 11
+    }
+  ],
+  "standings12": [
+    {
+      "rank": 1,
+      "teamName": "Tianba",
+      "points": 109,
+      "kills": 70,
+      "placementPoints": 39,
+      "wwcd": 2,
+      "matchesPlayed": 12,
+      "qualified": true
+    },
+    {
+      "rank": 2,
+      "teamName": "AlUla Club Esports",
+      "points": 91,
+      "kills": 62,
+      "placementPoints": 29,
+      "wwcd": 1,
+      "matchesPlayed": 12,
+      "qualified": true
+    },
+    {
+      "rank": 3,
+      "teamName": "NongShim RedForce",
+      "points": 89,
+      "kills": 59,
+      "placementPoints": 30,
+      "wwcd": 2,
+      "matchesPlayed": 12,
+      "qualified": true
+    },
+    {
+      "rank": 4,
+      "teamName": "FURIA Esports",
+      "points": 85,
+      "kills": 61,
+      "placementPoints": 24,
+      "wwcd": 0,
+      "matchesPlayed": 12,
+      "qualified": true
+    },
+    {
+      "rank": 5,
+      "teamName": "ULF Esports",
+      "points": 84,
+      "kills": 48,
+      "placementPoints": 36,
+      "wwcd": 2,
+      "matchesPlayed": 12,
+      "qualified": true
+    },
+    {
+      "rank": 6,
+      "teamName": "eArena",
+      "points": 79,
+      "kills": 46,
+      "placementPoints": 33,
+      "wwcd": 1,
+      "matchesPlayed": 12,
+      "qualified": true
+    },
+    {
+      "rank": 7,
+      "teamName": "Wolves Esports",
+      "points": 79,
+      "kills": 55,
+      "placementPoints": 24,
+      "wwcd": 0,
+      "matchesPlayed": 12,
+      "eliminated": true
+    },
+    {
+      "rank": 8,
+      "teamName": "GOAT Team",
+      "points": 78,
+      "kills": 60,
+      "placementPoints": 18,
+      "wwcd": 1,
+      "matchesPlayed": 12,
+      "eliminated": true
+    },
+    {
+      "rank": 9,
+      "teamName": "Alpha7 Esports",
+      "points": 72,
+      "kills": 49,
+      "placementPoints": 23,
+      "wwcd": 0,
+      "matchesPlayed": 12,
+      "eliminated": true
+    },
+    {
+      "rank": 10,
+      "teamName": "AG.AL",
+      "points": 70,
+      "kills": 48,
+      "placementPoints": 22,
+      "wwcd": 2,
+      "matchesPlayed": 12,
+      "eliminated": true
+    },
+    {
+      "rank": 11,
+      "teamName": "DOPENESS",
+      "points": 66,
+      "kills": 43,
+      "placementPoints": 23,
+      "wwcd": 1,
+      "matchesPlayed": 12,
+      "eliminated": true
+    },
+    {
+      "rank": 12,
+      "teamName": "Geekay Esports",
+      "points": 65,
+      "kills": 45,
+      "placementPoints": 20,
+      "wwcd": 1,
+      "matchesPlayed": 12,
+      "eliminated": true
+    },
+    {
+      "rank": 13,
+      "teamName": "RRQ RYU",
+      "points": 63,
+      "kills": 47,
+      "placementPoints": 16,
+      "wwcd": 0,
+      "matchesPlayed": 12,
+      "eliminated": true
+    },
+    {
+      "rank": 14,
+      "teamName": "Yangon Galacticos",
+      "points": 53,
+      "kills": 34,
+      "placementPoints": 19,
+      "wwcd": 0,
+      "matchesPlayed": 12,
+      "eliminated": true
+    },
+    {
+      "rank": 15,
+      "teamName": "Kiwoom DRX",
+      "points": 47,
+      "kills": 30,
+      "placementPoints": 17,
+      "wwcd": 1,
+      "matchesPlayed": 12,
+      "eliminated": true
+    },
+    {
+      "rank": 16,
+      "teamName": "GS 721",
+      "points": 45,
+      "kills": 34,
+      "placementPoints": 11,
+      "wwcd": 0,
+      "matchesPlayed": 12,
+      "eliminated": true
+    }
+  ]
+}

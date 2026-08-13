@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   alternates: { canonical: 'https://phoneocean.in/videos' },
 };
 
-export const revalidate = 60;
+export const revalidate = 1800;
 
 export default async function VideosPage() {
   const videos = await getAllVideos();

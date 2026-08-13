@@ -6,7 +6,7 @@ import { optimizedImageUrl } from '@/lib/sanityImage'
 import { formatDateCompactIST } from '@/utils/formatDate'
 import PageHeader from '@/components/PageHeader'
 
-export const revalidate = 60
+export const revalidate = 600
 
 export const metadata: Metadata = {
   title: 'News | PHONEOCEAN',
