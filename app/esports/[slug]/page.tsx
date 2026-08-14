@@ -26,6 +26,12 @@ import type { Metadata } from 'next'
 //   node scripts/setIsrMode.mjs normal
 export const revalidate = false
 
+// CRITICAL ISR budget guard: without this, visiting any slug NOT in
+// generateStaticParams still triggers a one-time on-demand render + cache
+// write — which itself counts as an ISR Write. False = unlisted slugs 404
+// instead until the next redeploy.
+export const dynamicParams = false
+
 export async function generateStaticParams() {
   const slugs = await getAllTournamentSlugs()
   return slugs.map((t) => ({ slug: t.slug }))

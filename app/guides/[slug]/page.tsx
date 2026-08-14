@@ -71,6 +71,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
+// CRITICAL ISR budget guard: without this, visiting any slug NOT in
+// generateStaticParams (e.g. a guide published after the last deploy)
+// still triggers a one-time on-demand render + cache write — which itself
+// counts as an ISR Write. With this set to false, unlisted slugs 404
+// instead until the next redeploy.
+export const dynamicParams = false;
+
 export async function generateStaticParams() {
   const guides = await getGuides();
   return guides.map((g: any) => ({ slug: g.slug?.current ?? g.slug }));
