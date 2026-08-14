@@ -65,7 +65,60 @@ export default function StandingsTables({ standings }: { standings: StandingTabl
             </div>
           </div>
 
-          <div className="overflow-x-auto bg-white dark:bg-[#0E0E12] border border-gray-200 dark:border-gray-800/60 rounded-2xl">
+          {/* Mobile: stacked cards */}
+          <div className="flex flex-col gap-2.5 sm:hidden">
+            {(table.rows || []).map((row, i) => (
+              <div
+                key={row._key || `${table._id}-m${i}`}
+                className="rounded-xl border border-gray-200 dark:border-gray-800/60 bg-white dark:bg-[#0E0E12] p-3.5 shadow-sm"
+              >
+                <div className="flex items-center justify-between gap-3 mb-2.5 pb-2.5 border-b border-gray-100 dark:border-gray-800/40">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <span className="font-bold text-gray-400 dark:text-gray-600 text-sm w-5 shrink-0">
+                      {row.rank ?? i + 1}
+                    </span>
+                    <TeamLogo src={row.team?.logoUrl ?? null} name={teamLabel(row)} size={26} className="shrink-0" />
+                    <span className={`font-semibold truncate ${i < 3 ? 'text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300'}`}>
+                      {teamLabel(row)}
+                    </span>
+                  </div>
+                  <span className="font-bold text-yellow-600 dark:text-yellow-400 text-base shrink-0">
+                    {row.points ?? 0} <span className="text-[10px] font-mono uppercase text-gray-400 dark:text-gray-600">pts</span>
+                  </span>
+                </div>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-1 rounded-md border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#13131A] text-gray-500 dark:text-gray-400">
+                    <span className="uppercase tracking-wider opacity-70">MP</span>
+                    <span className="font-semibold text-gray-800 dark:text-gray-200">{row.matchesPlayed ?? 0}</span>
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-1 rounded-md border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#13131A] text-gray-500 dark:text-gray-400">
+                    <span className="uppercase tracking-wider opacity-70">WWCD</span>
+                    <span className="font-semibold text-gray-800 dark:text-gray-200">{row.wwcd ?? row.wins ?? 0}</span>
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-1 rounded-md border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#13131A] text-gray-500 dark:text-gray-400">
+                    <span className="uppercase tracking-wider opacity-70">Place</span>
+                    <span className="font-semibold text-gray-800 dark:text-gray-200">{row.placementPoints ?? 0}</span>
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-1 rounded-md border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#13131A] text-gray-500 dark:text-gray-400">
+                    <span className="uppercase tracking-wider opacity-70">Kills</span>
+                    <span className="font-semibold text-gray-800 dark:text-gray-200">{row.kills ?? 0}</span>
+                  </span>
+                  {row.qualified ? (
+                    <span className="rounded-full bg-green-500/10 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-green-600 dark:text-green-400">
+                      Qualified
+                    </span>
+                  ) : row.eliminated ? (
+                    <span className="rounded-full bg-red-500/10 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-red-600 dark:text-red-400">
+                      Eliminated
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop: real table */}
+          <div className="hidden sm:block overflow-x-auto bg-white dark:bg-[#0E0E12] border border-gray-200 dark:border-gray-800/60 rounded-2xl">
             <table className="w-full text-sm min-w-[760px]">
               <thead>
                 <tr className="text-gray-500 dark:text-gray-500 uppercase text-xs font-mono tracking-widest border-b border-gray-200 dark:border-gray-800/60">
