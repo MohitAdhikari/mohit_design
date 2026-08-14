@@ -41,6 +41,27 @@ export const standingsTable = defineType({
       },
       initialValue: 'auto',
     }),
+    defineField({
+      name: 'mobileCardStyle',
+      title: 'Mobile Card Style',
+      type: 'string',
+      description: '"Modern" adds colored rank badges, a top-3 accent stripe, and a prominent primary stat. "Classic" keeps the older plain chip layout.',
+      options: {
+        list: [
+          { title: 'Modern (rank badge + accent) — recommended', value: 'modern' },
+          { title: 'Classic (simple flat chips)', value: 'classic' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'modern',
+    }),
+    defineField({
+      name: 'mobileHiddenColumns',
+      title: 'Hide Columns on Mobile',
+      type: 'string',
+      description:
+        'Comma-separated column header names to hide from the mobile card (still shown on desktop). Useful for tables with 5-6+ columns where not everything fits comfortably on a phone card — e.g. "Kills, Placement Pts".',
+    }),
   ],
   preview: {
     select: { title: 'title' },

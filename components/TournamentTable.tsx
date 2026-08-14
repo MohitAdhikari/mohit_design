@@ -3,6 +3,8 @@ type TableValue = {
   hideTitle?: boolean
   rawText?: string
   displayStyle?: 'auto' | 'standings' | 'generic'
+  mobileCardStyle?: 'modern' | 'classic'
+  mobileHiddenColumns?: string
 }
 
 function parseRow(line: string): string[] {
@@ -66,18 +68,31 @@ export default function TournamentTable({ value }: { value: TableValue }) {
       ? false
       : rankColIndex >= 0 || teamColIndex >= 0;
 
+  // Editors can hide specific columns from the mobile card only (desktop
+  // table always shows every column) — useful once a table has 5-6+
+  // columns and not everything needs to compete for space on a phone.
+  const hiddenOnMobile = new Set(
+    (value.mobileHiddenColumns || '')
+      .split(',')
+      .map((h) => h.trim().toLowerCase())
+      .filter(Boolean),
+  );
+  const isHiddenOnMobile = (i: number) => hiddenOnMobile.has(headers[i]?.trim().toLowerCase());
+
   // Everything that isn't the rank/team column becomes a labelled "chip" on
   // the mobile card, primary stats (WWCD/Points/Total) surfaced first.
   // For generic tables (no rank/team), the first column becomes the card
   // title instead, so it's excluded from the chip row too.
   const chipOrder = headers
     .map((_, i) => i)
-    .filter((i) => i !== rankColIndex && i !== teamColIndex && (hasRankOrTeam || i !== 0))
+    .filter((i) => i !== rankColIndex && i !== teamColIndex && (hasRankOrTeam || i !== 0) && !isHiddenOnMobile(i))
     .sort((a, b) => {
       const aPrimary = columnTypes[a] === 'primary' ? 0 : 1;
       const bPrimary = columnTypes[b] === 'primary' ? 0 : 1;
       return aPrimary - bPrimary;
     });
+
+  const isModern = value.mobileCardStyle !== 'classic';
 
   return (
     <div className="my-8 w-full not-prose">
@@ -92,8 +107,9 @@ export default function TournamentTable({ value }: { value: TableValue }) {
         {rows.map((row, ri) => {
           const rank = rankColIndex >= 0 ? row[rankColIndex] : String(ri + 1);
           const team = teamColIndex >= 0 ? row[teamColIndex] : null;
-          const rankAccent =
-            rank === '1'
+          const rankAccent = !isModern
+            ? null
+            : rank === '1'
               ? { stripe: 'bg-yellow-400', badge: 'bg-yellow-400/15 text-yellow-500 dark:text-yellow-400' }
               : rank === '2'
               ? { stripe: 'bg-gray-400', badge: 'bg-gray-300/25 dark:bg-gray-500/20 text-gray-500 dark:text-gray-300' }
@@ -103,28 +119,33 @@ export default function TournamentTable({ value }: { value: TableValue }) {
 
           // Pull the "primary" stat (WWCD/Pts/Total) out to its own prominent
           // slot next to the team name; everything else becomes a chip below.
-          const primaryIdx = hasRankOrTeam ? chipOrder.find((i) => columnTypes[i] === 'primary') : undefined;
+          // Classic style keeps everything flat in the chip row instead.
+          const primaryIdx = isModern && hasRankOrTeam ? chipOrder.find((i) => columnTypes[i] === 'primary') : undefined;
           const secondaryChips = chipOrder.filter((i) => i !== primaryIdx);
 
           return (
             <div
               key={ri}
-              className="relative overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800/60 bg-white dark:bg-[#0E0E12] p-3.5 pl-4"
+              className={`relative overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800/60 bg-white dark:bg-[#0E0E12] p-3.5 ${isModern ? 'pl-4' : ''}`}
             >
               {rankAccent && <span className={`absolute inset-y-0 left-0 w-1 ${rankAccent.stripe}`} />}
 
               {hasRankOrTeam ? (
-                <div className="flex items-center justify-between gap-3">
+                <div className={`flex items-center justify-between gap-3 ${!isModern ? 'mb-2' : ''}`}>
                   <div className="flex items-center gap-2.5 min-w-0">
                     <span
-                      className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-black shrink-0 ${
-                        rankAccent ? rankAccent.badge : 'bg-gray-100 dark:bg-[#13131A] text-gray-400 dark:text-gray-600'
-                      }`}
+                      className={
+                        isModern
+                          ? `flex items-center justify-center w-8 h-8 rounded-full text-sm font-black shrink-0 ${
+                              rankAccent ? rankAccent.badge : 'bg-gray-100 dark:bg-[#13131A] text-gray-400 dark:text-gray-600'
+                            }`
+                          : 'text-sm font-bold text-gray-400 dark:text-gray-600 font-mono w-6 flex-shrink-0'
+                      }
                     >
-                      {RANK_MEDALS[rank] || rank}
+                      {RANK_MEDALS[rank] || (isModern ? rank : `#${rank}`)}
                     </span>
                     {team && (
-                      <span className="text-[15px] font-bold text-gray-900 dark:text-gray-100 truncate">
+                      <span className={`font-bold text-gray-900 dark:text-gray-100 truncate ${isModern ? 'text-[15px]' : 'text-sm'}`}>
                         {team}
                       </span>
                     )}
@@ -142,7 +163,7 @@ export default function TournamentTable({ value }: { value: TableValue }) {
                 </div>
               ) : (
                 headers[0] !== undefined && row[0] !== undefined && (
-                  <div className="flex items-center justify-between gap-3">
+                  <div className={`flex items-center justify-between gap-3 ${!isModern ? 'mb-2' : ''}`}>
                     <span className="text-[10px] font-mono uppercase tracking-wider text-gray-400 dark:text-gray-500 shrink-0">
                       {headers[0]}
                     </span>
@@ -154,7 +175,7 @@ export default function TournamentTable({ value }: { value: TableValue }) {
               )}
 
               {secondaryChips.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mt-2.5 pt-2.5 border-t border-gray-100 dark:border-gray-800/40">
+                <div className={`flex flex-wrap gap-1.5 ${isModern ? 'mt-2.5 pt-2.5 border-t border-gray-100 dark:border-gray-800/40' : ''}`}>
                   {secondaryChips.map((ci) => (
                     <span
                       key={ci}

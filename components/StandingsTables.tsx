@@ -75,70 +75,88 @@ export default function StandingsTables({ standings }: { standings: StandingTabl
           </div>
 
           {/* Mobile: stacked cards */}
-          <div className="flex flex-col gap-2.5 sm:hidden">
-            {(table.rows || []).map((row, i) => {
-              const rank = String(row.rank ?? i + 1)
-              const accent = rankAccent(rank)
-              return (
-              <div
-                key={row._key || `${table._id}-m${i}`}
-                className="relative overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800/60 bg-white dark:bg-[#0E0E12] p-3.5 pl-4"
-              >
-                {accent && <span className={`absolute inset-y-0 left-0 w-1 ${accent.stripe}`} />}
-                <div className="flex items-center justify-between gap-3 pb-2.5 border-b border-gray-100 dark:border-gray-800/40">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <span
-                      className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-black shrink-0 ${
-                        accent ? accent.badge : 'bg-gray-100 dark:bg-[#13131A] text-gray-400 dark:text-gray-600'
-                      }`}
+          {(() => {
+            const isModern = table.mobileCardStyle !== 'classic'
+            const hidden = new Set(table.mobileHiddenStats || [])
+            type StatKey = 'matchesPlayed' | 'wwcd' | 'placementPoints' | 'kills'
+            const ALL_STATS: { key: StatKey; label: string; get: (row: StandingRow) => number }[] = [
+              { key: 'matchesPlayed', label: 'MP', get: (row: StandingRow) => row.matchesPlayed ?? 0 },
+              { key: 'wwcd', label: 'WWCD', get: (row: StandingRow) => row.wwcd ?? row.wins ?? 0 },
+              { key: 'placementPoints', label: 'Place', get: (row: StandingRow) => row.placementPoints ?? 0 },
+              { key: 'kills', label: 'Kills', get: (row: StandingRow) => row.kills ?? 0 },
+            ]
+            const STATS = ALL_STATS.filter((s) => !hidden.has(s.key))
+
+            return (
+              <div className="flex flex-col gap-2.5 sm:hidden">
+                {(table.rows || []).map((row, i) => {
+                  const rank = String(row.rank ?? i + 1)
+                  const accent = isModern ? rankAccent(rank) : null
+                  return (
+                    <div
+                      key={row._key || `${table._id}-m${i}`}
+                      className={`relative overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800/60 bg-white dark:bg-[#0E0E12] p-3.5 ${isModern ? 'pl-4' : ''}`}
                     >
-                      {RANK_MEDALS[rank] || rank}
-                    </span>
-                    <TeamLogo src={row.team?.logoUrl ?? null} name={teamLabel(row)} size={26} className="shrink-0" />
-                    <span className="text-[15px] font-bold text-gray-900 dark:text-gray-100 truncate">
-                      {teamLabel(row)}
-                    </span>
-                  </div>
-                  <div className="text-right shrink-0 pl-2">
-                    <div className="text-lg font-black font-space-grotesk text-blue-600 dark:text-[#00E5FF] leading-none">
-                      {row.points ?? 0}
+                      {accent && <span className={`absolute inset-y-0 left-0 w-1 ${accent.stripe}`} />}
+                      <div className={`flex items-center justify-between gap-3 ${isModern ? 'pb-2.5 border-b border-gray-100 dark:border-gray-800/40' : 'mb-2'}`}>
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span
+                            className={
+                              isModern
+                                ? `flex items-center justify-center w-8 h-8 rounded-full text-sm font-black shrink-0 ${
+                                    accent ? accent.badge : 'bg-gray-100 dark:bg-[#13131A] text-gray-400 dark:text-gray-600'
+                                  }`
+                                : 'text-sm font-bold text-gray-400 dark:text-gray-600 font-mono w-6 shrink-0'
+                            }
+                          >
+                            {RANK_MEDALS[rank] || (isModern ? rank : `#${rank}`)}
+                          </span>
+                          <TeamLogo src={row.team?.logoUrl ?? null} name={teamLabel(row)} size={26} className="shrink-0" />
+                          <span className={`font-bold text-gray-900 dark:text-gray-100 truncate ${isModern ? 'text-[15px]' : 'text-sm'}`}>
+                            {teamLabel(row)}
+                          </span>
+                        </div>
+                        {isModern ? (
+                          <div className="text-right shrink-0 pl-2">
+                            <div className="text-lg font-black font-space-grotesk text-blue-600 dark:text-[#00E5FF] leading-none">
+                              {row.points ?? 0}
+                            </div>
+                            <div className="text-[9px] font-mono uppercase tracking-wider text-gray-400 dark:text-gray-600 mt-0.5">
+                              pts
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="font-bold text-yellow-600 dark:text-yellow-400 text-base shrink-0">
+                            {row.points ?? 0} <span className="text-[10px] font-mono uppercase text-gray-400 dark:text-gray-600">pts</span>
+                          </span>
+                        )}
+                      </div>
+                      <div className={`flex flex-wrap items-center gap-1.5 ${isModern ? 'mt-2.5' : ''}`}>
+                        {STATS.map((stat) => (
+                          <span
+                            key={stat.key}
+                            className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-1 rounded-md border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#13131A] text-gray-500 dark:text-gray-400"
+                          >
+                            <span className="uppercase tracking-wider opacity-70">{stat.label}</span>
+                            <span className="font-semibold text-gray-800 dark:text-gray-200">{stat.get(row)}</span>
+                          </span>
+                        ))}
+                        {row.qualified ? (
+                          <span className="rounded-full bg-green-500/10 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-green-600 dark:text-green-400">
+                            Qualified
+                          </span>
+                        ) : row.eliminated ? (
+                          <span className="rounded-full bg-red-500/10 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-red-600 dark:text-red-400">
+                            Eliminated
+                          </span>
+                        ) : null}
+                      </div>
                     </div>
-                    <div className="text-[9px] font-mono uppercase tracking-wider text-gray-400 dark:text-gray-600 mt-0.5">
-                      pts
-                    </div>
-                  </div>
-                </div>
-                <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
-                  <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-1 rounded-md border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#13131A] text-gray-500 dark:text-gray-400">
-                    <span className="uppercase tracking-wider opacity-70">MP</span>
-                    <span className="font-semibold text-gray-800 dark:text-gray-200">{row.matchesPlayed ?? 0}</span>
-                  </span>
-                  <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-1 rounded-md border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#13131A] text-gray-500 dark:text-gray-400">
-                    <span className="uppercase tracking-wider opacity-70">WWCD</span>
-                    <span className="font-semibold text-gray-800 dark:text-gray-200">{row.wwcd ?? row.wins ?? 0}</span>
-                  </span>
-                  <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-1 rounded-md border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#13131A] text-gray-500 dark:text-gray-400">
-                    <span className="uppercase tracking-wider opacity-70">Place</span>
-                    <span className="font-semibold text-gray-800 dark:text-gray-200">{row.placementPoints ?? 0}</span>
-                  </span>
-                  <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-1 rounded-md border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#13131A] text-gray-500 dark:text-gray-400">
-                    <span className="uppercase tracking-wider opacity-70">Kills</span>
-                    <span className="font-semibold text-gray-800 dark:text-gray-200">{row.kills ?? 0}</span>
-                  </span>
-                  {row.qualified ? (
-                    <span className="rounded-full bg-green-500/10 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-green-600 dark:text-green-400">
-                      Qualified
-                    </span>
-                  ) : row.eliminated ? (
-                    <span className="rounded-full bg-red-500/10 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-red-600 dark:text-red-400">
-                      Eliminated
-                    </span>
-                  ) : null}
-                </div>
+                  )
+                })}
               </div>
-              )
-            })}
-          </div>
+            )
+          })()}
 
           {/* Desktop: real table */}
           <div className="hidden sm:block overflow-x-auto bg-white dark:bg-[#0E0E12] border border-gray-200 dark:border-gray-800/60 rounded-2xl">

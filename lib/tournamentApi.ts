@@ -336,6 +336,8 @@ export type StandingTable = {
   afterMatch?: number | null
   status?: string | null
   lastUpdated?: string | null
+  mobileCardStyle?: 'modern' | 'classic' | null
+  mobileHiddenStats?: string[] | null
   rows: StandingRow[]
 }
 
@@ -391,7 +393,7 @@ export async function getStandings(editionId: string): Promise<StandingTable[]> 
   return client.fetch(
     `*[_type == "standing" && edition._ref == $editionId && status == "published"]
      | order(stage asc, group asc, day asc, afterMatch asc, _createdAt desc) {
-       _id, title, stage, group, day, afterMatch, status, lastUpdated,
+       _id, title, stage, group, day, afterMatch, status, lastUpdated, mobileCardStyle, mobileHiddenStats,
        rows[]{
          _key, rank, teamName, matchesPlayed, wins, losses, wwcd,
          placementPoints, kills, points, change, qualified, eliminated, notes,

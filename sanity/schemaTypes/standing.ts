@@ -77,6 +77,35 @@ export const standing = defineType({
       type: 'datetime',
     }),
     defineField({
+      name: 'mobileCardStyle',
+      title: 'Mobile Card Style',
+      type: 'string',
+      description: '"Modern" adds colored rank badges, a top-3 accent stripe, and a prominent points display. "Classic" keeps the older plain chip layout.',
+      options: {
+        list: [
+          { title: 'Modern (rank badge + accent) — recommended', value: 'modern' },
+          { title: 'Classic (simple flat chips)', value: 'classic' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'modern',
+    }),
+    defineField({
+      name: 'mobileHiddenStats',
+      title: 'Hide Stats on Mobile',
+      type: 'array',
+      of: [{ type: 'string' }],
+      options: {
+        list: [
+          { title: 'Matches Played (MP)', value: 'matchesPlayed' },
+          { title: 'WWCD', value: 'wwcd' },
+          { title: 'Placement Points', value: 'placementPoints' },
+          { title: 'Kills', value: 'kills' },
+        ],
+      },
+      description: 'Choose which stat chips to hide from the mobile card only — full data always stays visible on desktop.',
+    }),
+    defineField({
       name: 'rows',
       title: 'Rows',
       type: 'array',
