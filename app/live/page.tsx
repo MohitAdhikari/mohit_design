@@ -1,3 +1,8 @@
+// ZERO-ISR MODE: the shared layout calls getSiteSettings() for header/footer
+// data. Without force-dynamic, Next.js pulls this page into the ISR cache
+// using that cache's revalidate window. See lib/sanityClient.ts.
+export const dynamic = 'force-dynamic'
+
 export const metadata = {
   title: 'Live Hub | PHONEOCEAN',
   description: '24/7 Esports coverage, daily shows, and tournament streams on PHONEOCEAN TV.',

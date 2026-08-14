@@ -3,6 +3,11 @@ import GameCodePage from '@/components/game-codes/GameCodePage';
 import type { CodeItem, PollOption } from '@/components/game-codes/GameCodePage';
 import { formatDateCompactIST } from '@/utils/formatDate';
 
+// ZERO-ISR MODE: the shared layout calls getSiteSettings() for header/footer
+// data. Without force-dynamic, Next.js pulls this page into the ISR cache
+// using that cache's revalidate window. See lib/sanityClient.ts.
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'Sailor Piece Codes | PHONEOCEAN',
   description: 'All active Sailor Piece redeem codes in one place. Copy in one tap, check rewards, and learn how to redeem them in-game.',

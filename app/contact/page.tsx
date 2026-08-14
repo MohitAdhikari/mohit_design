@@ -2,6 +2,11 @@ import { Metadata } from 'next';
 import ContactForm from '@/components/ContactForm';
 import { getSiteSettings } from '@/lib/api';
 
+// ZERO-ISR MODE: this page calls getSiteSettings(), a shared cached fetch
+// used site-wide. Without force-dynamic, Next.js pulls this page back into
+// the ISR cache using that cache's revalidate window. See lib/sanityClient.ts.
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'Contact Us | PHONEOCEAN',
   description: 'For business inquiries, collaborations, media coverage, or general questions, feel free to reach out to PHONEOCEAN.',

@@ -2,6 +2,11 @@ import { MetadataRoute } from 'next';
 import { getPublicNewsPosts, getInterviews, getGuides, getTags } from '@/lib/api';
 import { getTournaments } from '@/lib/tournamentApi';
 
+// ZERO-ISR MODE: rendered per request, never written to the ISR cache.
+// sitemap.xml is crawled very frequently by search engines, so this must
+// never sit in the ISR cache. See lib/sanityClient.ts.
+export const dynamic = 'force-dynamic'
+
 const pathSegment = (value: string) =>
   value
     .toLowerCase()

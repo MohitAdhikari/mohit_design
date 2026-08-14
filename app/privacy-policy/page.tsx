@@ -1,6 +1,11 @@
 import { Metadata } from 'next';
 import { getSiteSettings } from '@/lib/api';
 
+// ZERO-ISR MODE: this page calls getSiteSettings(), a shared cached fetch
+// used site-wide. Without force-dynamic, Next.js pulls this page back into
+// the ISR cache using that cache's revalidate window. See lib/sanityClient.ts.
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'Privacy Policy | PHONEOCEAN',
   description: 'Privacy Policy for PHONEOCEAN. Learn how we handle your data and respect your privacy.',

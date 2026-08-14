@@ -1,5 +1,10 @@
 import Link from 'next/link';
 
+// ZERO-ISR MODE: renders inside the root layout, which calls
+// getSiteSettings(). Without force-dynamic, Next.js pulls this into the ISR
+// cache using that cache's revalidate window. See lib/sanityClient.ts.
+export const dynamic = 'force-dynamic'
+
 export default function NotFound() {
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-4">
