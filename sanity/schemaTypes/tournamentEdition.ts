@@ -47,7 +47,9 @@ export const tournamentEdition = defineType({
         list: [
           { title: '🔵 Upcoming',      value: 'upcoming' },
           { title: '🟢 Group Stage',   value: 'group_stage' },
-          { title: '🟡 Survival Stage', value: 'survival_stage' },
+          { title: '� League Stage',  value: 'league_stage' },
+          { title: '�🟡 Survival Stage', value: 'survival_stage' },
+          { title: '🟠 Playoffs',      value: 'playoffs' },
           { title: '🔴 Grand Finals',  value: 'grand_finals' },
           { title: '⚫ Completed',     value: 'completed' },
         ],
