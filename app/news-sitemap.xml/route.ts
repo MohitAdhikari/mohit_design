@@ -1,7 +1,8 @@
 import { getNewsPosts } from '@/lib/api';
 
-// ISR budget guard: raised to conserve remaining ISR Write Units this month.
-export const revalidate = 3600;
+// ISR budget guard: HARD STOP — fully static, no time-based writes. ISR
+// Write budget nearly exhausted this month.
+export const revalidate = false;
 
 function escapeXml(unsafe: string): string {
   return unsafe.replace(/[<>&'"]/g, (c) => {

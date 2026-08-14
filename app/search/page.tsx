@@ -7,9 +7,9 @@ export const metadata = {
   description: 'Search across PHONEOCEAN news, interviews, and guides.',
 };
 
-// ISR budget guard: not covered by the Sanity webhook, so raised to a long
-// window to conserve remaining ISR Write Units this month.
-export const revalidate = 86400;
+// ISR budget guard: HARD STOP — fully static, no time-based writes. ISR
+// Write budget nearly exhausted this month.
+export const revalidate = false;
 
 export default async function SearchPage() {
   const [news, interviews, guides] = await Promise.all([

@@ -15,9 +15,9 @@ export const metadata: Metadata = {
   alternates: { canonical: 'https://phoneocean.in/videos' },
 };
 
-// ISR budget guard: not covered by the Sanity webhook, so raised to a long
-// window to conserve remaining ISR Write Units this month.
-export const revalidate = 86400;
+// ISR budget guard: HARD STOP — fully static, no time-based writes. ISR
+// Write budget nearly exhausted this month.
+export const revalidate = false;
 
 export default async function VideosPage() {
   const videos = await getAllVideos();

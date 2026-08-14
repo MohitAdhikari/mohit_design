@@ -16,7 +16,7 @@ function constantTimeEquals(a: string, b: string): boolean {
 // invalidated immediately when a document of that type is published.
 const TYPE_PATHS: Record<string, string[]> = {
   newsPost: ['/', '/news'],
-  guide: ['/', '/guides'],
+  guide: ['/', '/guides', '/codes', '/codes/blox-fruits'],
   interview: ['/', '/interviews'],
   tournamentEdition: ['/', '/esports'],
   tournament: ['/esports'],

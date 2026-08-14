@@ -22,10 +22,10 @@ import Tabs from '@/components/Tabs'
 import { EditionTabs } from '@/components/EditionTabs'
 import type { Metadata } from 'next'
 
-// ISR budget guard: primarily on-demand via /api/revalidate (tournament /
-// tournamentEdition docs revalidate this exact path on publish). 1-hour
-// fallback in case the webhook is ever misconfigured/paused.
-export const revalidate = 3600
+// ISR budget guard: HARD STOP — on-demand only. ISR Write budget nearly
+// exhausted; do not reintroduce a numeric window without checking Vercel
+// usage first. See /api/revalidate.
+export const revalidate = false
 
 export async function generateStaticParams() {
   const slugs = await getAllTournamentSlugs()

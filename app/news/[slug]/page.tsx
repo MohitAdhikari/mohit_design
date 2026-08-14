@@ -19,11 +19,10 @@ import { getActiveEditionByTournamentId, getMatches, getStandings, getClosestSta
 
 type Props = { params: Promise<{ slug: string }> }
 
-// ISR budget guard: primarily on-demand via /api/revalidate (newsPost docs
-// revalidate their own '/news/[slug]' path on publish). 1-hour fallback in
-// case the webhook is ever misconfigured/paused — confirm it's active in
-// Sanity Studio → API → Webhooks before considering removing this fallback.
-export const revalidate = 3600
+// ISR budget guard: HARD STOP — on-demand only. ISR Write budget nearly
+// exhausted; do not reintroduce a numeric window without checking Vercel
+// usage first. See /api/revalidate.
+export const revalidate = false
 
 export async function generateStaticParams() {
   const slugs = await getAllNewsSlugs()

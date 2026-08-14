@@ -2,7 +2,9 @@ import { Metadata } from 'next';
 import { getGameCodes } from '@/lib/api';
 import GameCodesClient from '@/components/GameCodesClient';
 
-export const revalidate = 86400;
+// ISR budget guard: HARD STOP — fully static, no time-based writes. ISR
+// Write budget nearly exhausted this month. See /api/revalidate.
+export const revalidate = false;
 
 export const metadata: Metadata = {
   title: 'Game Redeem Codes | PHONEOCEAN',

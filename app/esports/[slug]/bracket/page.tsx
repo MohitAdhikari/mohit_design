@@ -18,12 +18,13 @@ import BracketStage from '@/components/esports/BracketStage'
 import PrizePoolTable from '@/components/esports/PrizePoolTable'
 import type { TournamentEdition } from '@/lib/tournamentApi'
 
-// ISR budget guard: primarily on-demand via /api/revalidate (match /
-// standing docs revalidate this exact path on publish). A 10-min fallback
-// is kept (down from 60s) since this page is watched live during events —
-// confirm the Sanity webhook is active in Studio → API → Webhooks before
-// considering lowering this further or removing the fallback.
-export const revalidate = 600
+// ISR budget guard: HARD STOP — on-demand only. ISR Write budget nearly
+// exhausted; do not reintroduce a numeric window without checking Vercel
+// usage first. Updates now depend entirely on the Sanity webhook
+// (/api/revalidate) firing on match/standing publish. If content isn't
+// updating, verify the webhook in Studio → API → Webhooks, or trigger a
+// manual revalidation: curl -X POST "https://<domain>/api/revalidate?secret=<SANITY_REVALIDATE_SECRET>"
+export const revalidate = false
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
