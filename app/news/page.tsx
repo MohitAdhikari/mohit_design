@@ -6,9 +6,11 @@ import { optimizedImageUrl } from '@/lib/sanityImage'
 import { formatDateCompactIST } from '@/utils/formatDate'
 import PageHeader from '@/components/PageHeader'
 
-// ISR budget guard: on-demand only, see /api/revalidate (newsPost docs
-// revalidate '/news' on publish).
-export const revalidate = false
+// ISR budget guard: primarily on-demand via /api/revalidate (newsPost docs
+// revalidate '/news' on publish). 1-hour fallback in case the webhook is
+// ever misconfigured/paused — confirm it's active in Sanity Studio →
+// API → Webhooks before considering removing this fallback.
+export const revalidate = 3600
 
 export const metadata: Metadata = {
   title: 'News | PHONEOCEAN',

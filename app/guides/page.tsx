@@ -7,9 +7,11 @@ export const metadata = {
   description: 'Tutorials, redeem codes, and meta breakdowns for the most popular esports titles.',
 };
 
-// ISR budget guard: on-demand only, see /api/revalidate (guide docs
-// revalidate '/guides' on publish).
-export const revalidate = false;
+// ISR budget guard: primarily on-demand via /api/revalidate (guide docs
+// revalidate '/guides' on publish). 1-hour fallback in case the webhook is
+// ever misconfigured/paused — confirm it's active in Sanity Studio →
+// API → Webhooks before considering removing this fallback.
+export const revalidate = 3600;
 
 export default async function GuidesPage() {
   const guides = await getGuides();

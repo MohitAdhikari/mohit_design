@@ -11,9 +11,11 @@ export const metadata = {
   description: 'Exclusive conversations with esports players, team owners, and industry insiders.',
 };
 
-// ISR budget guard: on-demand only, see /api/revalidate (interview docs
-// revalidate '/interviews' on publish).
-export const revalidate = false;
+// ISR budget guard: primarily on-demand via /api/revalidate (interview docs
+// revalidate '/interviews' on publish). 1-hour fallback in case the webhook
+// is ever misconfigured/paused — confirm it's active in Sanity Studio →
+// API → Webhooks before considering removing this fallback.
+export const revalidate = 3600;
 
 export default async function InterviewsPage() {
   const interviews = await getInterviews();

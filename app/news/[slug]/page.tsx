@@ -19,9 +19,11 @@ import { getActiveEditionByTournamentId, getMatches, getStandings, getClosestSta
 
 type Props = { params: Promise<{ slug: string }> }
 
-// ISR budget guard: on-demand only, see /api/revalidate (newsPost docs
-// revalidate their own '/news/[slug]' path on publish).
-export const revalidate = false
+// ISR budget guard: primarily on-demand via /api/revalidate (newsPost docs
+// revalidate their own '/news/[slug]' path on publish). 1-hour fallback in
+// case the webhook is ever misconfigured/paused — confirm it's active in
+// Sanity Studio → API → Webhooks before considering removing this fallback.
+export const revalidate = 3600
 
 export async function generateStaticParams() {
   const slugs = await getAllNewsSlugs()

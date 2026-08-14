@@ -13,10 +13,13 @@ import {
 } from '@/lib/tournamentSpotlight';
 import { homepageSort } from '@/lib/homepageSort';
 
-// ISR budget guard: on-demand only, see /api/revalidate (homepage,
+// ISR budget guard: primarily on-demand via /api/revalidate (homepage,
 // siteSettings, newsPost, guide, and interview docs all revalidate '/'
-// on publish, plus the shared 'homepage-feed' tag).
-export const revalidate = false;
+// on publish, plus the shared 'homepage-feed' tag). A 1-hour fallback
+// window is kept so content still appears even if the Sanity webhook is
+// ever misconfigured/paused — verify the webhook is active in Sanity
+// Studio → API → Webhooks before considering removing this fallback.
+export const revalidate = 3600;
 
 /* ── route helper for mixed content types in homepage feeds ── */
 function getItemHref(item: { _type?: string; slug?: { current?: string } }) {
