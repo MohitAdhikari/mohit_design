@@ -13,7 +13,6 @@ import { formatCurrency } from '@/lib/currency'
 import TeamLogo from '@/components/TeamLogo'
 import PrizePoolDisplay from '@/components/PrizePoolDisplay'
 import EditionTimeline from '@/components/EditionTimeline'
-import PrizePoolTable from '@/components/esports/PrizePoolTable'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -67,6 +66,22 @@ function StatusPill({ status }: { status: 'UPCOMING' | 'ONGOING' | 'COMPLETED' }
 
 // ── Prize section (all editions with data) ─────────────────────────────
 
+// PMWC-style tournaments have per-stage placements ("Group 1st", "Survival 1st",
+// "Finals 1st", ...) all flattened into one prizePlacements array. A naive
+// slice(0, 8) on that array only ever shows Group Stage rows (the earliest
+// rows), burying the actual Grand Finals podium in a collapsed "N more"
+// accordion. Group by stage prefix instead so each stage gets its own table.
+const STAGE_PREFIXES = ['Group', 'Survival', 'Finals'] as const
+const STAGE_TITLES: Record<string, string> = {
+  Group: 'Group Stage',
+  Survival: 'Survival Stage',
+  Finals: 'Grand Finals',
+}
+
+function stageOf(placement: string): string | null {
+  return STAGE_PREFIXES.find((p) => placement.startsWith(p)) ?? null
+}
+
 function PrizeSection({ editions }: { editions: TournamentEdition[] }) {
   const withPrize = editions.filter((e) => e.totalPrizePool != null || e.prizePoolDisplay)
 
@@ -86,8 +101,18 @@ function PrizeSection({ editions }: { editions: TournamentEdition[] }) {
         const currency   = edition.prizePoolCurrency ?? 'INR'
         const stages     = edition.prizePoolStages ?? []
         const all        = edition.prizePlacements ?? []
-        const top        = all.slice(0, 8)
-        const rest       = all.slice(8)
+
+        // Group by stage if the data has stage-prefixed placements (PMWC-style);
+        // otherwise fall back to a flat top-8 + "N more" list (simple tournaments
+        // like a single 1st-16th ladder).
+        const stageGroups = STAGE_PREFIXES
+          .map((key) => ({ key, title: STAGE_TITLES[key], rows: all.filter((p) => stageOf(p.placement) === key) }))
+          .filter((g) => g.rows.length > 0)
+        const ungrouped = all.filter((p) => !stageOf(p.placement))
+        const isStaged = stageGroups.length > 0
+
+        const top  = isStaged ? [] : all.slice(0, 8)
+        const rest = isStaged ? [] : all.slice(8)
 
         return (
           <div key={edition._id} className="bg-white dark:bg-[#0E0E12] border border-gray-200 dark:border-gray-800/60 rounded-2xl overflow-hidden">
@@ -139,8 +164,74 @@ function PrizeSection({ editions }: { editions: TournamentEdition[] }) {
                 </div>
               )}
 
-              {/* Placements */}
-              {top.length > 0 && (
+              {/* Placements — grouped by stage (PMWC-style: Group/Survival/Finals) */}
+              {isStaged && (
+                <div className="space-y-5">
+                  {stageGroups.map((group) => (
+                    <div key={group.key}>
+                      <p className="text-[10px] font-mono uppercase tracking-widest text-gray-500 mb-3">
+                        {group.title} Prize Distribution
+                      </p>
+                      <div className="rounded-xl border border-gray-100 dark:border-gray-800/40 overflow-hidden">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="border-b border-gray-100 dark:border-gray-800/40">
+                              <th className="py-2.5 px-4 text-left text-[10px] font-mono uppercase tracking-widest text-gray-500">Place</th>
+                              <th className="py-2.5 px-4 text-left text-[10px] font-mono uppercase tracking-widest text-gray-500">Team</th>
+                              <th className="py-2.5 px-4 text-right text-[10px] font-mono uppercase tracking-widest text-gray-500">Prize</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {(group.rows as PrizePlacement[]).map((row, i) => (
+                              <tr key={row._key ?? `${group.key}-${i}`} className="border-b border-gray-50 dark:border-gray-800/20 last:border-0">
+                                <td className="py-3 px-4">
+                                  <span className={`font-bold font-mono ${i === 0 ? 'text-yellow-500' : i === 1 ? 'text-gray-400' : i === 2 ? 'text-amber-600' : 'text-gray-500 dark:text-gray-500'}`}>
+                                    {row.placement.replace(/^(Group|Survival|Finals)\s/, '')}
+                                  </span>
+                                </td>
+                                <td className="py-3 px-4">
+                                  {row.team ? (
+                                    <div className="flex items-center gap-2">
+                                      <TeamLogo src={row.team.logoUrl} name={row.team.name} size={22} className="w-5 h-5 flex-shrink-0" />
+                                      <span className="text-gray-900 dark:text-gray-100 font-medium">{row.team.name}</span>
+                                    </div>
+                                  ) : <span className="text-gray-400 dark:text-gray-600">—</span>}
+                                </td>
+                                <td className="py-3 px-4 text-right font-mono font-semibold text-gray-900 dark:text-gray-100">
+                                  {row.prize != null ? formatCurrency(row.prize, row.currency ?? currency) : '—'}
+                                  {row.notes && <span className="block text-[10px] text-gray-400 dark:text-gray-600 font-normal">{row.notes}</span>}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  ))}
+                  {ungrouped.length > 0 && (
+                    <div>
+                      <p className="text-[10px] font-mono uppercase tracking-widest text-gray-500 mb-3">Other Placements</p>
+                      <div className="rounded-xl border border-gray-100 dark:border-gray-800/40 overflow-hidden">
+                        <table className="w-full text-sm">
+                          <tbody>
+                            {(ungrouped as PrizePlacement[]).map((row, i) => (
+                              <tr key={row._key ?? `ungrouped-${i}`} className="border-b border-gray-50 dark:border-gray-800/20 last:border-0">
+                                <td className="py-2.5 px-4 font-mono font-bold text-gray-400 dark:text-gray-600 w-20">{row.placement}</td>
+                                <td className="py-2.5 px-4 text-right font-mono text-gray-700 dark:text-gray-300">
+                                  {row.prize != null ? formatCurrency(row.prize, row.currency ?? currency) : '—'}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Placements — flat top-8 + "N more" (simple, non-staged tournaments) */}
+              {!isStaged && top.length > 0 && (
                 <div>
                   <p className="text-[10px] font-mono uppercase tracking-widest text-gray-500 mb-3">Prize Distribution</p>
                   <div className="rounded-xl border border-gray-100 dark:border-gray-800/40 overflow-hidden">
@@ -415,13 +506,6 @@ export default async function TournamentDetailPage({
               {latestPrize && <span className="text-sm font-mono uppercase tracking-widest text-[#00E5FF]">{latestPrize}</span>}
             </div>
             <PrizeSection editions={editions} />
-            {latest?.prizePlacements && latest.prizePlacements.length > 0 && (
-              <PrizePoolTable
-                placements={latest.prizePlacements}
-                rate={84}
-                totalUSD={latest.totalPrizePool}
-              />
-            )}
           </div>
 
           {/* TEAMS */}

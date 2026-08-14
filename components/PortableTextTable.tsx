@@ -55,7 +55,7 @@ export default function PortableTextTable({ value }: { value: TableValue }) {
   if (lines.length < 2) return null
 
   return (
-    <div className="my-8 w-full overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800/60 bg-white dark:bg-[#0E0E12] not-prose">
+    <div className="my-8 w-full rounded-xl border border-gray-200 dark:border-gray-800/60 bg-white dark:bg-[#0E0E12] not-prose">
       {!value.hideTitle && value.title && (
         <div className="px-4 py-2.5 flex items-center justify-between border-b border-gray-200 dark:border-gray-800/60">
           <p className="text-xs font-mono font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-500">
@@ -64,37 +64,59 @@ export default function PortableTextTable({ value }: { value: TableValue }) {
           <CopyButton value={copyText} label="Copy table" copiedLabel="Copied!" timeout={2000} className="shrink-0" />
         </div>
       )}
-      <table className="w-full min-w-[500px] text-sm border-collapse">
-        <thead>
-          <tr className="bg-gray-50 dark:bg-[#13131A]">
-            {headers.map((h, i) => (
-              <th
-                key={i}
-                className="px-4 py-2.5 text-left font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-800/60 whitespace-nowrap"
-              >
-                {h}
-              </th>
+      {/* Mobile: stacked cards (no horizontal scroll needed) */}
+      <div className="flex flex-col gap-2 p-3 sm:hidden">
+        {rows.map((row, ri) => (
+          <div
+            key={ri}
+            className="rounded-lg border border-gray-100 dark:border-gray-800/40 bg-gray-50/60 dark:bg-[#13131A]/50 p-3 flex flex-col gap-1.5"
+          >
+            {row.map((cell, ci) => (
+              <div key={ci} className="flex items-start justify-between gap-3 text-sm">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-gray-400 dark:text-gray-600 shrink-0">
+                  {headers[ci]}
+                </span>
+                <span className="text-gray-900 dark:text-gray-100 font-medium text-right break-words">{cell}</span>
+              </div>
             ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, ri) => (
-            <tr
-              key={ri}
-              className={ri % 2 === 0 ? 'bg-white dark:bg-[#0E0E12]' : 'bg-gray-50/60 dark:bg-[#13131A]/50'}
-            >
-              {row.map((cell, ci) => (
-                <td
-                  key={ci}
-                  className="px-4 py-2.5 text-gray-700 dark:text-gray-300 border-b border-gray-100 dark:border-gray-800/40 whitespace-nowrap"
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop: real table */}
+      <div className="hidden sm:block overflow-x-auto">
+        <table className="w-full min-w-[500px] text-sm border-collapse">
+          <thead>
+            <tr className="bg-gray-50 dark:bg-[#13131A]">
+              {headers.map((h, i) => (
+                <th
+                  key={i}
+                  className="px-4 py-2.5 text-left font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-800/60 whitespace-nowrap"
                 >
-                  {cell}
-                </td>
+                  {h}
+                </th>
               ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {rows.map((row, ri) => (
+              <tr
+                key={ri}
+                className={ri % 2 === 0 ? 'bg-white dark:bg-[#0E0E12]' : 'bg-gray-50/60 dark:bg-[#13131A]/50'}
+              >
+                {row.map((cell, ci) => (
+                  <td
+                    key={ci}
+                    className="px-4 py-2.5 text-gray-700 dark:text-gray-300 border-b border-gray-100 dark:border-gray-800/40 whitespace-nowrap"
+                  >
+                    {cell}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }
