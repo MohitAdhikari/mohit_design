@@ -26,6 +26,15 @@ function teamLabel(row: StandingRow) {
   return row.team?.name || row.teamName || '—'
 }
 
+const RANK_MEDALS: Record<string, string> = { '1': '🥇', '2': '🥈', '3': '🥉' }
+
+function rankAccent(rank: string) {
+  if (rank === '1') return { stripe: 'bg-yellow-400', badge: 'bg-yellow-400/15 text-yellow-500 dark:text-yellow-400' }
+  if (rank === '2') return { stripe: 'bg-gray-400', badge: 'bg-gray-300/25 dark:bg-gray-500/20 text-gray-500 dark:text-gray-300' }
+  if (rank === '3') return { stripe: 'bg-amber-600', badge: 'bg-amber-500/15 text-amber-600 dark:text-amber-500' }
+  return null
+}
+
 export default function StandingsTables({ standings }: { standings: StandingTable[] }) {
   if (!standings.length) {
     return (
@@ -67,26 +76,39 @@ export default function StandingsTables({ standings }: { standings: StandingTabl
 
           {/* Mobile: stacked cards */}
           <div className="flex flex-col gap-2.5 sm:hidden">
-            {(table.rows || []).map((row, i) => (
+            {(table.rows || []).map((row, i) => {
+              const rank = String(row.rank ?? i + 1)
+              const accent = rankAccent(rank)
+              return (
               <div
                 key={row._key || `${table._id}-m${i}`}
-                className="rounded-xl border border-gray-200 dark:border-gray-800/60 bg-white dark:bg-[#0E0E12] p-3.5 shadow-sm"
+                className="relative overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800/60 bg-white dark:bg-[#0E0E12] p-3.5 pl-4"
               >
-                <div className="flex items-center justify-between gap-3 mb-2.5 pb-2.5 border-b border-gray-100 dark:border-gray-800/40">
+                {accent && <span className={`absolute inset-y-0 left-0 w-1 ${accent.stripe}`} />}
+                <div className="flex items-center justify-between gap-3 pb-2.5 border-b border-gray-100 dark:border-gray-800/40">
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <span className="font-bold text-gray-400 dark:text-gray-600 text-sm w-5 shrink-0">
-                      {row.rank ?? i + 1}
+                    <span
+                      className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-black shrink-0 ${
+                        accent ? accent.badge : 'bg-gray-100 dark:bg-[#13131A] text-gray-400 dark:text-gray-600'
+                      }`}
+                    >
+                      {RANK_MEDALS[rank] || rank}
                     </span>
                     <TeamLogo src={row.team?.logoUrl ?? null} name={teamLabel(row)} size={26} className="shrink-0" />
-                    <span className={`font-semibold truncate ${i < 3 ? 'text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300'}`}>
+                    <span className="text-[15px] font-bold text-gray-900 dark:text-gray-100 truncate">
                       {teamLabel(row)}
                     </span>
                   </div>
-                  <span className="font-bold text-yellow-600 dark:text-yellow-400 text-base shrink-0">
-                    {row.points ?? 0} <span className="text-[10px] font-mono uppercase text-gray-400 dark:text-gray-600">pts</span>
-                  </span>
+                  <div className="text-right shrink-0 pl-2">
+                    <div className="text-lg font-black font-space-grotesk text-blue-600 dark:text-[#00E5FF] leading-none">
+                      {row.points ?? 0}
+                    </div>
+                    <div className="text-[9px] font-mono uppercase tracking-wider text-gray-400 dark:text-gray-600 mt-0.5">
+                      pts
+                    </div>
+                  </div>
                 </div>
-                <div className="flex flex-wrap items-center gap-1.5">
+                <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
                   <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-1 rounded-md border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#13131A] text-gray-500 dark:text-gray-400">
                     <span className="uppercase tracking-wider opacity-70">MP</span>
                     <span className="font-semibold text-gray-800 dark:text-gray-200">{row.matchesPlayed ?? 0}</span>
@@ -114,7 +136,8 @@ export default function StandingsTables({ standings }: { standings: StandingTabl
                   ) : null}
                 </div>
               </div>
-            ))}
+              )
+            })}
           </div>
 
           {/* Desktop: real table */}

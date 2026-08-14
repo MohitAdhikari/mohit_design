@@ -88,31 +88,61 @@ export default function TournamentTable({ value }: { value: TableValue }) {
       )}
 
       {/* Mobile: card list (no horizontal scroll) */}
-      <div className="flex flex-col gap-2 sm:hidden">
+      <div className="flex flex-col gap-2.5 sm:hidden">
         {rows.map((row, ri) => {
           const rank = rankColIndex >= 0 ? row[rankColIndex] : String(ri + 1);
           const team = teamColIndex >= 0 ? row[teamColIndex] : null;
+          const rankAccent =
+            rank === '1'
+              ? { stripe: 'bg-yellow-400', badge: 'bg-yellow-400/15 text-yellow-500 dark:text-yellow-400' }
+              : rank === '2'
+              ? { stripe: 'bg-gray-400', badge: 'bg-gray-300/25 dark:bg-gray-500/20 text-gray-500 dark:text-gray-300' }
+              : rank === '3'
+              ? { stripe: 'bg-amber-600', badge: 'bg-amber-500/15 text-amber-600 dark:text-amber-500' }
+              : null;
+
+          // Pull the "primary" stat (WWCD/Pts/Total) out to its own prominent
+          // slot next to the team name; everything else becomes a chip below.
+          const primaryIdx = hasRankOrTeam ? chipOrder.find((i) => columnTypes[i] === 'primary') : undefined;
+          const secondaryChips = chipOrder.filter((i) => i !== primaryIdx);
+
           return (
             <div
               key={ri}
-              className="rounded-xl border border-gray-200 dark:border-gray-800/60 bg-white dark:bg-[#0E0E12] p-3.5"
+              className="relative overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800/60 bg-white dark:bg-[#0E0E12] p-3.5 pl-4"
             >
+              {rankAccent && <span className={`absolute inset-y-0 left-0 w-1 ${rankAccent.stripe}`} />}
+
               {hasRankOrTeam ? (
-                <div className="flex items-center justify-between gap-3 mb-2">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span className="text-sm font-bold text-gray-400 dark:text-gray-600 font-mono w-6 flex-shrink-0">
-                      {RANK_MEDALS[rank] || `#${rank}`}
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <span
+                      className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-black shrink-0 ${
+                        rankAccent ? rankAccent.badge : 'bg-gray-100 dark:bg-[#13131A] text-gray-400 dark:text-gray-600'
+                      }`}
+                    >
+                      {RANK_MEDALS[rank] || rank}
                     </span>
                     {team && (
-                      <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+                      <span className="text-[15px] font-bold text-gray-900 dark:text-gray-100 truncate">
                         {team}
                       </span>
                     )}
                   </div>
+                  {primaryIdx !== undefined && (
+                    <div className="text-right shrink-0 pl-2">
+                      <div className="text-lg font-black font-space-grotesk text-blue-600 dark:text-[#00E5FF] leading-none">
+                        {row[primaryIdx]}
+                      </div>
+                      <div className="text-[9px] font-mono uppercase tracking-wider text-gray-400 dark:text-gray-600 mt-0.5">
+                        {headers[primaryIdx]}
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 headers[0] !== undefined && row[0] !== undefined && (
-                  <div className="flex items-center justify-between gap-3 mb-2.5 pb-2.5 border-b border-gray-100 dark:border-gray-800/40">
+                  <div className="flex items-center justify-between gap-3">
                     <span className="text-[10px] font-mono uppercase tracking-wider text-gray-400 dark:text-gray-500 shrink-0">
                       {headers[0]}
                     </span>
@@ -122,21 +152,24 @@ export default function TournamentTable({ value }: { value: TableValue }) {
                   </div>
                 )
               )}
-              <div className="flex flex-wrap gap-1.5">
-                {chipOrder.map((ci) => (
-                  <span
-                    key={ci}
-                    className={`inline-flex items-center gap-1 text-[11px] font-mono px-2 py-1 rounded-md border ${
-                      columnTypes[ci] === 'primary'
-                        ? 'border-blue-200 dark:border-[#00E5FF]/30 bg-blue-50 dark:bg-[#00E5FF]/10 text-blue-700 dark:text-[#00E5FF] font-bold'
-                        : 'border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#13131A] text-gray-600 dark:text-gray-400'
-                    }`}
-                  >
-                    <span className="uppercase tracking-wider opacity-70">{headers[ci]}</span>
-                    <span>{row[ci]}</span>
-                  </span>
-                ))}
-              </div>
+
+              {secondaryChips.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-2.5 pt-2.5 border-t border-gray-100 dark:border-gray-800/40">
+                  {secondaryChips.map((ci) => (
+                    <span
+                      key={ci}
+                      className={`inline-flex items-center gap-1 text-[11px] font-mono px-2 py-1 rounded-md border ${
+                        columnTypes[ci] === 'primary'
+                          ? 'border-blue-200 dark:border-[#00E5FF]/30 bg-blue-50 dark:bg-[#00E5FF]/10 text-blue-700 dark:text-[#00E5FF] font-bold'
+                          : 'border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#13131A] text-gray-600 dark:text-gray-400'
+                      }`}
+                    >
+                      <span className="uppercase tracking-wider opacity-70">{headers[ci]}</span>
+                      <span>{row[ci]}</span>
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           );
         })}
