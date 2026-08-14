@@ -6,7 +6,9 @@ import { optimizedImageUrl } from '@/lib/sanityImage'
 import { formatDateCompactIST } from '@/utils/formatDate'
 import PageHeader from '@/components/PageHeader'
 
-export const revalidate = 600
+// ISR budget guard: on-demand only, see /api/revalidate (newsPost docs
+// revalidate '/news' on publish).
+export const revalidate = false
 
 export const metadata: Metadata = {
   title: 'News | PHONEOCEAN',

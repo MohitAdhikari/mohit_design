@@ -1,6 +1,7 @@
 import { getNewsPosts } from '@/lib/api';
 
-export const revalidate = 300;
+// ISR budget guard: raised to conserve remaining ISR Write Units this month.
+export const revalidate = 3600;
 
 function escapeXml(unsafe: string): string {
   return unsafe.replace(/[<>&'"]/g, (c) => {

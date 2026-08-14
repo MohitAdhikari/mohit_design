@@ -18,7 +18,12 @@ import BracketStage from '@/components/esports/BracketStage'
 import PrizePoolTable from '@/components/esports/PrizePoolTable'
 import type { TournamentEdition } from '@/lib/tournamentApi'
 
-export const revalidate = 60 // 1 min during live event
+// ISR budget guard: on-demand only. The Sanity webhook (/api/revalidate)
+// already revalidates this exact path instantly whenever a `match` or
+// `standing` document is published, so a time-based window here only adds
+// extra ISR Write Units for no benefit. Do not reintroduce a numeric
+// revalidate window without checking the ISR Writes usage in Vercel first.
+export const revalidate = false
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

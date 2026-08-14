@@ -19,7 +19,9 @@ import { getActiveEditionByTournamentId, getMatches, getStandings, getClosestSta
 
 type Props = { params: Promise<{ slug: string }> }
 
-export const revalidate = 3600
+// ISR budget guard: on-demand only, see /api/revalidate (newsPost docs
+// revalidate their own '/news/[slug]' path on publish).
+export const revalidate = false
 
 export async function generateStaticParams() {
   const slugs = await getAllNewsSlugs()

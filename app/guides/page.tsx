@@ -7,7 +7,9 @@ export const metadata = {
   description: 'Tutorials, redeem codes, and meta breakdowns for the most popular esports titles.',
 };
 
-export const revalidate = 86400;
+// ISR budget guard: on-demand only, see /api/revalidate (guide docs
+// revalidate '/guides' on publish).
+export const revalidate = false;
 
 export default async function GuidesPage() {
   const guides = await getGuides();

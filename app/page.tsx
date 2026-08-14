@@ -13,7 +13,10 @@ import {
 } from '@/lib/tournamentSpotlight';
 import { homepageSort } from '@/lib/homepageSort';
 
-export const revalidate = 300;
+// ISR budget guard: on-demand only, see /api/revalidate (homepage,
+// siteSettings, newsPost, guide, and interview docs all revalidate '/'
+// on publish, plus the shared 'homepage-feed' tag).
+export const revalidate = false;
 
 /* ── route helper for mixed content types in homepage feeds ── */
 function getItemHref(item: { _type?: string; slug?: { current?: string } }) {

@@ -11,7 +11,9 @@ export const metadata = {
   description: 'Exclusive conversations with esports players, team owners, and industry insiders.',
 };
 
-export const revalidate = 1800;
+// ISR budget guard: on-demand only, see /api/revalidate (interview docs
+// revalidate '/interviews' on publish).
+export const revalidate = false;
 
 export default async function InterviewsPage() {
   const interviews = await getInterviews();

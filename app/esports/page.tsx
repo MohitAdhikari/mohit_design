@@ -12,7 +12,9 @@ export const metadata: Metadata = {
   description: 'Browse every esports tournament we cover — BGMI (flagship), Free Fire, PUBG Mobile, Valorant and more. Results, prize pools, teams, and champions.',
 }
 
-export const revalidate = 1800
+// ISR budget guard: on-demand only, see /api/revalidate (tournament docs
+// revalidate '/esports' on publish).
+export const revalidate = false
 
 export default async function TournamentsPage() {
   const [tournaments, relatedNews] = await Promise.all([

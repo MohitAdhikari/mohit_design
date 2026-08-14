@@ -6,7 +6,9 @@ import { optimizedImageUrl } from '@/lib/sanityImage'
 import { formatDateIST } from '@/utils/formatDate'
 import { Metadata } from 'next'
 
-export const revalidate = 1800
+// ISR budget guard: not covered by the Sanity webhook, so raised to a long
+// window to conserve remaining ISR Write Units this month.
+export const revalidate = 86400
 
 const pathSegment = (value: string) =>
   value

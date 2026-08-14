@@ -22,7 +22,9 @@ import Tabs from '@/components/Tabs'
 import { EditionTabs } from '@/components/EditionTabs'
 import type { Metadata } from 'next'
 
-export const revalidate = 300
+// ISR budget guard: on-demand only, see /api/revalidate (tournament /
+// tournamentEdition docs revalidate this exact path on publish).
+export const revalidate = false
 
 export async function generateStaticParams() {
   const slugs = await getAllTournamentSlugs()
