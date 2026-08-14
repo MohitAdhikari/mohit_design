@@ -52,11 +52,20 @@ export default function TournamentTable({ value }: { value: TableValue }) {
 
   const rankColIndex = columnTypes.indexOf('rank');
   const teamColIndex = columnTypes.indexOf('team');
+  // Only genuine standings-style tables (with a detected rank and/or team
+  // column) get the medal-badge + team-name mobile header treatment.
+  // Generic tables (e.g. a Match/Map/Time schedule) have neither, so they
+  // fall back to a plain "first column as title" card instead of
+  // misapplying medals to arbitrary row numbers.
+  const hasRankOrTeam = rankColIndex >= 0 || teamColIndex >= 0;
+
   // Everything that isn't the rank/team column becomes a labelled "chip" on
   // the mobile card, primary stats (WWCD/Points/Total) surfaced first.
+  // For generic tables (no rank/team), the first column becomes the card
+  // title instead, so it's excluded from the chip row too.
   const chipOrder = headers
     .map((_, i) => i)
-    .filter((i) => i !== rankColIndex && i !== teamColIndex)
+    .filter((i) => i !== rankColIndex && i !== teamColIndex && (hasRankOrTeam || i !== 0))
     .sort((a, b) => {
       const aPrimary = columnTypes[a] === 'primary' ? 0 : 1;
       const bPrimary = columnTypes[b] === 'primary' ? 0 : 1;
@@ -79,20 +88,33 @@ export default function TournamentTable({ value }: { value: TableValue }) {
           return (
             <div
               key={ri}
-              className="rounded-xl border border-gray-200 dark:border-gray-800/60 bg-white dark:bg-[#0E0E12] p-3"
+              className="rounded-xl border border-gray-200 dark:border-gray-800/60 bg-white dark:bg-[#0E0E12] p-3.5"
             >
-              <div className="flex items-center justify-between gap-3 mb-2">
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="text-sm font-bold text-gray-400 dark:text-gray-600 font-mono w-6 flex-shrink-0">
-                    {RANK_MEDALS[rank] || `#${rank}`}
-                  </span>
-                  {team && (
-                    <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
-                      {team}
+              {hasRankOrTeam ? (
+                <div className="flex items-center justify-between gap-3 mb-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-sm font-bold text-gray-400 dark:text-gray-600 font-mono w-6 flex-shrink-0">
+                      {RANK_MEDALS[rank] || `#${rank}`}
                     </span>
-                  )}
+                    {team && (
+                      <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+                        {team}
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
+              ) : (
+                headers[0] !== undefined && row[0] !== undefined && (
+                  <div className="flex items-center justify-between gap-3 mb-2.5 pb-2.5 border-b border-gray-100 dark:border-gray-800/40">
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-gray-400 dark:text-gray-500 shrink-0">
+                      {headers[0]}
+                    </span>
+                    <span className="text-sm font-bold text-gray-900 dark:text-white text-right break-words">
+                      {row[0]}
+                    </span>
+                  </div>
+                )
+              )}
               <div className="flex flex-wrap gap-1.5">
                 {chipOrder.map((ci) => (
                   <span
