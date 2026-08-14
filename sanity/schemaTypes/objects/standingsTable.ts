@@ -25,6 +25,22 @@ export const standingsTable = defineType({
       description: 'Paste pipe-separated ( | ) or tab-separated table. First line = header.',
       rows: 12,
     }),
+    defineField({
+      name: 'displayStyle',
+      title: 'Mobile Display Style',
+      type: 'string',
+      description:
+        'Controls how this table looks on phones. "Auto-detect" guesses from column headers (Rank/Team = standings look). Force a style if it guesses wrong — e.g. a Match/Map/Time schedule should use "Generic".',
+      options: {
+        list: [
+          { title: 'Auto-detect (default)', value: 'auto' },
+          { title: 'Standings (rank medal + team name)', value: 'standings' },
+          { title: 'Generic (first column as title + chips)', value: 'generic' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'auto',
+    }),
   ],
   preview: {
     select: { title: 'title' },

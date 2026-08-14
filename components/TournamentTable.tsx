@@ -2,6 +2,7 @@ type TableValue = {
   title?: string
   hideTitle?: boolean
   rawText?: string
+  displayStyle?: 'auto' | 'standings' | 'generic'
 }
 
 function parseRow(line: string): string[] {
@@ -56,8 +57,14 @@ export default function TournamentTable({ value }: { value: TableValue }) {
   // column) get the medal-badge + team-name mobile header treatment.
   // Generic tables (e.g. a Match/Map/Time schedule) have neither, so they
   // fall back to a plain "first column as title" card instead of
-  // misapplying medals to arbitrary row numbers.
-  const hasRankOrTeam = rankColIndex >= 0 || teamColIndex >= 0;
+  // misapplying medals to arbitrary row numbers. Editors can override the
+  // auto-detected guess per-table via `displayStyle` in Studio.
+  const hasRankOrTeam =
+    value.displayStyle === 'standings'
+      ? true
+      : value.displayStyle === 'generic'
+      ? false
+      : rankColIndex >= 0 || teamColIndex >= 0;
 
   // Everything that isn't the rank/team column becomes a labelled "chip" on
   // the mobile card, primary stats (WWCD/Points/Total) surfaced first.
