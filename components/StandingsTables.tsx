@@ -158,19 +158,22 @@ export default function StandingsTables({ standings }: { standings: StandingTabl
             )
           })()}
 
-          {/* Desktop: real table */}
+          {/* Desktop: real table — VLR.gg-style dense standings: sticky
+              header, hover highlight, and a colored left-edge bar per row
+              (green = qualified, red = eliminated) instead of only a
+              status pill, so table state reads at a glance while scanning. */}
           <div className="hidden sm:block overflow-x-auto bg-white dark:bg-[#0E0E12] border border-gray-200 dark:border-gray-800/60 rounded-2xl">
-            <table className="w-full text-sm min-w-[760px]">
+            <table className="w-full text-sm min-w-[760px] border-collapse">
               <thead>
-                <tr className="text-gray-500 dark:text-gray-500 uppercase text-xs font-mono tracking-widest border-b border-gray-200 dark:border-gray-800/60">
-                  <th className="py-3 px-4 text-left w-8">#</th>
-                  <th className="py-3 px-2 text-left">Team</th>
-                  <th className="py-3 px-2 text-center">MP</th>
-                  <th className="py-3 px-2 text-center">WWCD</th>
-                  <th className="py-3 px-2 text-center">Place</th>
-                  <th className="py-3 px-2 text-center">Kills</th>
-                  <th className="py-3 px-4 text-center font-bold text-blue-600 dark:text-[#00E5FF]">Pts</th>
-                  <th className="py-3 px-4 text-center">Status</th>
+                <tr className="text-gray-500 dark:text-gray-500 uppercase text-[11px] font-mono tracking-widest border-b border-gray-200 dark:border-gray-800/60">
+                  <th className="sticky top-0 bg-gray-50 dark:bg-[#13131A] py-2.5 pl-5 pr-2 text-left w-10">#</th>
+                  <th className="sticky top-0 bg-gray-50 dark:bg-[#13131A] py-2.5 px-2 text-left">Team</th>
+                  <th className="sticky top-0 bg-gray-50 dark:bg-[#13131A] py-2.5 px-2 text-center">MP</th>
+                  <th className="sticky top-0 bg-gray-50 dark:bg-[#13131A] py-2.5 px-2 text-center">WWCD</th>
+                  <th className="sticky top-0 bg-gray-50 dark:bg-[#13131A] py-2.5 px-2 text-center">Place</th>
+                  <th className="sticky top-0 bg-gray-50 dark:bg-[#13131A] py-2.5 px-2 text-center">Kills</th>
+                  <th className="sticky top-0 bg-gray-50 dark:bg-[#13131A] py-2.5 px-4 text-center font-bold text-blue-600 dark:text-[#00E5FF]">Pts</th>
+                  <th className="sticky top-0 bg-gray-50 dark:bg-[#13131A] py-2.5 px-4 text-center">Status</th>
                 </tr>
               </thead>
 
@@ -178,37 +181,43 @@ export default function StandingsTables({ standings }: { standings: StandingTabl
                 {(table.rows || []).map((row, i) => (
                   <tr
                     key={row._key || `${table._id}-${i}`}
-                    className={`border-b border-gray-100 dark:border-gray-800/40 last:border-0 ${
+                    className={`relative border-b border-gray-100 dark:border-gray-800/40 last:border-0 transition-colors hover:bg-gray-50 dark:hover:bg-white/[0.03] ${
                       i < 3 ? 'text-gray-900 dark:text-gray-100' : 'text-gray-600 dark:text-gray-400'
                     }`}
                   >
-                    <td className="py-3 px-4 font-bold text-gray-400 dark:text-gray-600">
+                    <td className="relative py-2.5 pl-5 pr-2 font-bold text-gray-400 dark:text-gray-600">
+                      {row.qualified && (
+                        <span className="absolute inset-y-0 left-0 w-[3px] bg-green-500" />
+                      )}
+                      {row.eliminated && (
+                        <span className="absolute inset-y-0 left-0 w-[3px] bg-red-500/70" />
+                      )}
                       {row.rank ?? i + 1}
                     </td>
 
-                    <td className="py-3 px-2">
+                    <td className="py-2.5 px-2">
                       <div className="flex items-center gap-3">
                         <TeamLogo src={row.team?.logoUrl ?? null} name={teamLabel(row)} size={28} className="w-7 h-7" />
                         <span className="font-semibold">{teamLabel(row)}</span>
                       </div>
                     </td>
 
-                    <td className="py-3 px-2 text-center">{row.matchesPlayed ?? 0}</td>
-                    <td className="py-3 px-2 text-center">{row.wwcd ?? row.wins ?? 0}</td>
-                    <td className="py-3 px-2 text-center">{row.placementPoints ?? 0}</td>
-                    <td className="py-3 px-2 text-center">{row.kills ?? 0}</td>
+                    <td className="py-2.5 px-2 text-center tabular-nums">{row.matchesPlayed ?? 0}</td>
+                    <td className="py-2.5 px-2 text-center tabular-nums">{row.wwcd ?? row.wins ?? 0}</td>
+                    <td className="py-2.5 px-2 text-center tabular-nums">{row.placementPoints ?? 0}</td>
+                    <td className="py-2.5 px-2 text-center tabular-nums">{row.kills ?? 0}</td>
 
-                    <td className="py-3 px-4 text-center font-bold text-yellow-600 dark:text-yellow-400">
+                    <td className="py-2.5 px-4 text-center font-bold text-yellow-600 dark:text-yellow-400 tabular-nums">
                       {row.points ?? 0}
                     </td>
 
-                    <td className="py-3 px-4 text-center">
+                    <td className="py-2.5 px-4 text-center">
                       {row.qualified ? (
-                        <span className="rounded-full bg-green-500/10 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-green-600 dark:text-green-400">
+                        <span className="inline-flex rounded-full bg-green-500/10 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-green-600 dark:text-green-400">
                           Qualified
                         </span>
                       ) : row.eliminated ? (
-                        <span className="rounded-full bg-red-500/10 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-red-600 dark:text-red-400">
+                        <span className="inline-flex rounded-full bg-red-500/10 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-red-600 dark:text-red-400">
                           Eliminated
                         </span>
                       ) : (

@@ -221,16 +221,18 @@ export default function TournamentTable({ value }: { value: TableValue }) {
               return (
                 <tr
                   key={ri}
-                  className={ri % 2 === 0 ? 'bg-white dark:bg-[#0E0E12]' : 'bg-gray-50/60 dark:bg-[#13131A]/50'}
+                  className={`transition-colors hover:bg-gray-50 dark:hover:bg-white/[0.03] ${
+                    ri % 2 === 0 ? 'bg-white dark:bg-[#0E0E12]' : 'bg-gray-50/60 dark:bg-[#13131A]/50'
+                  }`}
                 >
                   {row.map((cell, ci) => (
                     <td
                       key={ci}
                       className={`px-4 py-2.5 border-b border-gray-100 dark:border-gray-800/40 whitespace-nowrap ${
                         columnTypes[ci] === 'primary'
-                          ? 'text-right font-bold text-blue-700 dark:text-[#00E5FF]'
+                          ? 'text-right font-bold text-blue-700 dark:text-[#00E5FF] tabular-nums'
                           : columnTypes[ci] === 'numeric'
-                          ? 'text-right font-mono text-gray-700 dark:text-gray-300'
+                          ? 'text-right font-mono text-gray-700 dark:text-gray-300 tabular-nums'
                           : 'text-gray-700 dark:text-gray-300'
                       }`}
                     >
