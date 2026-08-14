@@ -64,21 +64,36 @@ export default function PortableTextTable({ value }: { value: TableValue }) {
           <CopyButton value={copyText} label="Copy table" copiedLabel="Copied!" timeout={2000} className="shrink-0" />
         </div>
       )}
-      {/* Mobile: stacked cards (no horizontal scroll needed) */}
-      <div className="flex flex-col gap-2 p-3 sm:hidden">
+      {/* Mobile: polished stacked cards — first column shown as the card's
+          title, remaining columns as compact labelled chips (no horizontal
+          scroll needed). */}
+      <div className="flex flex-col gap-2.5 p-3 sm:hidden">
         {rows.map((row, ri) => (
           <div
             key={ri}
-            className="rounded-lg border border-gray-100 dark:border-gray-800/40 bg-gray-50/60 dark:bg-[#13131A]/50 p-3 flex flex-col gap-1.5"
+            className="rounded-xl border border-gray-100 dark:border-gray-800/40 bg-white dark:bg-[#13131A]/60 p-3.5 shadow-sm transition-colors"
           >
-            {row.map((cell, ci) => (
-              <div key={ci} className="flex items-start justify-between gap-3 text-sm">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-gray-400 dark:text-gray-600 shrink-0">
-                  {headers[ci]}
+            {headers[0] !== undefined && row[0] !== undefined && (
+              <div className="flex items-center justify-between gap-3 mb-2.5 pb-2.5 border-b border-gray-100 dark:border-gray-800/40">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-gray-400 dark:text-gray-500 shrink-0">
+                  {headers[0]}
                 </span>
-                <span className="text-gray-900 dark:text-gray-100 font-medium text-right break-words">{cell}</span>
+                <span className="text-sm font-bold text-gray-900 dark:text-white text-right break-words">
+                  {row[0]}
+                </span>
               </div>
-            ))}
+            )}
+            <div className="flex flex-wrap gap-1.5">
+              {row.slice(1).map((cell, ci) => (
+                <span
+                  key={ci}
+                  className="inline-flex items-center gap-1.5 text-[11px] font-mono px-2 py-1 rounded-md border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#0E0E12] text-gray-500 dark:text-gray-400"
+                >
+                  <span className="uppercase tracking-wider opacity-70">{headers[ci + 1]}</span>
+                  <span className="font-semibold text-gray-800 dark:text-gray-200">{cell}</span>
+                </span>
+              ))}
+            </div>
           </div>
         ))}
       </div>
