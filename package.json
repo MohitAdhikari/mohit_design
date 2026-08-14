@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "TZ='Asia/Kolkata' next start",
     "lint": "eslint .",
-    "clean": "next clean"
+    "clean": "next clean",
+    "isr:static": "node scripts/setIsrMode.mjs static",
+    "isr:normal": "node scripts/setIsrMode.mjs normal"
   },
   "dependencies": {
     "@google/genai": "^1.17.0",

@@ -13,9 +13,9 @@ import {
 } from '@/lib/tournamentSpotlight';
 import { homepageSort } from '@/lib/homepageSort';
 
-// ISR budget guard: HARD STOP — on-demand only. ISR Write budget nearly
-// exhausted; do not reintroduce a numeric window without checking Vercel
-// usage first. See /api/revalidate.
+// ISR-MODE: static — on-demand only via the Sanity webhook (/api/revalidate)
+// or a manual redeploy. Zero time-based ISR writes. Switch back with:
+//   node scripts/setIsrMode.mjs normal
 export const revalidate = false;
 
 /* ── route helper for mixed content types in homepage feeds ── */

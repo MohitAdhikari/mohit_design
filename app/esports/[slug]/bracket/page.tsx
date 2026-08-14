@@ -18,12 +18,9 @@ import BracketStage from '@/components/esports/BracketStage'
 import PrizePoolTable from '@/components/esports/PrizePoolTable'
 import type { TournamentEdition } from '@/lib/tournamentApi'
 
-// ISR budget guard: HARD STOP — on-demand only. ISR Write budget nearly
-// exhausted; do not reintroduce a numeric window without checking Vercel
-// usage first. Updates now depend entirely on the Sanity webhook
-// (/api/revalidate) firing on match/standing publish. If content isn't
-// updating, verify the webhook in Studio → API → Webhooks, or trigger a
-// manual revalidation: curl -X POST "https://<domain>/api/revalidate?secret=<SANITY_REVALIDATE_SECRET>"
+// ISR-MODE: static — on-demand only via the Sanity webhook (/api/revalidate)
+// or a manual redeploy. Zero time-based ISR writes. Switch back with:
+//   node scripts/setIsrMode.mjs normal
 export const revalidate = false
 
 // ─── Types ────────────────────────────────────────────────────────────────────

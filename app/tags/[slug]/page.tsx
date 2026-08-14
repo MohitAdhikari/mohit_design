@@ -6,8 +6,9 @@ import { optimizedImageUrl } from '@/lib/sanityImage'
 import { formatDateIST } from '@/utils/formatDate'
 import { Metadata } from 'next'
 
-// ISR budget guard: HARD STOP — fully static, no time-based writes. ISR
-// Write budget nearly exhausted this month.
+// ISR-MODE: static — on-demand only via the Sanity webhook (/api/revalidate)
+// or a manual redeploy. Zero time-based ISR writes. Switch back with:
+//   node scripts/setIsrMode.mjs normal
 export const revalidate = false
 
 const pathSegment = (value: string) =>

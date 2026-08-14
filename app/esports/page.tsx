@@ -12,9 +12,9 @@ export const metadata: Metadata = {
   description: 'Browse every esports tournament we cover — BGMI (flagship), Free Fire, PUBG Mobile, Valorant and more. Results, prize pools, teams, and champions.',
 }
 
-// ISR budget guard: HARD STOP — on-demand only. ISR Write budget nearly
-// exhausted; do not reintroduce a numeric window without checking Vercel
-// usage first. See /api/revalidate.
+// ISR-MODE: static — on-demand only via the Sanity webhook (/api/revalidate)
+// or a manual redeploy. Zero time-based ISR writes. Switch back with:
+//   node scripts/setIsrMode.mjs normal
 export const revalidate = false
 
 export default async function TournamentsPage() {

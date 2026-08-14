@@ -2,8 +2,9 @@ import { Metadata } from 'next';
 import { getGameCodes } from '@/lib/api';
 import GameCodesClient from '@/components/GameCodesClient';
 
-// ISR budget guard: HARD STOP — fully static, no time-based writes. ISR
-// Write budget nearly exhausted this month. See /api/revalidate.
+// ISR-MODE: static — on-demand only via the Sanity webhook (/api/revalidate)
+// or a manual redeploy. Zero time-based ISR writes. Switch back with:
+//   node scripts/setIsrMode.mjs normal
 export const revalidate = false;
 
 export const metadata: Metadata = {

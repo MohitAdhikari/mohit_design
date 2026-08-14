@@ -7,8 +7,9 @@ export const metadata = {
   description: 'Search across PHONEOCEAN news, interviews, and guides.',
 };
 
-// ISR budget guard: HARD STOP — fully static, no time-based writes. ISR
-// Write budget nearly exhausted this month.
+// ISR-MODE: static — on-demand only via the Sanity webhook (/api/revalidate)
+// or a manual redeploy. Zero time-based ISR writes. Switch back with:
+//   node scripts/setIsrMode.mjs normal
 export const revalidate = false;
 
 export default async function SearchPage() {
