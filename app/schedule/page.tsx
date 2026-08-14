@@ -3,6 +3,11 @@ import type { Match } from '@/lib/tournamentApi'
 import TeamLogo from '@/components/TeamLogo'
 import { CalendarDays } from 'lucide-react'
 
+// ZERO-ISR MODE: live tournament data, rendered per request. Never written
+// to the ISR cache, so it consumes no Vercel ISR Write Units and reflects
+// Sanity updates immediately.
+export const dynamic = 'force-dynamic'
+
 const STAGE_LABELS: Record<string, string> = {
   group_stage: 'Group Stage',
   survival_stage: 'Survival Stage',

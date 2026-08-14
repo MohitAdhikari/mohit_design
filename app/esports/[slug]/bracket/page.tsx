@@ -18,16 +18,13 @@ import BracketStage from '@/components/esports/BracketStage'
 import PrizePoolTable from '@/components/esports/PrizePoolTable'
 import type { TournamentEdition } from '@/lib/tournamentApi'
 
-// ISR-MODE: static — on-demand only via the Sanity webhook (/api/revalidate)
-// or a manual redeploy. Zero time-based ISR writes. Switch back with:
-//   node scripts/setIsrMode.mjs normal
-export const revalidate = false
-
-// CRITICAL ISR budget guard: without this, visiting any slug NOT in
-// generateStaticParams still triggers a one-time on-demand render + cache
-// write — which itself counts as an ISR Write. False = unlisted slugs 404
-// instead until the next redeploy.
-export const dynamicParams = false
+// ZERO-ISR MODE: rendered per request, never written to the ISR cache.
+// This makes Vercel "ISR Write Units" structurally impossible to consume,
+// and means content published in Sanity appears immediately without any
+// redeploy. Cost shifts to Function Invocations (a far larger budget).
+// Do NOT reintroduce `revalidate`, `generateStaticParams` or
+// `dynamicParams` on these routes without understanding the ISR billing.
+export const dynamic = 'force-dynamic'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -93,11 +90,6 @@ const STAGE_LABELS: Record<string, string> = {
 }
 
 // ─── Static params (reuse tournament slugs) ───────────────────────────────────
-
-export async function generateStaticParams() {
-  const slugs = await getAllTournamentSlugs()
-  return slugs.map((t) => ({ slug: t.slug }))
-}
 
 // ─── Metadata ─────────────────────────────────────────────────────────────────
 

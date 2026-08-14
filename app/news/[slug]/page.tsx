@@ -19,22 +19,13 @@ import { getActiveEditionByTournamentId, getMatches, getStandings, getClosestSta
 
 type Props = { params: Promise<{ slug: string }> }
 
-// ISR-MODE: static — on-demand only via the Sanity webhook (/api/revalidate)
-// or a manual redeploy. Zero time-based ISR writes. Switch back with:
-//   node scripts/setIsrMode.mjs normal
-export const revalidate = false
-
-// CRITICAL ISR budget guard: without this, visiting any slug NOT in
-// generateStaticParams (e.g. an article published after the last deploy)
-// still triggers a one-time on-demand render + cache write — which itself
-// counts as an ISR Write, independent of revalidate/webhook settings. With
-// this set to false, unlisted slugs 404 instead until the next redeploy.
-export const dynamicParams = false
-
-export async function generateStaticParams() {
-  const slugs = await getAllNewsSlugs()
-  return slugs.map((s) => ({ slug: s.slug }))
-}
+// ZERO-ISR MODE: rendered per request, never written to the ISR cache.
+// This makes Vercel "ISR Write Units" structurally impossible to consume,
+// and means content published in Sanity appears immediately without any
+// redeploy. Cost shifts to Function Invocations (a far larger budget).
+// Do NOT reintroduce `revalidate`, `generateStaticParams` or
+// `dynamicParams` on these routes without understanding the ISR billing.
+export const dynamic = 'force-dynamic'
 
 function extractPlainText(content: any, max = 160): string {
   if (!content) return ''

@@ -6,16 +6,13 @@ import { optimizedImageUrl } from '@/lib/sanityImage'
 import { formatDateIST } from '@/utils/formatDate'
 import { Metadata } from 'next'
 
-// ISR-MODE: static — on-demand only via the Sanity webhook (/api/revalidate)
-// or a manual redeploy. Zero time-based ISR writes. Switch back with:
-//   node scripts/setIsrMode.mjs normal
-export const revalidate = false
-
-// CRITICAL ISR budget guard: without this, visiting any slug NOT in
-// generateStaticParams still triggers a one-time on-demand render + cache
-// write — which itself counts as an ISR Write. False = unlisted slugs 404
-// instead until the next redeploy.
-export const dynamicParams = false
+// ZERO-ISR MODE: rendered per request, never written to the ISR cache.
+// This makes Vercel "ISR Write Units" structurally impossible to consume,
+// and means content published in Sanity appears immediately without any
+// redeploy. Cost shifts to Function Invocations (a far larger budget).
+// Do NOT reintroduce `revalidate`, `generateStaticParams` or
+// `dynamicParams` on these routes without understanding the ISR billing.
+export const dynamic = 'force-dynamic'
 
 const pathSegment = (value: string) =>
   value
@@ -54,11 +51,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       canonical: tagUrl,
     },
   }
-}
-
-export async function generateStaticParams() {
-  const tags = await getTags();
-  return tags.map((t: any) => ({ slug: t.slug?.current ?? t.slug }));
 }
 
 export default async function TagPage({ params }: { params: Promise<{ slug: string }> }) {

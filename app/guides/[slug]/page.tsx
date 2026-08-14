@@ -11,6 +11,14 @@ import { calculateReadingTime } from '@/lib/readingTime';
 import ArticleHeader from '@/components/article/ArticleHeader';
 import ArticleHero from '@/components/article/ArticleHero';
 
+// ZERO-ISR MODE: rendered per request, never written to the ISR cache.
+// This makes Vercel "ISR Write Units" structurally impossible to consume,
+// and means content published in Sanity appears immediately without any
+// redeploy. Cost shifts to Function Invocations (a far larger budget).
+// Do NOT reintroduce `revalidate`, `generateStaticParams` or
+// `dynamicParams` on these routes without understanding the ISR billing.
+export const dynamic = 'force-dynamic'
+
 function extractPlainText(content: any, max = 160): string {
   if (!content) return '';
   if (typeof content === 'string') return content.slice(0, max);
@@ -69,18 +77,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       canonical: `${baseUrl}/guides/${guide.slug?.current || slug}`,
     },
   };
-}
-
-// CRITICAL ISR budget guard: without this, visiting any slug NOT in
-// generateStaticParams (e.g. a guide published after the last deploy)
-// still triggers a one-time on-demand render + cache write — which itself
-// counts as an ISR Write. With this set to false, unlisted slugs 404
-// instead until the next redeploy.
-export const dynamicParams = false;
-
-export async function generateStaticParams() {
-  const guides = await getGuides();
-  return guides.map((g: any) => ({ slug: g.slug?.current ?? g.slug }));
 }
 
 export default async function GuidePage({ params }: { params: Promise<{ slug: string }> }) {

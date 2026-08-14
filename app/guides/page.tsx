@@ -7,10 +7,13 @@ export const metadata = {
   description: 'Tutorials, redeem codes, and meta breakdowns for the most popular esports titles.',
 };
 
-// ISR-MODE: static — on-demand only via the Sanity webhook (/api/revalidate)
-// or a manual redeploy. Zero time-based ISR writes. Switch back with:
-//   node scripts/setIsrMode.mjs normal
-export const revalidate = false;
+// ZERO-ISR MODE: rendered per request, never written to the ISR cache.
+// This makes Vercel "ISR Write Units" structurally impossible to consume,
+// and means content published in Sanity appears immediately without any
+// redeploy. Cost shifts to Function Invocations (a far larger budget).
+// Do NOT reintroduce `revalidate`, `generateStaticParams` or
+// `dynamicParams` on these routes without understanding the ISR billing.
+export const dynamic = 'force-dynamic'
 
 export default async function GuidesPage() {
   const guides = await getGuides();

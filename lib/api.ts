@@ -228,7 +228,7 @@ async function fetchPublicNewsPosts(): Promise<any[]> {
 export const getPublicNewsPosts = unstable_cache(
   fetchPublicNewsPosts,
   ['public-news-posts'],
-  { revalidate: 300, tags: ['homepage-feed'] },
+  { revalidate: false, tags: ['homepage-feed'] },
 );
 
 export async function getNewsPostBySlug(slug: string): Promise<any> {
@@ -305,7 +305,7 @@ async function fetchInterviews(): Promise<any[]> {
 export const getInterviews = unstable_cache(
   fetchInterviews,
   ['interviews'],
-  { revalidate: 300, tags: ['homepage-feed'] },
+  { revalidate: false, tags: ['homepage-feed'] },
 );
 
 async function fetchGuides(): Promise<any[]> {
@@ -323,7 +323,7 @@ async function fetchGuides(): Promise<any[]> {
 export const getGuides = unstable_cache(
   fetchGuides,
   ['guides'],
-  { revalidate: 300, tags: ['homepage-feed'] },
+  { revalidate: false, tags: ['homepage-feed'] },
 );
 
 export async function getGuideBySlug(slug: string): Promise<any> {
@@ -394,7 +394,7 @@ async function fetchSiteSettings(): Promise<{
 export const getSiteSettings = unstable_cache(
   fetchSiteSettings,
   ['site-settings'],
-  { revalidate: 300, tags: ['homepage-feed'] },
+  { revalidate: false, tags: ['homepage-feed'] },
 );
 
 export type HighlightsStyleValue = 'premium' | 'minimal' | 'plain';
@@ -556,7 +556,7 @@ async function fetchHomepage(): Promise<{
 export const getHomepage = unstable_cache(
   fetchHomepage,
   ['homepage'],
-  { revalidate: 300, tags: ['homepage-feed'] },
+  { revalidate: false, tags: ['homepage-feed'] },
 );
 
 export async function getGameCodes(): Promise<any[]> {

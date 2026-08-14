@@ -2,6 +2,11 @@ import { getActiveEdition, getStandings } from '@/lib/tournamentApi'
 import StandingsTables from '@/components/StandingsTables'
 import { BarChart2 } from 'lucide-react'
 
+// ZERO-ISR MODE: live tournament data, rendered per request. Never written
+// to the ISR cache, so it consumes no Vercel ISR Write Units and reflects
+// Sanity updates immediately.
+export const dynamic = 'force-dynamic'
+
 export default async function StandingsPage() {
   const edition = await getActiveEdition()
   if (!edition) {

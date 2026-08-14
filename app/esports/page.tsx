@@ -12,10 +12,13 @@ export const metadata: Metadata = {
   description: 'Browse every esports tournament we cover — BGMI (flagship), Free Fire, PUBG Mobile, Valorant and more. Results, prize pools, teams, and champions.',
 }
 
-// ISR-MODE: static — on-demand only via the Sanity webhook (/api/revalidate)
-// or a manual redeploy. Zero time-based ISR writes. Switch back with:
-//   node scripts/setIsrMode.mjs normal
-export const revalidate = false
+// ZERO-ISR MODE: rendered per request, never written to the ISR cache.
+// This makes Vercel "ISR Write Units" structurally impossible to consume,
+// and means content published in Sanity appears immediately without any
+// redeploy. Cost shifts to Function Invocations (a far larger budget).
+// Do NOT reintroduce `revalidate`, `generateStaticParams` or
+// `dynamicParams` on these routes without understanding the ISR billing.
+export const dynamic = 'force-dynamic'
 
 export default async function TournamentsPage() {
   const [tournaments, relatedNews] = await Promise.all([
