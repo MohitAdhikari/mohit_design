@@ -31,10 +31,18 @@ const TYPE_PATHS: Record<string, string[]> = {
  * publish/update. This lets page-level `revalidate` windows stay long
  * (reducing ISR Write Units) while content still updates instantly.
  *
- * Configure in Sanity: Studio → API → Webhooks
+ * Configure in Sanity (manage.sanity.io → project → API → Webhooks):
  *   URL: https://<site>/api/revalidate?secret=<SANITY_REVALIDATE_SECRET>
  *   Trigger on: Create, Update, Delete
- *   Filter: _type in ["newsPost","guide","interview","tournamentEdition","tournament","match","standing","homepage","siteSettings"]
+ *   Filter: !(_id in path("drafts.**")) && _type in ["newsPost","guide","interview","tournamentEdition","tournament","match","standing","homepage","siteSettings"]
+ *
+ *   IMPORTANT: the `!(_id in path("drafts.**"))` clause is required.
+ *   Without it, Sanity Studio's autosave (which fires every few seconds
+ *   while a document is being edited, before it's ever published) will
+ *   trigger this webhook and burn ISR Write Units on every keystroke-save,
+ *   not just on real publishes. This route also guards against that
+ *   below, but fixing the filter at the source avoids the network round
+ *   trip entirely.
  */
 export async function POST(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -55,9 +63,19 @@ export async function POST(request: Request) {
     // no body — fall through to a generic homepage revalidation
   }
 
+  const id: string | undefined = body?._id
+
+  // CRITICAL ISR budget guard: Sanity Studio autosaves the DRAFT document
+  // every few seconds while someone is typing — if the webhook trigger
+  // isn't scoped to exclude drafts, each autosave fires this route and
+  // burns 5-8 ISR Write Units per call. A real publish always mutates the
+  // non-draft `_id` (no "drafts." prefix), so bail out early on drafts.
+  if (id?.startsWith('drafts.')) {
+    return Response.json({ revalidated: false, reason: 'draft-skipped', id })
+  }
+
   const type: string | undefined = body?._type
   const slug: string | undefined = body?.slug?.current
-  const id: string | undefined = body?._id
   const editionRef: string | undefined = body?.edition?._ref
 
   const paths = new Set<string>(type ? TYPE_PATHS[type] ?? [] : ['/'])
