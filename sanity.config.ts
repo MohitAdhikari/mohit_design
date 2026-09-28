@@ -12,7 +12,8 @@ import { PreviewAction } from './sanity/actions/preview'
 import { TagArticlesView } from './sanity/components/TagArticlesView'
 import { TagDeleteAction, TagMergeAction } from './sanity/actions/tagActions'
 import PasteArticleTool from './sanity/tools/pasteArticle/PasteArticleTool'
-import { EditIcon } from '@sanity/icons'
+import TournamentImportTool from './sanity/tools/tournamentImport/TournamentImportTool'
+import { EditIcon, ChartUpwardIcon } from '@sanity/icons'
 
 const WRITER_BLOCKED_ACTIONS = ['publish', 'unpublish', 'schedule', 'duplicate', 'delete']
 
@@ -80,6 +81,12 @@ export default defineConfig({
       title: 'Paste AI Article',
       icon: EditIcon,
       component: PasteArticleTool,
+    },
+    {
+      name: 'tournament-import',
+      title: 'Tournament Data Import',
+      icon: ChartUpwardIcon,
+      component: TournamentImportTool,
     },
   ],
 })
