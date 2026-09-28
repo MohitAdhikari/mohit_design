@@ -1,6 +1,8 @@
-import { getGuideBySlug, getGuides, getAppearanceSettings, resolveHighlightsStyle } from '@/lib/api';
+import { getGuideBySlug, getGuides, getPublicNewsPosts, getAppearanceSettings, resolveHighlightsStyle } from '@/lib/api';
 import { formatDateIST } from '@/utils/formatDate';
 import { notFound } from 'next/navigation';
+import Image from 'next/image';
+import Link from 'next/link';
 import SanityContent from '@/components/SanityContent';
 import VideoEmbed from '@/components/VideoEmbed';
 import { Metadata } from 'next';
@@ -10,6 +12,11 @@ import { sortCodeEntries } from '@/lib/codeEntries';
 import { calculateReadingTime } from '@/lib/readingTime';
 import ArticleHeader from '@/components/article/ArticleHeader';
 import ArticleHero from '@/components/article/ArticleHero';
+import { optimizedImageUrl } from '@/lib/sanityImage';
+
+function isRedeemCodesGuide(g: any): boolean {
+  return Boolean(g?.guideType === 'codes' || g?.codeEntries?.length || g?.codesList?.length || g?.isRedeemCodes);
+}
 
 // ZERO-ISR MODE: rendered per request, never written to the ISR cache.
 // This makes Vercel "ISR Write Units" structurally impossible to consume,
@@ -81,14 +88,31 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function GuidePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const [guide, appearance] = await Promise.all([
+  const [guide, appearance, allGuides, allNews] = await Promise.all([
     getGuideBySlug(slug),
     getAppearanceSettings(),
+    getGuides(),
+    getPublicNewsPosts(),
   ]);
 
   if (!guide) {
     notFound();
   }
+
+  // Redeem-code guides get a "more codes" rail + one related news pick from
+  // the same game category, so a code page never dead-ends the reader.
+  const isRedeemGuide = isRedeemCodesGuide(guide);
+  const sameGameCodes = allGuides.filter(
+    (g: any) => g._id !== guide._id && isRedeemCodesGuide(g) && g.gameName === guide.gameName,
+  );
+  const otherCodes = allGuides.filter(
+    (g: any) => g._id !== guide._id && isRedeemCodesGuide(g) && g.gameName !== guide.gameName,
+  );
+  const moreRedeemCodes = isRedeemGuide ? [...sameGameCodes, ...otherCodes].slice(0, 3) : [];
+
+  const relatedCategoryArticle = isRedeemGuide
+    ? allNews.find((n: any) => (n.category || '').toLowerCase() === (guide.gameName || '').toLowerCase())
+    : null;
 
   const highlightsStyle = resolveHighlightsStyle(guide, appearance);
 
@@ -218,6 +242,70 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
           <span className="text-sm font-mono text-gray-500 uppercase tracking-widest">Share this guide</span>
           <ShareButtons title={guide.title} url={canonicalUrl} />
         </div>
+
+        {moreRedeemCodes.length > 0 && (
+          <div className="mt-12">
+            <h2 className="text-lg font-bold font-space-grotesk mb-4 text-gray-900 dark:text-white">
+              More {guide.gameName} Redeem Codes
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {moreRedeemCodes.map((rc: any) => (
+                <Link
+                  key={rc._id}
+                  href={`/guides/${rc.slug.current}`}
+                  className="group flex flex-col bg-white dark:bg-[#111116] border border-gray-200 dark:border-gray-800/50 rounded-xl overflow-hidden hover:border-[#00FF66]/40 transition-colors"
+                >
+                  <div className="relative aspect-video w-full overflow-hidden">
+                    <Image
+                      src={optimizedImageUrl(rc.thumbnail, 500)}
+                      alt={rc.title}
+                      fill
+                      sizes="(max-width: 640px) 100vw, 33vw"
+                      loading="lazy"
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+                  <div className="p-3">
+                    <span className="text-[10px] text-[#00FF66] font-black tracking-widest uppercase">{rc.gameName}</span>
+                    <h3 className="text-sm font-bold font-space-grotesk text-gray-900 dark:text-gray-100 line-clamp-2 mt-1 group-hover:text-[#00FF66] transition-colors">
+                      {rc.title}
+                    </h3>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {relatedCategoryArticle && (
+          <div className="mt-8">
+            <Link
+              href={`/news/${relatedCategoryArticle.slug.current}`}
+              className="group flex items-center gap-4 p-4 rounded-xl border border-gray-200 dark:border-gray-800/50 hover:border-[#00E5FF]/40 transition-colors"
+            >
+              <div className="relative w-20 h-16 rounded-lg overflow-hidden flex-shrink-0 border border-gray-100 dark:border-gray-800/50">
+                <Image
+                  src={optimizedImageUrl(relatedCategoryArticle.thumbnail, 300)}
+                  alt={relatedCategoryArticle.title}
+                  fill
+                  sizes="80px"
+                  loading="lazy"
+                  className="object-cover"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className="text-[10px] text-[#00E5FF] font-black tracking-widest uppercase">
+                  Related {relatedCategoryArticle.category}
+                </span>
+                <h3 className="text-sm font-bold font-space-grotesk text-gray-900 dark:text-gray-100 line-clamp-2 mt-1 group-hover:text-[#00E5FF] transition-colors">
+                  {relatedCategoryArticle.title}
+                </h3>
+              </div>
+            </Link>
+          </div>
+        )}
 
       </div>
     </article>

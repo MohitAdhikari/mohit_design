@@ -359,6 +359,24 @@ export const newsPost = defineType({
       initialValue: true,
       description: 'Turn off to hide from the homepage feed. The article stays published and Google can still index it.',
     }),
+    defineField({
+      name: 'homepagePlacement',
+      title: 'Homepage Placement',
+      type: 'string',
+      group: 'publishing',
+      options: {
+        list: [
+          { title: 'Automatic (default)', value: 'auto' },
+          { title: 'Pin to Hero Slider', value: 'hero' },
+          { title: 'Pin to Trending Now', value: 'trending' },
+          { title: 'Feed only (never hero/trending)', value: 'feed' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'auto',
+      description:
+        'Overrides where this article can appear on the homepage. "Automatic" lets the homepage pick placement based on recency and the Featured/Trending flags above — pick this unless you specifically need to force placement.',
+    }),
 
     // ---- APPEARANCE ----
     defineField({

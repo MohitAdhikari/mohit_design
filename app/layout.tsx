@@ -23,6 +23,17 @@ const jetbrainsMono = JetBrains_Mono({
   variable: '--font-mono',
 });
 
+// Breaking ticker should only ever carry genuinely recent news — cap it to
+// the last few weeks so it can never get stuck showing stale "breaking"
+// items if publishing slows down.
+const BREAKING_WINDOW_DAYS = 21;
+function isWithinBreakingWindow(n: { publishDate?: string; _createdAt?: string }): boolean {
+  const raw = n.publishDate || n._createdAt;
+  const t = raw ? new Date(raw).getTime() : NaN;
+  if (Number.isNaN(t)) return true;
+  return Date.now() - t <= BREAKING_WINDOW_DAYS * 24 * 60 * 60 * 1000;
+}
+
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
@@ -96,7 +107,11 @@ export default async function RootLayout({children}: {children: React.ReactNode}
   const spotlightedNews = applyTournamentSpotlight(news).sort(
     (a: any, b: any) => new Date(b.publishDate || b._createdAt || 0).getTime() - new Date(a.publishDate || a._createdAt || 0).getTime(),
   );
-  const tickerItems = spotlightedNews.slice(0, 6).map((n: any) => ({
+  // Breaking ticker should only ever carry genuinely recent news — cap it to
+  // the last few weeks so it can never get stuck showing stale "breaking"
+  // items if publishing slows down.
+  const recentNews = spotlightedNews.filter((n: any) => isWithinBreakingWindow(n));
+  const tickerItems = recentNews.slice(0, 6).map((n: any) => ({
     title: n.title,
     href: `/news/${n.slug.current}`,
     showOnHomepage: n.showOnHomepage,

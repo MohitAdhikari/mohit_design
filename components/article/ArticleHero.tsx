@@ -42,7 +42,7 @@ export default function ArticleHero({ image, fallbackUrl, alt, caption, credit }
       {(caption || credit) && (
         <figcaption className="mt-2.5 text-xs text-gray-500 dark:text-gray-500 text-center">
           {caption}
-          {credit && <span className="italic"> — {credit}</span>}
+          {credit && <span className="italic">{caption ? ' ' : ''}{credit}</span>}
         </figcaption>
       )}
     </figure>

@@ -83,7 +83,7 @@ return {
             <figcaption className="mt-2 text-sm text-gray-500 dark:text-gray-400 font-sans">
               {value.caption}
               {value.credit && (
-                <span className="italic"> — {value.credit}</span>
+                <span className="italic">{value.caption ? ' ' : ''}{value.credit}</span>
               )}
             </figcaption>
           )}

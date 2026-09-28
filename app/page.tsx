@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { getPublicNewsPosts, getInterviews, getGuides, getSiteSettings, getHomepage } from '@/lib/api';
+import { getTournaments, getTournamentStatus } from '@/lib/tournamentApi';
 import { optimizedImageUrl } from '@/lib/sanityImage';
 import { formatDateCompactIST, formatDateDayMonthIST } from '@/utils/formatDate';
 import { calculateReadingTime, calculateWordCount } from '@/lib/readingTime';
@@ -47,14 +48,63 @@ function catDot(tag: string) {
   return 'bg-[#00E5FF]';
 }
 
+// "Trending Now" should never keep spotlighting a post forever — an editor's
+// `trending` flag only earns priority placement for a few weeks after
+// publish. Once a post ages out, fresher content automatically takes its
+// spot (the flag itself is left alone in the CMS; this is purely a display
+// window so editors don't have to remember to untoggle it).
+const TRENDING_WINDOW_DAYS = 21;
+function isWithinDays(item: { publishDate?: string; _createdAt?: string }, days: number) {
+  const raw = item.publishDate || item._createdAt;
+  const t = raw ? new Date(raw).getTime() : NaN;
+  if (Number.isNaN(t)) return true;
+  return Date.now() - t <= days * 24 * 60 * 60 * 1000;
+}
+
+// Redeem-code guides already have their own dedicated "Guides & Codes"
+// sidebar rail (desktop) — so at most `max` of them are allowed inside the
+// first `n` items of a feed; any extra ones are pushed later in the same
+// pool (e.g. into mobile "More Stories") instead of being dropped.
+function limitRedeemInFirstN<T extends { isRedeemCodes?: boolean }>(pool: T[], n: number, max: number): T[] {
+  const head: T[] = [];
+  const deferred: T[] = [];
+  let codeCount = 0;
+  for (const item of pool) {
+    if (head.length >= n) {
+      deferred.push(item);
+      continue;
+    }
+    if (item.isRedeemCodes && codeCount >= max) {
+      deferred.push(item);
+    } else {
+      head.push(item);
+      if (item.isRedeemCodes) codeCount++;
+    }
+  }
+  return [...head, ...deferred];
+}
+
 export default async function Home() {
-  const [news, interviews, guides, settings, homepage] = await Promise.all([
+  const [news, interviews, guides, settings, homepage, tournaments] = await Promise.all([
     getPublicNewsPosts(),
     getInterviews(),
     getGuides(),
     getSiteSettings(),
     getHomepage(),
+    getTournaments(),
   ]);
+
+  const ongoingTournaments = tournaments
+    .map((t) => ({
+      ...t,
+      status: getTournamentStatus(
+        t.latestEdition?.startDate ?? null,
+        t.latestEdition?.endDate ?? null,
+        t.latestEdition?.tournamentStatus ?? null,
+      ),
+    }))
+    .filter((t) => t.status === 'ONGOING')
+    .slice(0, 3);
 
   const withReadTime = <T extends { wordCount?: number; content?: any }>(p: T) => {
     const wordCount = typeof p?.wordCount === 'number' ? p.wordCount : calculateWordCount(p?.content);
@@ -81,6 +131,8 @@ export default async function Home() {
       excerpt: item.excerpt || '',
       publishDate: item.publishDate || item._createdAt,
       readMins: isInterview ? null : base.readMins,
+      isRedeemCodes: Boolean(item.isRedeemCodes),
+      homepagePlacement: item.homepagePlacement || 'auto',
     };
   };
 
@@ -107,10 +159,17 @@ export default async function Home() {
   // Editors can flag any article, guide/code or interview as "Featured" /
   // "Trending" to bump it ahead of pure recency in the automatic hero /
   // trending pools, without needing to touch the Homepage Manager.
-  const prioritize = (pool: HomepageItem[], flag: 'featured' | 'trending'): HomepageItem[] => [
-    ...pool.filter((p) => (p as any)[flag] === true),
-    ...pool.filter((p) => (p as any)[flag] !== true),
-  ];
+  const prioritize = (pool: HomepageItem[], flag: 'featured' | 'trending'): HomepageItem[] => {
+    // "trending" boosts expire after TRENDING_WINDOW_DAYS so an old post
+    // doesn't camp the Trending Now slot indefinitely; "featured" (hero) has
+    // no such window since editors actively swap it out per-story.
+    const isBoosted = (p: HomepageItem) =>
+      (p as any)[flag] === true && (flag !== 'trending' || isWithinDays(p, TRENDING_WINDOW_DAYS));
+    return [
+      ...pool.filter(isBoosted),
+      ...pool.filter((p) => !isBoosted(p)),
+    ];
+  };
 
   /* ── HERO: manual array or legacy single ref, otherwise auto fallback ── */
   const rawManualHero = !useAutoLayout
@@ -125,17 +184,22 @@ export default async function Home() {
     .map(normalizeForHome)
     .filter((p): p is HomepageItem => Boolean(p));
 
+  // Per-post "Homepage Placement" override: articles explicitly pinned to
+  // Hero jump the queue; anything set to "Feed only" is never eligible here.
+  const heroCandidates = homepageContent.filter((p) => p.homepagePlacement !== 'feed');
   const heroAuto: HomepageItem[] = homepage.heroArticle
     ? [
         normalizeForHome(homepage.heroArticle),
         ...homepageContent.filter((p) => p._id !== homepage.heroArticle._id).slice(0, 2),
       ].filter((p): p is HomepageItem => Boolean(p))
-    : prioritize(homepageContent, 'featured').slice(0, 3);
+    : [
+        ...heroCandidates.filter((p) => p.homepagePlacement === 'hero'),
+        ...prioritize(heroCandidates.filter((p) => p.homepagePlacement !== 'hero'), 'featured'),
+      ].slice(0, 3);
 
   const heroPool: HomepageItem[] = (heroManual.length ? heroManual : heroAuto).slice(0, 3);
 
   const featured = heroPool[0] || null;
-  const showFeaturedBadge = featured?.featured === true;
 
   // De-dupe: track every article ID already placed in a section so a single
   // post never repeats across hero / trending / feed sections.
@@ -149,10 +213,11 @@ export default async function Home() {
     .filter((p): p is HomepageItem => Boolean(p))
     .filter((p) => !usedIds.has(p._id));
 
-  const trendingAuto: HomepageItem[] = prioritize(
-    homepageContent.filter((p) => !usedIds.has(p._id)),
-    'trending',
-  );
+  const trendingCandidates = homepageContent.filter((p) => !usedIds.has(p._id) && p.homepagePlacement !== 'feed');
+  const trendingAuto: HomepageItem[] = [
+    ...trendingCandidates.filter((p) => p.homepagePlacement === 'trending'),
+    ...prioritize(trendingCandidates.filter((p) => p.homepagePlacement !== 'trending'), 'trending'),
+  ];
 
   const trendingPool: HomepageItem[] = (trendingManual.length ? trendingManual : trendingAuto).slice(0, 3);
   const latestNews: HomepageItem[] = trendingPool.slice(0, 3);
@@ -166,7 +231,13 @@ export default async function Home() {
     .filter((p) => !usedIds.has(p._id));
 
   const feedAuto: HomepageItem[] = homepageContent.filter((p) => !usedIds.has(p._id));
-  const feedNews: HomepageItem[] = feedManual.length ? feedManual : feedAuto;
+  // Redeem-code guides already live in the "Guides & Codes" sidebar rail —
+  // never duplicate them into the desktop Latest Feed.
+  const feedNews: HomepageItem[] = (feedManual.length ? feedManual : feedAuto).filter((p) => !p.isRedeemCodes);
+  // Desktop "More Stories": the next batch after the 3-story Latest Feed, so
+  // the homepage never looks sparse between Latest Feed and Interviews and
+  // nothing already shown above gets repeated.
+  const moreStories: HomepageItem[] = feedNews.slice(3, 9);
 
   /* ── mobile-only pools: distinct from desktop trending/feed ── */
   const heroIds = new Set(heroPool.map((p) => p._id));
@@ -175,7 +246,13 @@ export default async function Home() {
     .filter((p) => !mobileUsedIds.has(p._id))
     .slice(0, 6);
   mobileTrending.forEach((p) => mobileUsedIds.add(p._id));
-  const mobileFeed: HomepageItem[] = homepageContent.filter((p) => !mobileUsedIds.has(p._id));
+  // At most one redeem-code article in the mobile feed proper — extras are
+  // pushed down into "More Stories" instead of stacking the feed with codes.
+  const mobileFeed: HomepageItem[] = limitRedeemInFirstN(
+    homepageContent.filter((p) => !mobileUsedIds.has(p._id)),
+    8,
+    1,
+  );
 
   return (
     <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
@@ -387,73 +464,9 @@ export default async function Home() {
         ═══════════════════════════════════════ */}
         <div className="min-w-0 flex flex-col gap-8">
 
-          {/* ── HERO ── */}
-          {featured && (
-            <section className="relative rounded-2xl overflow-hidden group h-[440px] md:h-[540px] border border-gray-200 dark:border-gray-800/80 shadow-lg dark:shadow-[0_8px_40px_rgba(0,0,0,0.6)] w-full">
-              {/* Glow halo on hover */}
-              <div className="pointer-events-none absolute -inset-px rounded-2xl bg-gradient-to-r from-[#00E5FF]/0 via-[#00E5FF]/20 to-[#9D00FF]/0 opacity-0 group-hover:opacity-100 blur-2xl transition-opacity duration-700" />
-
-              <Link href={featured.href} className="sheen-parent block relative w-full h-full">
-                {/* Background image */}
-                <div className="absolute inset-0 overflow-hidden">
-                  <Image
-                    src={optimizedImageUrl(featured.thumbnail, 1600)}
-                    alt={featured.title}
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 66vw"
-                    className="object-cover object-top opacity-90 animate-kenburns will-change-transform group-hover:opacity-100 transition-opacity duration-700"
-                    priority
-                    referrerPolicy="no-referrer"
-                  />
-                </div>
-
-                {/* Gradients */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-transparent" />
-                <div className="absolute inset-0 bg-[radial-gradient(70%_50%_at_0%_100%,rgba(0,229,255,0.15),transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-
-                {/* Featured badge */}
-                {showFeaturedBadge && (
-                  <div className="absolute top-5 right-5 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-md border border-white/10 text-white text-[10px] font-mono uppercase tracking-widest shadow-lg">
-                    <span className="relative inline-flex w-1.5 h-1.5">
-                      <span className="absolute inset-0 rounded-full bg-[#00E5FF] animate-ping opacity-75" />
-                      <span className="relative w-1.5 h-1.5 rounded-full bg-[#00E5FF]" />
-                    </span>
-                    Featured
-                  </div>
-                )}
-
-                {/* Content overlay */}
-                <div className="absolute bottom-0 left-0 p-4 sm:p-6 md:p-10 w-full animate-rise">
-                  <div className="flex flex-wrap items-center gap-2 mb-3">
-                    <span className="inline-block bg-[#00E5FF] text-[#0B0B0F] text-[10px] font-black tracking-[0.15em] uppercase px-3 py-1 rounded-sm shadow-sm">
-                      {featured.category}
-                    </span>
-                    {featured.badge && featured.badge !== 'None' && (
-                      <span className="inline-block bg-white/10 backdrop-blur-sm text-white text-[10px] font-bold tracking-widest uppercase px-3 py-1 rounded-sm border border-white/10">
-                        {featured.badge === 'CUSTOM' ? featured.badgeCustom : featured.badge}
-                      </span>
-                    )}
-                  </div>
-
-                  <h1 className="text-xl sm:text-3xl md:text-[2.6rem] font-black font-space-grotesk tracking-tighter leading-[1.1] mb-3 sm:mb-5 text-white">
-                    <span className="bg-gradient-to-r from-white to-white group-hover:from-white group-hover:to-[#00E5FF] bg-clip-text text-transparent transition-all duration-500">
-                      {featured.title}
-                    </span>
-                  </h1>
-
-                  <div className="flex items-center gap-3 text-sm">
-                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#00E5FF] to-[#0055FF] border-2 border-white/20 flex-shrink-0" />
-                    <span className="font-semibold text-white text-xs">{featured.authorName || 'PHONEOCEAN'}</span>
-                    <span className="text-white/30">·</span>
-                    <span className="text-white/50 text-xs font-mono">{formatDateCompactIST(featured.publishDate || featured._createdAt)}</span>
-                    <span className="ml-auto inline-flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-widest text-white/60 group-hover:text-[#00E5FF] transition-colors duration-300">
-                      Read <span className="text-sm">→</span>
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            </section>
+          {/* ── HERO (3-slide auto-cycling, same pool as mobile) ── */}
+          {heroPool.length > 0 && (
+            <HeroCycle posts={heroPool} variant="large" />
           )}
 
           {/* ── GAMES MARQUEE ── */}
@@ -528,6 +541,57 @@ export default async function Home() {
             </Link>
           </Reveal>
 
+          {/* ── MORE STORIES ── */}
+          {moreStories.length > 0 && (
+            <Reveal as="section" className="space-y-5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="w-1 h-6 rounded-full bg-gray-400 dark:bg-gray-600" />
+                  <h2 className="text-xs font-mono font-bold uppercase tracking-[0.25em] text-gray-900 dark:text-white">
+                    More Stories
+                  </h2>
+                </div>
+                <Link href="/news" className="text-[10px] font-mono uppercase tracking-widest text-gray-400 hover:text-[#00E5FF] transition-colors min-h-[44px] flex items-center">
+                  View All →
+                </Link>
+              </div>
+              <div className="w-full h-px bg-gray-200 dark:bg-gray-800/60" />
+
+              <div className="grid grid-cols-2 gap-4">
+                {moreStories.map((post) => (
+                  <Link
+                    href={post.href}
+                    key={post._id}
+                    className="group flex flex-col bg-white dark:bg-[#111116] rounded-xl border border-gray-200 dark:border-gray-800/50 overflow-hidden hover:border-[#00E5FF]/30 transition-all duration-300 hover:-translate-y-0.5"
+                  >
+                    <div className="relative aspect-video w-full overflow-hidden">
+                      <Image
+                        src={optimizedImageUrl(post.thumbnail, 500)}
+                        alt={post.title}
+                        fill
+                        sizes="(max-width: 1024px) 50vw, 25vw"
+                        loading="lazy"
+                        className="object-cover opacity-90 group-hover:scale-105 transition-transform duration-500"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5 p-3">
+                      <span className="text-[9px] text-[#00E5FF] font-black tracking-[0.2em] uppercase">
+                        {post.category}
+                      </span>
+                      <h3 className="text-[13px] font-bold font-space-grotesk leading-snug text-gray-900 dark:text-gray-100 group-hover:text-[#00E5FF] transition-colors duration-300 line-clamp-2">
+                        {post.title}
+                      </h3>
+                      <span className="text-[10px] text-gray-500 dark:text-gray-500 font-mono uppercase tracking-wider">
+                        {formatDateCompactIST(post.publishDate || post._createdAt)}
+                      </span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </Reveal>
+          )}
+
           {/* ── INTERVIEWS ── */}
           <Reveal as="section" className="space-y-5">
             {/* Section header */}
@@ -597,6 +661,46 @@ export default async function Home() {
             RIGHT COLUMN
         ═══════════════════════════════════════ */}
         <div className="min-w-0 flex flex-col gap-6 self-start lg:sticky lg:top-24">
+
+          {/* ── ONGOING TOURNAMENTS ── */}
+          {ongoingTournaments.length > 0 && (
+            <section className="rounded-2xl border border-gray-200 dark:border-gray-800/60 bg-white dark:bg-[#0E0E12] overflow-hidden shadow-sm dark:shadow-[0_4px_24px_rgba(0,0,0,0.4)]">
+              <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-800/60">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                  <h2 className="text-[10px] font-mono font-bold uppercase tracking-[0.25em] text-gray-900 dark:text-white">
+                    Ongoing Tournaments
+                  </h2>
+                </div>
+                <Link href="/esports" className="text-[9px] font-mono uppercase tracking-widest text-gray-400 hover:text-green-400 transition-colors min-h-[44px] flex items-center">
+                  All →
+                </Link>
+              </div>
+              <div className="flex flex-col divide-y divide-gray-100 dark:divide-gray-800/40">
+                {ongoingTournaments.map((t) => (
+                  <Link
+                    key={t._id}
+                    href={t.slug?.current ? `/esports/${t.slug.current}` : '/esports'}
+                    className="group flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-[#13131A] transition-colors duration-200"
+                  >
+                    <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 border border-gray-100 dark:border-gray-800/50 bg-gray-100 dark:bg-[#13131A] flex items-center justify-center">
+                      {t.logoUrl ? (
+                        <Image src={t.logoUrl} alt={t.name} fill sizes="48px" className="object-contain p-1" referrerPolicy="no-referrer" />
+                      ) : (
+                        <span className="text-sm font-black text-gray-300 dark:text-gray-700">{t.name.slice(0, 2).toUpperCase()}</span>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-[9px] text-green-500 font-black tracking-[0.2em] uppercase block mb-0.5">Live now</span>
+                      <h4 className="text-[13px] font-bold font-space-grotesk text-gray-800 dark:text-gray-200 group-hover:text-green-500 dark:group-hover:text-white transition-colors duration-200 line-clamp-1">
+                        {t.name}
+                      </h4>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* ── TRENDING NOW ── */}
           <section className="rounded-2xl border border-gray-200 dark:border-gray-800/60 bg-white dark:bg-[#0E0E12] overflow-hidden shadow-sm dark:shadow-[0_4px_24px_rgba(0,0,0,0.4)]">

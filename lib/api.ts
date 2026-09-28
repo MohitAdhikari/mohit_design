@@ -208,7 +208,7 @@ async function fetchPublicNewsPosts(): Promise<any[]> {
     return sortByTimestamp(mockData.newsPosts.filter((p: any) => p.showOnHomepage !== false));
   }
   const query = `*[_type == "newsPost" && ${NEWSPOST_PUBLIC_FILTER}] | order(dateTime(coalesce(publishDate, _createdAt)) desc) {
-    _id, _createdAt, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, excerpt, authorName, youtubeUrl, instagramUrl, featured, trending, badge, badgeCustom, showOnHomepage,
+    _id, _createdAt, title, slug, "thumbnail": thumbnail.asset->url, category, publishDate, excerpt, authorName, youtubeUrl, instagramUrl, featured, trending, badge, badgeCustom, showOnHomepage, homepagePlacement,
     "tournament": tournament->{ _id, name, slug },
     matchMeta {
       articleType,
@@ -296,7 +296,7 @@ async function fetchInterviews(): Promise<any[]> {
     return sortByTimestamp(mockData.interviews, 'publishDate');
   }
   const query = `*[_type == "interview" && ${PUBLISHED_INTERVIEW_FILTER}] | order(dateTime(coalesce(publishDate, _createdAt)) desc) {
-    _id, _createdAt, playerOrCeoName, eventName, "thumbnail": thumbnail.asset->url, thumbnailAlt, thumbnailCaption, thumbnailCredit, youtubeUrl, instagramUrl, publishDate, keyHighlights, slug, showOnHomepage, featured, trending
+    _id, _createdAt, playerOrCeoName, eventName, "thumbnail": thumbnail.asset->url, thumbnailAlt, thumbnailCaption, thumbnailCredit, youtubeUrl, instagramUrl, publishDate, keyHighlights, slug, showOnHomepage, featured, trending, homepagePlacement
   }`;
   const interviews = await client.fetch(query);
   return sortByTimestamp(interviews, 'publishDate');
@@ -313,7 +313,8 @@ async function fetchGuides(): Promise<any[]> {
     return sortByTimestamp(mockData.guides, 'lastUpdated');
   }
   const query = `*[_type == "guide" && ${PUBLISHED_GUIDE_FILTER}] | order(dateTime(coalesce(publishDate, _createdAt)) desc) {
-    _id, _createdAt, title, slug, gameName, "thumbnail": thumbnail.asset->url, thumbnailAlt, publishDate, lastUpdated, showUpdatedDate, youtubeUrl, instagramUrl, showOnHomepage, featured, trending, excerpt, wordCount,
+    _id, _createdAt, title, slug, gameName, "thumbnail": thumbnail.asset->url, thumbnailAlt, publishDate, lastUpdated, showUpdatedDate, youtubeUrl, instagramUrl, showOnHomepage, featured, trending, homepagePlacement, excerpt, wordCount, guideType,
+    "isRedeemCodes": guideType == "codes" || defined(codeEntries) || defined(codesList),
     "author": author->{ name }
   }`;
   const guides = await client.fetch(query);

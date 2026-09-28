@@ -87,6 +87,23 @@ export const interview = defineType({
       description: 'Prioritize this interview in the homepage "Trending Now" section, ahead of pure recency.',
     }),
     defineField({
+      name: 'homepagePlacement',
+      title: 'Homepage Placement',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Automatic (default)', value: 'auto' },
+          { title: 'Pin to Hero Slider', value: 'hero' },
+          { title: 'Pin to Trending Now', value: 'trending' },
+          { title: 'Feed only (never hero/trending)', value: 'feed' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'auto',
+      description:
+        'Overrides where this article can appear on the homepage. "Automatic" lets the homepage pick placement based on recency and the Featured/Trending flags above.',
+    }),
+    defineField({
       name: 'categoryRef',
       title: 'Category',
       type: 'reference',
