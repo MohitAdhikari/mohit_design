@@ -6,6 +6,13 @@ import { fileURLToPath } from "node:url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export default defineConfig([{
+export default defineConfig([
+  {
+    // `dist/` holds pre-bundled/minified third-party static assets (not our
+    // source) — linting it was crashing ESLint with an out-of-memory error.
+    ignores: ["dist/**"],
+  },
+  {
     extends: [...next],
-}]);
+  },
+]);
