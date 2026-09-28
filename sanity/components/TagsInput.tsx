@@ -99,34 +99,83 @@ export function TagsInput(props: ArrayOfObjectsInputProps) {
     }
   }
 
-  const createTag = async () => {
-    const title = query.trim()
-    if (!title) return
-    const existingByTitle = allTags.find((t) => t.title.toLowerCase() === title.toLowerCase())
-    if (existingByTitle) { addTag(existingByTitle._id); return }
-    setCreating(true)
-    setError(null)
-    try {
-      let baseSlug = slugify(title), slug = baseSlug, attempt = 1
-      while (true) {
-        const existing = await client.fetch<{ _id: string } | null>(
-          `*[_type == "tag" && slug.current == $slug][0]{_id}`, { slug }
-        )
-        if (!existing) break
-        slug = `${baseSlug}-${++attempt}` 
+  // Resolves a single tag title to a tag document _id — reuses an existing
+  // tag (case-insensitive match) or creates a new one. Does not touch the
+  // field value; callers batch the resulting ids via addTagIds().
+  const resolveTagId = useCallback(
+    async (rawTitle: string): Promise<string | null> => {
+      const title = rawTitle.trim()
+      if (!title) return null
+      const existingByTitle = allTags.find((t) => t.title.toLowerCase() === title.toLowerCase())
+      if (existingByTitle) return existingByTitle._id
+      try {
+        let baseSlug = slugify(title), slug = baseSlug, attempt = 1
+        while (true) {
+          const existing = await client.fetch<{ _id: string } | null>(
+            `*[_type == "tag" && slug.current == $slug][0]{_id}`, { slug }
+          )
+          if (!existing) break
+          slug = `${baseSlug}-${++attempt}`
+        }
+        const newTag = await client.create({
+          _type: 'tag', title, slug: { current: slug, _type: 'slug' },
+        })
+        setAllTags((prev) => [...prev, { _id: newTag._id, title, slug: { current: slug } }])
+        return newTag._id
+      } catch (err: any) {
+        console.error('TagsInput resolveTagId error:', err)
+        setError(err?.message || `Failed to create tag "${title}". Check your Sanity token permissions.`)
+        return null
       }
-      const newTag = await client.create({
-        _type: 'tag', title, slug: { current: slug, _type: 'slug' },
-      })
-      setAllTags((prev) => [...prev, { _id: newTag._id, title, slug: { current: slug } }])
-      addTag(newTag._id)
-    } catch (err: any) {
-      console.error('TagsInput createTag error:', err)
-      setError(err?.message || 'Failed to create tag. Check your Sanity token permissions.')
-    } finally {
-      setCreating(false)
-    }
-  }
+    },
+    [allTags, client]
+  )
+
+  // Adds a batch of already-resolved tag ids to the field value in one patch.
+  const addTagIds = useCallback(
+    (ids: string[]) => {
+      const refs = (value as TagRef[]) || []
+      const seen = new Set(refs.map((r) => r._ref))
+      const newRefs: TagRef[] = []
+      for (const id of ids) {
+        if (!id || seen.has(id)) continue
+        seen.add(id)
+        newRefs.push({ _key: makeKey(), _type: 'reference', _ref: id })
+      }
+      if (!newRefs.length) return
+      try {
+        onChange(PatchEvent.from(set([...refs, ...newRefs])))
+      } catch (err) {
+        console.error('TagsInput addTagIds patch error:', err)
+        throw err
+      }
+    },
+    [value, onChange]
+  )
+
+  // Accepts free text that may contain multiple comma-separated tag names
+  // (e.g. "ABC, BCZ, MCS") and adds each one as its own tag in a single patch.
+  const processBulkInput = useCallback(
+    async (raw: string) => {
+      const titles = raw.split(',').map((t) => t.trim()).filter(Boolean)
+      if (!titles.length) return
+      setCreating(true)
+      setError(null)
+      try {
+        const ids: string[] = []
+        for (const title of titles) {
+          const id = await resolveTagId(title)
+          if (id && !ids.includes(id)) ids.push(id)
+        }
+        addTagIds(ids)
+      } finally {
+        setCreating(false)
+        setQuery('')
+        inputRef.current?.focus()
+      }
+    },
+    [resolveTagId, addTagIds]
+  )
 
   const selectedTags = ((value as TagRef[]) || []).map((r) => r._ref)
   const filteredSuggestions = suggestions.filter((s) => !selectedTags.includes(s._id))
@@ -136,7 +185,8 @@ export function TagsInput(props: ArrayOfObjectsInputProps) {
   return (
     <Stack space={3}>
       <Text size={1} muted>
-        Type to find tags or create a new one inline. Existing tags are shown as chips.
+        Type to find tags or create a new one inline. Existing tags are shown as chips. Separate
+        multiple tags with commas (e.g. &quot;ABC, BCZ, MCS&quot;) to add them all at once.
       </Text>
       <Flex gap={2} wrap="wrap">
         {((value as TagRef[]) || []).map((ref) => {
@@ -174,15 +224,35 @@ export function TagsInput(props: ArrayOfObjectsInputProps) {
           <TextInput
             ref={inputRef}
             value={query}
-            onChange={(e) => setQuery(e.currentTarget.value)}
+            onChange={(e) => {
+              const val = e.currentTarget.value
+              if (val.includes(',')) {
+                // Every completed segment (before the last comma) is
+                // resolved/created immediately; the text after the last
+                // comma remains as the in-progress query.
+                const parts = val.split(',')
+                const remainder = parts.pop() ?? ''
+                const completed = parts.map((p) => p.trim()).filter(Boolean)
+                if (completed.length) processBulkInput(completed.join(','))
+                setQuery(remainder.replace(/^\s+/, ''))
+              } else {
+                setQuery(val)
+              }
+            }}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 e.preventDefault()
-                if (filteredSuggestions.length === 1) addTag(filteredSuggestions[0]._id)
-                else if (!exactMatchByTitle && !exactMatchBySlug && query.trim()) createTag()
+                if (!query.trim()) return
+                if (query.includes(',')) {
+                  processBulkInput(query)
+                } else if (filteredSuggestions.length === 1) {
+                  addTag(filteredSuggestions[0]._id)
+                } else if (!exactMatchByTitle && !exactMatchBySlug) {
+                  processBulkInput(query)
+                }
               }
             }}
-            placeholder="BG, KRAFTON, Free Fire…"
+            placeholder="BG, KRAFTON, Free Fire… (comma-separated for multiple)"
             disabled={creating}
           />
 
@@ -213,9 +283,15 @@ export function TagsInput(props: ArrayOfObjectsInputProps) {
                     mode="ghost"
                     tone="primary"
                     justify="flex-start"
-                    onClick={createTag}
+                    onClick={() => processBulkInput(query)}
                     disabled={creating}
-                    text={creating ? 'Creating…' : `+ Create "${query.trim()}"`}
+                    text={
+                      creating
+                        ? 'Creating…'
+                        : query.includes(',')
+                          ? `+ Create ${query.split(',').map((t) => t.trim()).filter(Boolean).length} tags`
+                          : `+ Create "${query.trim()}"`
+                    }
                     size={1}
                   />
                 )}
