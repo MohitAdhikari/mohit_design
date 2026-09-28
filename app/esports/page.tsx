@@ -1,8 +1,7 @@
-import { getTournaments } from '@/lib/tournamentApi'
+import { getTournaments, getTournamentStatus } from '@/lib/tournamentApi'
 import { getEsportsRelatedNews } from '@/lib/api'
-import TournamentCard from '@/components/TournamentCard'
 import PageHeader from '@/components/PageHeader'
-import Reveal from '@/components/Reveal'
+import TournamentGrid from '@/components/TournamentGrid'
 import EsportsRelatedNews from '@/components/EsportsRelatedNews'
 import { Trophy } from 'lucide-react'
 import type { Metadata } from 'next'
@@ -21,10 +20,19 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic'
 
 export default async function TournamentsPage() {
-  const [tournaments, relatedNews] = await Promise.all([
+  const [tournamentsRaw, relatedNews] = await Promise.all([
     getTournaments(),
     getEsportsRelatedNews(),
   ])
+
+  const tournaments = tournamentsRaw.map((t) => ({
+    ...t,
+    status: getTournamentStatus(
+      t.latestEdition?.startDate ?? null,
+      t.latestEdition?.endDate ?? null,
+      t.latestEdition?.tournamentStatus ?? null,
+    ),
+  }))
 
   return (
     <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12">
@@ -51,13 +59,7 @@ export default async function TournamentsPage() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
-          {tournaments.map((tournament, i) => (
-            <Reveal key={tournament._id} delay={(i % 3) * 90} className="h-full">
-              <TournamentCard tournament={tournament} />
-            </Reveal>
-          ))}
-        </div>
+        <TournamentGrid tournaments={tournaments} />
       )}
 
       <EsportsRelatedNews articles={relatedNews} />

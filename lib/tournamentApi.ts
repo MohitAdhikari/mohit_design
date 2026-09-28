@@ -129,15 +129,20 @@ export async function getTournaments(): Promise<Tournament[]> {
 
   const raw = (await client.fetch(query)) ?? []
 
-  const order: Record<string, number> = {
-    group_stage: 0, survival_stage: 0, grand_finals: 0, upcoming: 1, completed: 2,
-  }
-
   return (raw as any[]).slice().sort((a, b) => {
-    const aS = a.latestEdition?.tournamentStatus ?? 'upcoming'
-    const bS = b.latestEdition?.tournamentStatus ?? 'upcoming'
-    const aO = order[aS] ?? 1
-    const bO = order[bS] ?? 1
+    const aStatus = getTournamentStatus(
+      a.latestEdition?.startDate ?? null, a.latestEdition?.endDate ?? null, a.latestEdition?.tournamentStatus ?? null,
+    )
+    const bStatus = getTournamentStatus(
+      b.latestEdition?.startDate ?? null, b.latestEdition?.endDate ?? null, b.latestEdition?.tournamentStatus ?? null,
+    )
+    // Use the *computed* status (which already accounts for an expired end
+    // date) for ordering, not the raw manual field — an edition whose end
+    // date has passed sorts as completed even if the editor never flipped
+    // `tournamentStatus` to "completed".
+    const rank: Record<'ONGOING' | 'UPCOMING' | 'COMPLETED', number> = { ONGOING: 0, UPCOMING: 1, COMPLETED: 2 }
+    const aO = rank[aStatus]
+    const bO = rank[bStatus]
     if (aO !== bO) return aO - bO
     const aD = a.latestEdition?.startDate ?? ''
     const bD = b.latestEdition?.startDate ?? ''
@@ -239,17 +244,24 @@ export function getTournamentStatus(
   endDate: string | null,
   tournamentStatus?: string | null,
 ): 'UPCOMING' | 'ONGOING' | 'COMPLETED' {
+  const now = Date.now()
+  const end = endDate ? new Date(endDate).getTime() : null
+
+  // The end date is the source of truth for "is this over" — once it has
+  // passed, the edition is always COMPLETED regardless of whatever
+  // in-progress stage (`group_stage`, `grand_finals`, etc.) an editor last
+  // left `tournamentStatus` on. This is what makes "Ongoing" expire
+  // automatically instead of needing someone to remember to flip it.
+  if (end && now > end) return 'COMPLETED'
+
   if (tournamentStatus) {
     if (tournamentStatus === 'completed') return 'COMPLETED'
     if (tournamentStatus === 'upcoming')  return 'UPCOMING'
     return 'ONGOING'
   }
   if (!startDate) return 'UPCOMING'
-  const now   = Date.now()
   const start = new Date(startDate).getTime()
-  const end   = endDate ? new Date(endDate).getTime() : null
   if (now < start) return 'UPCOMING'
-  if (end && now > end) return 'COMPLETED'
   return 'ONGOING'
 }
 
@@ -483,4 +495,212 @@ export async function getActiveEdition(): Promise<any | null> {
        "tournament": tournament->{ name, "slug": slug.current }
      }`,
   )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BGMI HISTORY — appended to lib/tournamentApi.ts
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface BGMIStandingRow {
+  rank:            number;
+  teamName:        string;
+  teamSlug:        string | null;
+  teamLogo:        string | null;
+  matchesPlayed:   number;
+  wwcd:            number;
+  kills:           number;
+  placementPoints: number;
+  points:          number;
+  totalPoints:     number;
+}
+
+export interface StandingDoc {
+  _id:         string;
+  title:       string;
+  stage:       string;
+  status:      "draft" | "published" | "archived" | "snapshot" | "live" | "final";
+  afterMatch:  number | null;
+  lastUpdated: string;
+  rows:        BGMIStandingRow[];
+}
+
+export interface TournamentEditionSummary {
+  _id:          string;
+  title:        string;
+  slug:         string;
+  year:         number;
+  format:       "lan" | "online";
+  status:       string;
+  prizePool:    string | null;
+  venue:        string | null;
+  startDate:    string | null;
+  endDate:      string | null;
+  totalMatches: number | null;
+  champion:     string | null;
+  notes:        string | null;
+  tournament:   { _id: string; name: string; slug: string } | null;
+}
+
+// ── Shared GROQ fragments ─────────────────────────────────────────────────────
+
+const ROW_PROJECTION = /* groq */ `
+  rows[] | order(rank asc) {
+    rank,
+    teamName,
+    "teamSlug": team->slug.current,
+    "teamLogo": team->logo.asset->url,
+    matchesPlayed,
+    wwcd,
+    kills,
+    placementPoints,
+    points,
+    totalPoints
+  }
+`;
+
+const EDITION_PROJECTION = /* groq */ `
+  _id,
+  title,
+  "slug": slug.current,
+  year,
+  format,
+  status,
+  prizePool,
+  venue,
+  startDate,
+  endDate,
+  totalMatches,
+  champion,
+  notes,
+  "tournament": tournament->{ _id, name, "slug": slug.current }
+`;
+
+// ── New query functions ───────────────────────────────────────────────────────
+
+/**
+ * All standing docs for an edition — final + all snapshots.
+ * Sort: "final" first (string asc pushes "final" before "snapshot"),
+ * then by afterMatch descending so Day 3 > Day 2 > Day 1.
+ */
+export async function getAllStandingsForEdition(
+  editionId: string
+): Promise<StandingDoc[]> {
+  return client.fetch(
+    /* groq */ `
+      *[_type == "standing" && edition._ref == $editionId]
+      | order(status asc, afterMatch desc) {
+        _id, title, stage, status, afterMatch, lastUpdated,
+        ${ROW_PROJECTION}
+      }
+    `,
+    { editionId }
+  );
+}
+
+/**
+ * Single FINAL standing for an edition.
+ * Falls back to the most-recent snapshot if no "final" doc exists yet.
+ */
+export async function getFinalStandings(
+  editionId: string
+): Promise<StandingDoc | null> {
+  const final: StandingDoc | null = await client.fetch(
+    /* groq */ `
+      *[_type == "standing" && edition._ref == $editionId && status == "final"][0] {
+        _id, title, stage, status, afterMatch, lastUpdated,
+        ${ROW_PROJECTION}
+      }
+    `,
+    { editionId }
+  );
+  if (final) return final;
+
+  return client.fetch(
+    /* groq */ `
+      *[_type == "standing" && edition._ref == $editionId]
+      | order(lastUpdated desc)[0] {
+        _id, title, stage, status, afterMatch, lastUpdated,
+        ${ROW_PROJECTION}
+      }
+    `,
+    { editionId }
+  );
+}
+
+/**
+ * Day-1 snapshot — the snapshot with the lowest afterMatch value.
+ */
+export async function getDay1Standings(
+  editionId: string
+): Promise<StandingDoc | null> {
+  return client.fetch(
+    /* groq */ `
+      *[_type == "standing" && edition._ref == $editionId && status == "snapshot"]
+      | order(afterMatch asc)[0] {
+        _id, title, stage, status, afterMatch, lastUpdated,
+        ${ROW_PROJECTION}
+      }
+    `,
+    { editionId }
+  );
+}
+
+/**
+ * All editions for a series slug (bgis / bmps / bgms), newest first.
+ */
+export async function getEditionsByTournament(
+  tournamentSlug: string
+): Promise<TournamentEditionSummary[]> {
+  return client.fetch(
+    /* groq */ `
+      *[_type == "tournamentEdition" && tournament->slug.current == $tournamentSlug]
+      | order(year desc, startDate desc) {
+        ${EDITION_PROJECTION}
+      }
+    `,
+    { tournamentSlug }
+  );
+}
+
+/**
+ * Single edition by slug, all its standings embedded.
+ */
+export async function getEditionWithStandings(
+  editionSlug: string
+): Promise<(TournamentEditionSummary & { standings: StandingDoc[] }) | null> {
+  const edition: TournamentEditionSummary | null = await client.fetch(
+    /* groq */ `
+      *[_type == "tournamentEdition" && slug.current == $editionSlug][0] {
+        ${EDITION_PROJECTION}
+      }
+    `,
+    { editionSlug }
+  );
+  if (!edition) return null;
+
+  const standings = await getAllStandingsForEdition(edition._id);
+  return { ...edition, standings };
+}
+
+/**
+ * Every edition across all series, newest first.
+ */
+export async function getAllEditions(): Promise<TournamentEditionSummary[]> {
+  return client.fetch(
+    /* groq */ `
+      *[_type == "tournamentEdition"]
+      | order(year desc, startDate desc) {
+        ${EDITION_PROJECTION}
+      }
+    `
+  );
+}
+
+/**
+ * All edition slugs — for generateStaticParams if needed later.
+ */
+export async function getAllEditionSlugs(): Promise<string[]> {
+  return client.fetch(
+    /* groq */ `*[_type == "tournamentEdition"].slug.current` 
+  );
 }

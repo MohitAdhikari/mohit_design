@@ -38,7 +38,9 @@ export default function TournamentCard({ tournament }: { tournament: Tournament 
 
   const stageLabel: Record<string, string> = {
     group_stage: 'Group Stage',
+    league_stage: 'League Stage',
     survival_stage: 'Survival Stage',
+    playoffs: 'Playoffs',
     grand_finals: 'Grand Finals',
   }
   const currentStage = latestEdition?.tournamentStatus
