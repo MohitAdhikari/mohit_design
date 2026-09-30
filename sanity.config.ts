@@ -25,7 +25,21 @@ export default defineConfig({
   basePath: '/studio',
   projectId: projectId || 'nlydr3l6',
   dataset: dataset || 'production',
-  schema,
+  schema: {
+    ...schema,
+    templates: (prev) => [
+      ...prev,
+      {
+        id: 'edition-for-tournament',
+        title: 'Tournament Edition',
+        schemaType: 'tournamentEdition',
+        parameters: [{ name: 'tournamentId', type: 'string' }],
+        value: ({ tournamentId }: { tournamentId: string }) => ({
+          tournament: { _type: 'reference', _ref: tournamentId },
+        }),
+      },
+    ],
+  },
   document: {
     views: (prev: any[], context: { schemaType: string }) => {
       if (context.schemaType === 'tag') {

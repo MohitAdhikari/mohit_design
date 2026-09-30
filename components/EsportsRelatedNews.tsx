@@ -22,7 +22,15 @@ interface RelatedArticle {
   tags?: RelatedTag[];
 }
 
-export default function EsportsRelatedNews({ articles }: { articles: RelatedArticle[] }) {
+export default function EsportsRelatedNews({
+  articles,
+  eyebrow = 'Related Coverage',
+  title = 'Esports News',
+}: {
+  articles: RelatedArticle[];
+  eyebrow?: string;
+  title?: string;
+}) {
   const filters = useMemo(() => {
     const set = new Set<string>();
     articles.forEach((a) => {
@@ -48,10 +56,10 @@ export default function EsportsRelatedNews({ articles }: { articles: RelatedArti
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div>
           <span className="text-[10px] md:text-xs font-mono uppercase tracking-[0.25em] text-gray-500 dark:text-gray-500">
-            Related Coverage
+            {eyebrow}
           </span>
           <h2 className="text-2xl md:text-3xl font-black font-space-grotesk tracking-tighter text-gray-900 dark:text-white mt-1">
-            Esports News
+            {title}
           </h2>
         </div>
 

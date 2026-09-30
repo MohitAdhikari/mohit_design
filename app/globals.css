@@ -207,7 +207,12 @@ html {
   0%   { transform: translateX(-120%) skewX(-15deg); }
   100% { transform: translateX(220%) skewX(-15deg); }
 }
-.sheen-parent { position: relative; overflow: hidden; }
+/* Layered so Tailwind utilities (e.g. `absolute inset-0` on the desktop hero
+   overlay link) win over this default — unlayered, `position: relative`
+   collapsed the hero overlay to 0px and hid the title/category/author. */
+@layer components {
+  .sheen-parent { position: relative; overflow: hidden; }
+}
 .sheen-parent::after {
   content: "";
   position: absolute;

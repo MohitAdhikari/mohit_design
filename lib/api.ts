@@ -291,6 +291,28 @@ export async function getEsportsRelatedNews(limit = 12): Promise<any[]> {
   return client.fetch(query, { limit, esportsTagNames });
 }
 
+// Articles about one tournament — linked via the post's Tournament field,
+// its Tournament Edition (Tournament tab), a tag with the tournament's name,
+// or the name appearing in the title. Shown below the tournament page.
+export async function getTournamentRelatedNews(
+  tournament: { _id: string; name: string },
+  limit = 12,
+): Promise<any[]> {
+  if (!projectId) return [];
+  const query = `*[_type == "newsPost" && ${PUBLISHED_NEWSPOST_FILTER} && (
+    tournament._ref == $id ||
+    matchMeta.tournamentEdition->tournament._ref == $id ||
+    count((tags[]->title)[lower(@) == $lname]) > 0 ||
+    title match $name
+  )] | order(dateTime(coalesce(publishDate, _createdAt)) desc) [0...$limit] {
+    _id, title, slug, publishDate, "thumbnail": thumbnail.asset->url, category,
+    "tags": tags[]->{ _id, title, "slug": slug.current }
+  }`;
+  return client
+    .fetch(query, { id: tournament._id, name: tournament.name, lname: tournament.name.toLowerCase(), limit })
+    .catch(() => []);
+}
+
 async function fetchInterviews(): Promise<any[]> {
   if (!projectId) {
     return sortByTimestamp(mockData.interviews, 'publishDate');

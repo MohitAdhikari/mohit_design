@@ -1,4 +1,5 @@
 import { defineType, defineField } from 'sanity'
+import { GameSelectInput } from '../components/GameSelectInput'
 
 export const team = defineType({
   name: 'team',
@@ -40,10 +41,7 @@ export const team = defineType({
       name: 'game',
       title: 'Game',
       type: 'string',
-      options: {
-        list: ['PUBG Mobile', 'BGMI', 'Valorant', 'Free Fire', 'Call of Duty Mobile', 'Mobile Legends', 'Multi-title', 'Other'],
-        layout: 'dropdown',
-      },
+      components: { input: GameSelectInput },
     }),
     defineField({
       name: 'country',

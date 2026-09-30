@@ -10,6 +10,7 @@ const HIDDEN_TYPES = [
   'category',
   'subCategory',
   'tag',
+  'game',
   'tournament',
   'tournamentEdition',
   'team',
@@ -60,32 +61,56 @@ export const structure: StructureResolver = (S) =>
                   S.documentTypeList('tournament')
                     .title('Tournaments')
                     .child((tournamentId: string) =>
-                      S.documentTypeList('tournamentEdition')
-                        .title('Editions')
-                        .filter('_type == "tournamentEdition" && tournament._ref == $tournamentId')
-                        .params({ tournamentId })
-                        .child((editionId: string) =>
-                          S.list()
-                            .title('Edition')
-                            .items([
-                              S.listItem()
-                                .title('Matches')
-                                .child(
-                                  S.documentTypeList('match')
-                                    .title('Matches')
-                                    .filter('_type == "match" && edition._ref == $editionId')
-                                    .params({ editionId })
-                                ),
-                              S.listItem()
-                                .title('Standings')
-                                .child(
-                                  S.documentTypeList('standing')
-                                    .title('Standings')
-                                    .filter('_type == "standing" && edition._ref == $editionId')
-                                    .params({ editionId })
-                                ),
-                            ])
-                        )
+                      S.list()
+                        .title('Tournament')
+                        .items([
+                          // Opens the tournament doc itself so name, logo,
+                          // banner, colour etc. can be edited.
+                          S.listItem()
+                            .title('✏️ Edit Tournament (name, logo, banner)')
+                            .child(S.document().schemaType('tournament').documentId(tournamentId)),
+                          S.listItem()
+                            .title('📅 Editions')
+                            .child(
+                              S.documentTypeList('tournamentEdition')
+                                .title('Editions')
+                                .filter('_type == "tournamentEdition" && tournament._ref == $tournamentId')
+                                .params({ tournamentId })
+                                .initialValueTemplates([
+                                  S.initialValueTemplateItem('edition-for-tournament', { tournamentId }),
+                                ])
+                                .child((editionId: string) =>
+                                  S.list()
+                                    .title('Edition')
+                                    .items([
+                                      S.listItem()
+                                        .title('✏️ Edit Edition (name, banner, prizes, teams)')
+                                        .child(S.document().schemaType('tournamentEdition').documentId(editionId)),
+                                      S.listItem()
+                                        .title('Matches')
+                                        .child(
+                                          S.documentTypeList('match')
+                                            .title('Matches')
+                                            .filter('_type == "match" && edition._ref == $editionId')
+                                            .params({ editionId })
+                                        ),
+                                      S.listItem()
+                                        .title('Standings')
+                                        .child(
+                                          S.documentTypeList('standing')
+                                            .title('Standings')
+                                            .filter('_type == "standing" && edition._ref == $editionId')
+                                            .params({ editionId })
+                                            .defaultOrdering([
+                                              { field: 'week', direction: 'desc' },
+                                              { field: 'day', direction: 'desc' },
+                                              { field: 'group', direction: 'asc' },
+                                            ])
+                                        ),
+                                    ])
+                                )
+                            ),
+                        ])
                     )
                 ),
               S.documentTypeListItem('tournamentEdition').title('Tournament Editions'),
@@ -93,6 +118,7 @@ export const structure: StructureResolver = (S) =>
               S.documentTypeListItem('standing').title('Standings'),
               S.documentTypeListItem('match').title('Matches'),
               S.documentTypeListItem('player').title('Players'),
+              S.documentTypeListItem('game').title('🎮 Games'),
             ])
         ),
 
@@ -110,6 +136,7 @@ export const structure: StructureResolver = (S) =>
               S.documentTypeListItem('author').title('Authors'),
               S.documentTypeListItem('category').title('Categories'),
               S.documentTypeListItem('subCategory').title('Sub Categories'),
+              S.documentTypeListItem('game').title('🎮 Games'),
 
               // Tag Manager (custom grouped view)
               S.listItem()

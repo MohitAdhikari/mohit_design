@@ -1,5 +1,13 @@
-import { type ReactNode } from 'react'
+import { createElement } from 'react'
 import { defineType, defineField } from 'sanity'
+import { TournamentSwatch } from '../components/TournamentSwatch'
+import {
+  EditionStagesPasteInput,
+  ParticipantsPasteInput,
+  PrizePlacementsPasteInput,
+  PrizeStagesPasteInput,
+  TeamRefsPasteInput,
+} from '../components/BulkPasteArrayInput'
 
 export const tournamentEdition = defineType({
   name: 'tournamentEdition',
@@ -27,6 +35,13 @@ export const tournamentEdition = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'name',
+      title: 'Edition Name (optional)',
+      type: 'string',
+      description:
+        'Custom display name, e.g. "BGIS 2026: The Grind". Leave empty to use "<Tournament name> <Year>". Rename the tournament itself from its own document.',
+    }),
+    defineField({
       name: 'slug',
       title: 'Slug',
       type: 'slug',
@@ -47,8 +62,8 @@ export const tournamentEdition = defineType({
         list: [
           { title: '🔵 Upcoming',      value: 'upcoming' },
           { title: '🟢 Group Stage',   value: 'group_stage' },
-          { title: '� League Stage',  value: 'league_stage' },
-          { title: '�🟡 Survival Stage', value: 'survival_stage' },
+          { title: '🟣 League Stage',  value: 'league_stage' },
+          { title: '🟡 Survival Stage', value: 'survival_stage' },
           { title: '🟠 Playoffs',      value: 'playoffs' },
           { title: '🔴 Grand Finals',  value: 'grand_finals' },
           { title: '⚫ Completed',     value: 'completed' },
@@ -64,6 +79,7 @@ export const tournamentEdition = defineType({
       title: 'Stages',
       type: 'array',
       description: 'Add each stage (Group Stage, Survival Stage, Grand Finals, etc.)',
+      components: { input: EditionStagesPasteInput },
       of: [
         {
           type: 'object',
@@ -99,7 +115,13 @@ export const tournamentEdition = defineType({
     }),
 
     // ── Details ───────────────────────────────────────────────
-    defineField({ name: 'editionBanner', title: 'Edition Banner', type: 'image', options: { hotspot: true } }),
+    defineField({
+      name: 'editionBanner',
+      title: 'Edition Banner',
+      type: 'image',
+      options: { hotspot: true },
+      description: 'Optional wide banner for this edition. If empty, the tournament banner is used, then the tournament logo.',
+    }),
     defineField({ name: 'startDate',    title: 'Start Date (Overall)', type: 'datetime' }),
     defineField({ name: 'endDate',      title: 'End Date (Overall)',   type: 'datetime' }),
     defineField({ name: 'venue',        title: 'Venue / City',         type: 'string' }),
@@ -151,6 +173,7 @@ export const tournamentEdition = defineType({
       type: 'array',
       description: 'Per-stage breakdown — Group Stage, Survival Stage, Grand Finals, Bonuses, etc.',
       group: 'prizePool',
+      components: { input: PrizeStagesPasteInput },
       of: [
         {
           type: 'object',
@@ -192,6 +215,7 @@ export const tournamentEdition = defineType({
       type: 'array',
       description: '1st, 2nd, 3rd … MVP, Best IGL, etc.',
       group: 'prizePool',
+      components: { input: PrizePlacementsPasteInput },
       of: [
         {
           type: 'object',
@@ -215,11 +239,13 @@ export const tournamentEdition = defineType({
               },
             }),
             defineField({ name: 'team',  title: 'Team',  type: 'reference', to: [{ type: 'team' }] }),
+            defineField({ name: 'teamName', title: 'Team Name Fallback', type: 'string', description: 'Used when no Team doc is linked.' }),
             defineField({ name: 'notes', title: 'Notes', type: 'string' }),
           ],
           preview: {
-            select: { placement: 'placement', prize: 'prize', currency: 'currency', teamName: 'team.name' },
-            prepare({ placement, prize, currency, teamName }: Record<string, unknown>) {
+            select: { placement: 'placement', prize: 'prize', currency: 'currency', teamRefName: 'team.name', fallbackName: 'teamName' },
+            prepare({ placement, prize, currency, teamRefName, fallbackName }: Record<string, unknown>) {
+              const teamName = teamRefName || fallbackName
               const sym = currency === 'USD' ? '$' : currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : '₹'
               const val = typeof prize === 'number' ? `${sym}${(prize as number).toLocaleString()}` : '—'
               return {
@@ -243,6 +269,7 @@ export const tournamentEdition = defineType({
       title: 'Participants',
       type: 'array',
       description: 'Rich participant list with seeding, group, and invite source.',
+      components: { input: ParticipantsPasteInput },
       of: [{ type: 'editionParticipant' }],
     }),
     defineField({
@@ -251,6 +278,7 @@ export const tournamentEdition = defineType({
       description: 'Legacy simple list. Prefer participants[] for all new editions.',
       type: 'array',
       of: [{ type: 'reference', to: [{ type: 'team' }] }],
+      components: { input: TeamRefsPasteInput },
     }),
     defineField({ name: 'winner',   title: 'Winner',    type: 'reference', to: [{ type: 'team' }] }),
     defineField({ name: 'runnerUp', title: 'Runner Up', type: 'reference', to: [{ type: 'team' }] }),
@@ -286,18 +314,23 @@ export const tournamentEdition = defineType({
   preview: {
     select: {
       tournamentName: 'tournament.name',
+      color: 'tournament.accentColor',
+      name: 'name',
       year: 'year',
       status: 'tournamentStatus',
       media: 'tournament.logo',
     },
-    prepare({ tournamentName, year, status, media }) {
+    prepare({ tournamentName, color, name, year, status, media }) {
       const statusIcon: Record<string, string> = {
-        upcoming: '🔵', group_stage: '🟢', survival_stage: '🟡', grand_finals: '🔴', completed: '⚫',
+        upcoming: '🔵', group_stage: '🟢', league_stage: '🟣', survival_stage: '🟡',
+        playoffs: '🟠', grand_finals: '🔴', completed: '⚫',
       }
       const icon = typeof status === 'string' ? (statusIcon[status] ?? '') : ''
+      const label = name || `${tournamentName ?? ''} — ${year ?? ''}`
       return {
-        title: `${icon} ${tournamentName ?? ''} — ${year ?? ''}`.trim() || 'Untitled Edition',
-        media: media as ReactNode,
+        title: `${icon} ${label}`.trim() || 'Untitled Edition',
+        subtitle: name ? `${tournamentName ?? ''} · ${year ?? ''}` : undefined,
+        media: media ?? createElement(TournamentSwatch, { name: tournamentName, color }),
       }
     },
   },

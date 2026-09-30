@@ -1,4 +1,8 @@
+import { createElement } from 'react'
 import { defineType, defineField } from 'sanity'
+import { GameSelectInput } from '../components/GameSelectInput'
+import { TournamentSwatch } from '../components/TournamentSwatch'
+import { TOURNAMENT_COLORS } from '../../lib/tournamentColors'
 
 export const tournament = defineType({
   name: 'tournament',
@@ -9,6 +13,7 @@ export const tournament = defineType({
       name: 'name',
       title: 'Tournament Name',
       type: 'string',
+      description: 'You can rename the tournament any time — the slug (URL) only changes if you regenerate it below.',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -21,8 +26,16 @@ export const tournament = defineType({
       name: 'game',
       title: 'Game',
       type: 'string',
+      components: { input: GameSelectInput },
+    }),
+    defineField({
+      name: 'accentColor',
+      title: 'Accent Colour',
+      type: 'string',
+      description:
+        'Helps tell similar tournaments apart in the Studio and on the site. Leave empty to auto-pick a stable colour from the name.',
       options: {
-        list: ['PUBG Mobile', 'BGMI', 'Valorant', 'Free Fire', 'Call of Duty Mobile', 'Mobile Legends', 'Other'],
+        list: TOURNAMENT_COLORS.map((c) => ({ title: c.title, value: c.value })),
         layout: 'dropdown',
       },
     }),
@@ -45,12 +58,14 @@ export const tournament = defineType({
       title: 'Logo',
       type: 'image',
       options: { hotspot: true },
+      description: 'PNG with transparent background works best. Also used as the banner when no banner image is uploaded.',
     }),
     defineField({
       name: 'banner',
       title: 'Banner',
       type: 'image',
       options: { hotspot: true },
+      description: 'Wide image for the tournament page header (recommended 1920×600). Optional — the logo is shown instead if empty.',
     }),
     defineField({
       name: 'liquipediaUrl',
@@ -75,6 +90,13 @@ export const tournament = defineType({
     }),
   ],
   preview: {
-    select: { title: 'name', subtitle: 'game', media: 'logo' },
+    select: { title: 'name', game: 'game', media: 'logo', color: 'accentColor' },
+    prepare({ title, game, media, color }) {
+      return {
+        title,
+        subtitle: game,
+        media: media ?? createElement(TournamentSwatch, { name: title, color }),
+      }
+    },
   },
 })

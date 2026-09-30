@@ -20,6 +20,9 @@ import { Trophy, Users, ChevronDown } from 'lucide-react'
 import Tabs from '@/components/Tabs'
 import { EditionTabs } from '@/components/EditionTabs'
 import type { Metadata } from 'next'
+import EsportsRelatedNews from '@/components/EsportsRelatedNews'
+import { getTournamentRelatedNews } from '@/lib/api'
+import { tournamentAccent } from '@/lib/tournamentColors'
 
 // ZERO-ISR MODE: rendered per request, never written to the ISR cache.
 // This makes Vercel "ISR Write Units" structurally impossible to consume,
@@ -40,7 +43,7 @@ export async function generateMetadata({
   return {
     title: `${t.name} | PHONEOCEAN`,
     description: t.description ?? `${t.name} — esports tournament coverage, results, and prize pool information.`,
-    openGraph: { images: t.bannerUrl ? [{ url: t.bannerUrl }] : [] },
+    openGraph: { images: (t.bannerUrl || t.logoUrl) ? [{ url: (t.bannerUrl || t.logoUrl)! }] : [] },
   }
 }
 
@@ -193,7 +196,7 @@ function PrizeSection({ editions }: { editions: TournamentEdition[] }) {
                                       <TeamLogo src={row.team.logoUrl} name={row.team.name} size={22} className="w-5 h-5 flex-shrink-0" />
                                       <span className="text-gray-900 dark:text-gray-100 font-medium">{row.team.name}</span>
                                     </div>
-                                  ) : <span className="text-gray-400 dark:text-gray-600">—</span>}
+                                  ) : row.teamName ? <span className="text-gray-900 dark:text-gray-100 font-medium">{row.teamName}</span> : <span className="text-gray-400 dark:text-gray-600">—</span>}
                                 </td>
                                 <td className="py-3 px-4 text-right font-mono font-semibold text-gray-900 dark:text-gray-100">
                                   {row.prize != null ? formatCurrency(row.prize, row.currency ?? currency) : '—'}
@@ -255,7 +258,7 @@ function PrizeSection({ editions }: { editions: TournamentEdition[] }) {
                                   <TeamLogo src={row.team.logoUrl} name={row.team.name} size={22} className="w-5 h-5 flex-shrink-0" />
                                   <span className="text-gray-900 dark:text-gray-100 font-medium">{row.team.name}</span>
                                 </div>
-                              ) : <span className="text-gray-400 dark:text-gray-600">—</span>}
+                              ) : row.teamName ? <span className="text-gray-900 dark:text-gray-100 font-medium">{row.teamName}</span> : <span className="text-gray-400 dark:text-gray-600">—</span>}
                             </td>
                             <td className="py-3 px-4 text-right font-mono font-semibold text-gray-900 dark:text-gray-100">
                               {row.prize != null ? formatCurrency(row.prize, row.currency ?? currency) : '—'}
@@ -285,7 +288,7 @@ function PrizeSection({ editions }: { editions: TournamentEdition[] }) {
                                       <TeamLogo src={row.team.logoUrl} name={row.team.name} size={20} className="w-5 h-5" />
                                       <span className="text-gray-700 dark:text-gray-300 font-medium">{row.team.name}</span>
                                     </div>
-                                  ) : <span className="text-gray-400 dark:text-gray-600">—</span>}
+                                  ) : row.teamName ? <span className="text-gray-900 dark:text-gray-100 font-medium">{row.teamName}</span> : <span className="text-gray-400 dark:text-gray-600">—</span>}
                                 </td>
                                 <td className="py-2.5 px-4 text-right font-mono text-gray-700 dark:text-gray-300">
                                   {row.prize != null ? formatCurrency(row.prize, row.currency ?? currency) : '—'}
@@ -403,8 +406,16 @@ export default async function TournamentDetailPage({
   const tournament = await getTournamentBySlug(slug)
   if (!tournament) notFound()
 
-  const editions: TournamentEdition[] = await getTournamentEditions(tournament._id).catch(() => [])
+  const [editions, relatedNews] = await Promise.all([
+    getTournamentEditions(tournament._id).catch((): TournamentEdition[] => []),
+    getTournamentRelatedNews(tournament),
+  ])
   const latest  = editions[0] ?? null
+  const accent  = tournamentAccent(tournament.name, tournament.accentColor)
+  // Banner priority: tournament banner → latest edition banner → tournament logo.
+  // (editionBannerUrl already falls back to the tournament banner/logo in GROQ.)
+  const bannerSrc = tournament.bannerUrl || latest?.editionBannerUrl || null
+  const bannerIsLogo = !!bannerSrc && bannerSrc === tournament.logoUrl
   const status  = getTournamentStatus(latest?.startDate ?? null, latest?.endDate ?? null, latest?.tournamentStatus ?? null)
   const latestPrize = latest ? getEditionPrizeDisplay(latest) : null
 
@@ -418,10 +429,23 @@ export default async function TournamentDetailPage({
 
       {/* Hero */}
       <div className="relative w-full h-[340px] md:h-[420px] overflow-hidden">
-        {tournament.bannerUrl
-          ? <Image src={tournament.bannerUrl} alt={tournament.name} fill priority sizes="100vw" className="object-cover" />
-          : <div className="w-full h-full bg-gradient-to-br from-gray-900 via-[#0E0E1A] to-black" />
-        }
+        {bannerSrc && !bannerIsLogo ? (
+          <Image src={bannerSrc} alt={tournament.name} fill priority sizes="100vw" className="object-cover" />
+        ) : tournament.logoUrl ? (
+          // No banner uploaded → use the tournament logo PNG as the banner:
+          // blurred cover fill behind a sharp, centred logo.
+          <>
+            <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${accent}55, #0B0B0F 70%)` }} />
+            <Image src={tournament.logoUrl} alt="" aria-hidden fill priority sizes="100vw" className="object-cover blur-3xl opacity-40 scale-125" />
+            <div className="absolute inset-0 flex items-center justify-center pb-24 md:pb-20">
+              <div className="relative w-2/3 max-w-[520px] h-[55%]">
+                <Image src={tournament.logoUrl} alt={tournament.name} fill sizes="520px" className="object-contain drop-shadow-2xl" />
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="w-full h-full" style={{ background: `linear-gradient(135deg, ${accent}40, #0E0E1A 55%, #000)` }} />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
 
         <div className="absolute top-6 left-4 sm:left-8 z-10">
@@ -516,6 +540,8 @@ export default async function TournamentDetailPage({
           </div>
 
         </Tabs>
+
+        <EsportsRelatedNews articles={relatedNews} eyebrow="Latest Coverage" title={`${tournament.name} News`} />
       </div>
     </div>
   )

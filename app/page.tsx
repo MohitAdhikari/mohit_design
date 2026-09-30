@@ -13,6 +13,8 @@ import {
   suppressMatchRecaps,
 } from '@/lib/tournamentSpotlight';
 import { homepageSort } from '@/lib/homepageSort';
+import { getMarqueeGames } from '@/lib/gamesApi';
+import { tournamentAccent } from '@/lib/tournamentColors';
 
 // ZERO-ISR MODE: rendered per request, never written to the ISR cache.
 // This makes Vercel "ISR Write Units" structurally impossible to consume,
@@ -85,14 +87,16 @@ function limitRedeemInFirstN<T extends { isRedeemCodes?: boolean }>(pool: T[], n
 }
 
 export default async function Home() {
-  const [news, interviews, guides, settings, homepage, tournaments] = await Promise.all([
+  const [news, interviews, guides, settings, homepage, tournaments, marqueeGames] = await Promise.all([
     getPublicNewsPosts(),
     getInterviews(),
     getGuides(),
     getSiteSettings(),
     getHomepage(),
     getTournaments(),
+    getMarqueeGames(),
   ]);
+  const marqueeNames = marqueeGames.map((g) => g.name);
 
   const ongoingTournaments = tournaments
     .map((t) => ({
@@ -380,7 +384,7 @@ export default async function Home() {
           </div>
         </section>
 
-        <Reveal initial><GamesMarquee /></Reveal>
+        <Reveal initial><GamesMarquee games={marqueeNames} /></Reveal>
 
         {mobileFeed.length > 8 && (
           <section>
@@ -470,7 +474,7 @@ export default async function Home() {
           )}
 
           {/* ── GAMES MARQUEE ── */}
-          <GamesMarquee />
+          <GamesMarquee games={marqueeNames} />
 
           {/* ── LATEST FEED ── */}
           <Reveal as="section" className="space-y-5" initial>
@@ -681,8 +685,9 @@ export default async function Home() {
                   <Link
                     key={t._id}
                     href={t.slug?.current ? `/esports/${t.slug.current}` : '/esports'}
-                    className="group flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-[#13131A] transition-colors duration-200"
+                    className="group relative flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-[#13131A] transition-colors duration-200"
                   >
+                    <span className="absolute inset-y-0 left-0 w-1" style={{ background: tournamentAccent(t.name, t.accentColor) }} />
                     <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 border border-gray-100 dark:border-gray-800/50 bg-gray-100 dark:bg-[#13131A] flex items-center justify-center">
                       {t.logoUrl ? (
                         <Image src={t.logoUrl} alt={t.name} fill sizes="48px" className="object-contain p-1" referrerPolicy="no-referrer" />

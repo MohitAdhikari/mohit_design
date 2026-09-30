@@ -23,6 +23,7 @@ export interface Tournament {
   region: string | null
   logoUrl: string | null
   bannerUrl: string | null
+  accentColor?: string | null
   organizer: string | null
   liquipediaUrl: string | null
   officialUrl: string | null
@@ -70,12 +71,14 @@ export interface PrizePlacement {
   prize?: number | null
   currency?: string | null
   team?: TeamSummary | null
+  teamName?: string | null
   notes?: string | null
 }
 
 export interface TournamentEdition {
   _id: string
   year: string
+  name?: string | null
   slug: { current: string } | null
   tournamentStatus: 'upcoming' | 'group_stage' | 'survival_stage' | 'grand_finals' | 'completed' | null
   stages: TournamentStage[]
@@ -117,6 +120,7 @@ export async function getTournaments(): Promise<Tournament[]> {
     _id, _createdAt, name, slug, game, region,
     "logoUrl": logo.asset->url,
     "bannerUrl": banner.asset->url,
+    accentColor,
     organizer, liquipediaUrl, officialUrl, twitterUrl, description,
     "latestEdition": *[
       _type == "tournamentEdition" &&
@@ -156,6 +160,7 @@ export async function getTournamentBySlug(slug: string): Promise<Tournament | nu
       _id, _createdAt, name, slug, game, region,
       "logoUrl": logo.asset->url,
       "bannerUrl": banner.asset->url,
+      accentColor,
       organizer, liquipediaUrl, officialUrl, twitterUrl, description
     }`,
     { slug },
@@ -169,14 +174,14 @@ export async function getTournamentEditions(tournamentId: string): Promise<Tourn
       tournament._ref == $tournamentId &&
       publishStatus == "published"
     ] | order(startDate desc) {
-      _id, year, slug, tournamentStatus,
+      _id, year, name, slug, tournamentStatus,
       "stages": stages[]{ name, status, startDate, endDate, venue, format, totalTeams, teamsAdvancing, notes },
-      "editionBannerUrl": editionBanner.asset->url,
+      "editionBannerUrl": coalesce(editionBanner.asset->url, tournament->banner.asset->url, tournament->logo.asset->url),
       startDate, endDate, venue, format,
       totalPrizePool, prizePoolCurrency, prizePoolDisplay,
       "prizePoolStages": prizePoolStages[]{ _key, stageName, stagePool, stageCurrency, stageNotes },
       "prizePlacements": prizePlacements[]{
-        _key, placement, prize, currency, notes,
+        _key, placement, prize, currency, notes, teamName,
         "team": team->{ ${TEAM_FRAGMENT} }
       },
       totalTeams, liquipediaUrl, officialUrl, twitterUrl,
@@ -206,7 +211,7 @@ export async function getEditionBySlug(
 ): Promise<{ _id: string; title: string; slug: { current: string } | null } | null> {
   return client.fetch(
     `*[_type in ["edition","tournamentEdition"] && slug.current == $slug && publishStatus == "published"][0]{
-      _id, "title": tournament->name + " — " + year, slug
+      _id, "title": coalesce(name, tournament->name + " — " + year), slug
     }`,
     { slug },
   )
@@ -218,7 +223,7 @@ export async function getActiveEditionByTournamentSlug(
   return client.fetch(
     `*[_type in ["edition","tournamentEdition"] && tournament->slug.current == $slug]
      | order(startDate desc)[0]{
-       _id, "title": tournament->name + " — " + year, slug
+       _id, "title": coalesce(name, tournament->name + " — " + year), slug
      }`,
     { slug },
   )
@@ -231,7 +236,7 @@ export async function getActiveEditionByTournamentId(
   return client.fetch(
     `*[_type in ["edition","tournamentEdition"] && tournament._ref == $tournamentId]
      | order(startDate desc)[0]{
-       _id, "title": tournament->name + " — " + year, slug, tournamentStatus
+       _id, "title": coalesce(name, tournament->name + " — " + year), slug, tournamentStatus
      }`,
     { tournamentId },
   )
@@ -343,9 +348,12 @@ export type StandingTable = {
   _id: string
   title: string
   stage?: string | null
+  week?: number | null
   group?: string | null
   day?: number | null
   afterMatch?: number | null
+  matchesPlayed?: number | null
+  teamsCount?: number | null
   status?: string | null
   lastUpdated?: string | null
   mobileCardStyle?: 'modern' | 'classic' | null
@@ -404,8 +412,8 @@ export async function getMatches(editionId: string): Promise<Match[]> {
 export async function getStandings(editionId: string): Promise<StandingTable[]> {
   return client.fetch(
     `*[_type == "standing" && edition._ref == $editionId && status == "published"]
-     | order(stage asc, group asc, day asc, afterMatch asc, _createdAt desc) {
-       _id, title, stage, group, day, afterMatch, status, lastUpdated, mobileCardStyle, mobileHiddenStats,
+     | order(stage asc, week asc, day asc, group asc, afterMatch asc, _createdAt desc) {
+       _id, title, stage, week, group, day, afterMatch, matchesPlayed, teamsCount, status, lastUpdated, mobileCardStyle, mobileHiddenStats,
        rows[]{
          _key, rank, teamName, matchesPlayed, wins, losses, wwcd,
          placementPoints, kills, points, change, qualified, eliminated, notes,

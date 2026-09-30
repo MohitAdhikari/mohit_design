@@ -3,6 +3,7 @@ import { ReadingTimeInput } from '../components/ReadingTimeInput'
 import { WordCountInput } from '../components/WordCountInput'
 import { TagsInput } from '../components/TagsInput'
 import { BulkCodePasteInput } from '../components/BulkCodePasteInput'
+import { GameSelectInput } from '../components/GameSelectInput'
 
 export const guide = defineType({
   name: 'guide',
@@ -27,6 +28,7 @@ export const guide = defineType({
       title: 'Game Name',
       type: 'string',
       description: 'e.g., BGMI, Roblox, etc.',
+      components: { input: GameSelectInput },
       validation: (Rule) => Rule.required(),
     }),
     defineField({

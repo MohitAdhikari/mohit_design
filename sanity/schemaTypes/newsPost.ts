@@ -1,6 +1,8 @@
 import { defineType, defineField } from 'sanity'
 import { TagsInput } from '../components/TagsInput'
 import { WordCountInput } from '../components/WordCountInput'
+import { ArticleStandingsImportInput } from '../components/ArticleStandingsImportInput'
+import { STANDING_STAGE_OPTIONS } from '../../lib/articleImport/tournamentMeta'
 
 export const newsPost = defineType({
   name: 'newsPost',
@@ -10,6 +12,7 @@ export const newsPost = defineType({
     { name: 'content', title: 'Content', default: true },
     { name: 'media', title: 'Media' },
     { name: 'relations', title: 'Relations' },
+    { name: 'tournament', title: '🏆 Tournament' },
     { name: 'publishing', title: 'Publishing' },
     { name: 'appearance', title: 'Appearance' },
     { name: 'seo', title: 'SEO' },
@@ -251,30 +254,33 @@ export const newsPost = defineType({
       name: 'tournament',
       title: 'Tournament',
       type: 'reference',
-      group: 'relations',
+      group: ['tournament', 'relations'],
       to: [{ type: 'tournament' }],
     }),
     defineField({
       name: 'teams',
       title: 'Teams',
       type: 'array',
-      group: 'relations',
+      group: ['relations', 'tournament'],
       of: [{ type: 'reference', to: [{ type: 'team' }] }],
     }),
     defineField({
       name: 'players',
       title: 'Players',
       type: 'array',
-      group: 'relations',
+      group: ['relations', 'tournament'],
       of: [{ type: 'reference', to: [{ type: 'player' }] }],
     }),
 
     defineField({
       name: 'matchMeta',
-      title: 'Match Meta (Esports)',
+      title: 'Tournament Match Info',
       type: 'object',
-      group: 'relations',
-      description: 'Optional fields used to cluster match recaps and day standings on the homepage.',
+      group: ['tournament', 'relations'],
+      description:
+        'Which stage / week / day this article covers. Used to cluster match recaps on the homepage and to import the article\'s standings tables into the tournament.',
+      components: { input: ArticleStandingsImportInput },
+      options: { collapsible: false },
       fields: [
         {
           name: 'articleType',
@@ -294,12 +300,51 @@ export const newsPost = defineType({
           title: 'Tournament Edition',
           type: 'reference',
           to: [{ type: 'tournamentEdition' }],
+          options: {
+            // Only show editions of the Tournament chosen above (all when none chosen).
+            filter: ({ document }: { document: any }) =>
+              document?.tournament?._ref
+                ? { filter: 'tournament._ref == $t', params: { t: document.tournament._ref } }
+                : {},
+          },
+        },
+        {
+          name: 'stage',
+          title: 'Stage',
+          type: 'string',
+          options: { list: STANDING_STAGE_OPTIONS },
+        },
+        {
+          name: 'week',
+          title: 'Week Number',
+          type: 'number',
+          description: 'e.g. 2 for "League Stage Week 2". Leave empty if the stage has no weeks.',
         },
         {
           name: 'matchDay',
           title: 'Match Day Number',
           type: 'number',
           description: 'e.g. 1 for Day 1, 2 for Day 2',
+        },
+        {
+          name: 'groups',
+          title: 'Groups Playing This Day',
+          type: 'array',
+          of: [{ type: 'string' }],
+          options: { layout: 'tags' },
+          description: 'e.g. Group A, Group B — several groups can play on the same day. Each table is matched to its group automatically from its title/heading.',
+        },
+        {
+          name: 'matchesPerDay',
+          title: 'Matches Played This Day',
+          type: 'number',
+          description: 'e.g. 3 (per group).',
+        },
+        {
+          name: 'teamsPerGroup',
+          title: 'Teams per Group',
+          type: 'number',
+          description: 'e.g. 16. Defaults to the number of rows in each table.',
         },
       ],
     }),

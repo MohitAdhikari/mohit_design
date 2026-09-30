@@ -1,26 +1,17 @@
 import Link from 'next/link';
+import { DEFAULT_GAMES } from '@/lib/games';
 
 /**
  * Infinite marquee of covered games / titles.
- * Each game links to a search filtered for that title.
+ * Each game links to a search filtered for that title. Order comes from
+ * `getMarqueeGames()` (most-covered game first); falls back to the built-in
+ * list when no data is passed.
  */
-const GAMES = [
-  'BGMI',
-  'Valorant',
-  'Free Fire',
-  'Roblox',
-  'Clash of Clans',
-  'CS2',
-  'Dota 2',
-  'League of Legends',
-  'Call of Duty',
-  'PUBG',
-  'Apex Legends',
-  'Fortnite',
-];
+const FALLBACK = DEFAULT_GAMES.filter((g) => g.showInMarquee !== false).map((g) => g.name);
 
-export default function GamesMarquee() {
-  const loop = [...GAMES, ...GAMES];
+export default function GamesMarquee({ games }: { games?: string[] }) {
+  const list = games && games.length > 0 ? games : FALLBACK;
+  const loop = [...list, ...list];
   return (
     <div className="relative overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800/60 bg-white/60 dark:bg-[#0E0E12]/60 backdrop-blur-sm py-5">
       {/* edge fades */}

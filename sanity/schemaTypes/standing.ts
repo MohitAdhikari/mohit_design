@@ -1,4 +1,6 @@
 import { defineField, defineType } from 'sanity'
+import { StandingRowsPasteInput } from '../components/BulkPasteArrayInput'
+import { STANDING_STAGE_OPTIONS } from '../../lib/articleImport/tournamentMeta'
 
 export const standing = defineType({
   name: 'standing',
@@ -29,16 +31,13 @@ export const standing = defineType({
       name: 'stage',
       title: 'Stage',
       type: 'string',
-      options: {
-        list: [
-          { title: 'Group Stage', value: 'group_stage' },
-          { title: 'Survival Stage', value: 'survival_stage' },
-          { title: 'Grand Finals', value: 'grand_finals' },
-          { title: 'League Stage', value: 'league_stage' },
-          { title: 'Finals', value: 'finals' },
-          { title: 'Overall', value: 'overall' },
-        ],
-      },
+      options: { list: STANDING_STAGE_OPTIONS },
+    }),
+    defineField({
+      name: 'week',
+      title: 'Week',
+      type: 'number',
+      description: 'e.g. 2 for "League Stage Week 2". Leave empty for stages without weeks.',
     }),
     defineField({
       name: 'group',
@@ -58,6 +57,26 @@ export const standing = defineType({
       description: 'Example: standings after match 6',
     }),
     defineField({
+      name: 'matchesPlayed',
+      title: 'Matches Played (this day)',
+      type: 'number',
+      description: 'How many matches this table covers, e.g. 3 for a 3-match day.',
+    }),
+    defineField({
+      name: 'teamsCount',
+      title: 'Teams in Group',
+      type: 'number',
+      description: 'Number of teams in this group/lobby, e.g. 16.',
+    }),
+    defineField({
+      name: 'sourceArticle',
+      title: 'Imported From Article',
+      type: 'reference',
+      to: [{ type: 'newsPost' }],
+      description: 'Set automatically when imported from an article.',
+      readOnly: true,
+    }),
+    defineField({
       name: 'status',
       title: 'Status',
       type: 'string',
@@ -67,6 +86,9 @@ export const standing = defineType({
           { title: 'Draft', value: 'draft' },
           { title: 'Published', value: 'published' },
           { title: 'Archived', value: 'archived' },
+          { title: 'Snapshot', value: 'snapshot' },
+          { title: 'Live', value: 'live' },
+          { title: 'Final', value: 'final' },
         ],
       },
       validation: (Rule) => Rule.required(),
@@ -109,6 +131,7 @@ export const standing = defineType({
       name: 'rows',
       title: 'Rows',
       type: 'array',
+      components: { input: StandingRowsPasteInput },
       validation: (Rule) => Rule.required().min(1),
       of: [
         {
@@ -175,6 +198,12 @@ export const standing = defineType({
               title: 'Total Points',
               type: 'number',
               validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: 'prize',
+              title: 'Prize Money',
+              type: 'string',
+              description: 'Placement prize awarded to this team, when available.',
             }),
             defineField({
               name: 'change',

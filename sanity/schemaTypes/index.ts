@@ -22,11 +22,13 @@ import { tag } from './tag'
 import { tournament } from './tournament'
 import { tournamentEdition } from './tournamentEdition'
 import { team } from './team'
-import { player } from './player'
+import player from './player'
+import creator from './creator'
 import { subscriber } from './subscriber'
 import { contactMessage } from './contactMessage'
 import { homepage } from './homepage'
 import { subCategory } from './subCategory'
+import { game } from './game'
 
 export const schema: { types: SchemaTypeDefinition[] } = {
   types: [
@@ -52,10 +54,12 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     category,
     subCategory,
     tag,
+    game,
     tournament,
     tournamentEdition,
     team,
     player,
+    creator,
     // Form submissions
     subscriber,
     contactMessage,

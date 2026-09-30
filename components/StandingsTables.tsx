@@ -1,21 +1,16 @@
 import { BarChart2 } from 'lucide-react'
 import type { StandingTable, StandingRow } from '@/lib/tournamentApi'
 import TeamLogo from './TeamLogo'
-
-const STAGE_LABELS: Record<string, string> = {
-  group_stage: 'Group Stage',
-  survival_stage: 'Survival Stage',
-  grand_finals: 'Grand Finals',
-  league_stage: 'League Stage',
-  finals: 'Finals',
-  overall: 'Overall',
-}
+import { STAGE_LABELS } from '@/lib/articleImport/tournamentMeta'
 
 function formatMeta(table: StandingTable) {
   const parts = [
     table.stage ? STAGE_LABELS[table.stage] ?? table.stage : null,
-    table.group,
+    table.week ? `Week ${table.week}` : null,
     table.day ? `Day ${table.day}` : null,
+    table.group,
+    table.matchesPlayed ? `${table.matchesPlayed} matches` : null,
+    table.teamsCount ? `${table.teamsCount} teams` : null,
     table.afterMatch ? `After Match ${table.afterMatch}` : null,
   ].filter(Boolean)
 

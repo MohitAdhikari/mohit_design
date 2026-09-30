@@ -41,12 +41,12 @@ export interface ParsedStandingsTable {
 const HEADER_ALIASES: { key: StandingRowField; patterns: RegExp[] }[] = [
   { key: 'rank', patterns: [/^#$/, /^rank$/i, /^pos(ition)?$/i] },
   { key: 'teamName', patterns: [/^team(\s*name)?$/i, /^squad$/i, /^org(anis|aniz)ation$/i] },
-  { key: 'wwcd', patterns: [/^wwcd$/i, /^chicken\s*dinners?$/i, /^wins?\s*\(wwcd\)$/i] },
+  { key: 'wwcd', patterns: [/^wwcd$/i, /^chicken\s*dinners?$/i, /^wins?\s*\(wwcd\)$/i, /^booyahs?$/i] },
   { key: 'wins', patterns: [/^w$/i, /^wins$/i] },
   { key: 'losses', patterns: [/^l$/i, /^losses$/i] },
   { key: 'matchesPlayed', patterns: [/^mp$/i, /^matches(\s*played)?$/i] },
-  { key: 'kills', patterns: [/^kills?$/i, /^elims?$/i, /^eliminations?$/i] },
-  { key: 'placementPoints', patterns: [/^pp$/i, /^placement\s*(pts|points)?$/i] },
+  { key: 'kills', patterns: [/^kills?$/i, /^elims?$/i, /^eliminations?$/i, /^finishes$/i, /^kill\s*(pts|points)$/i, /^finish\s*(pts|points)$/i] },
+  { key: 'placementPoints', patterns: [/^pp$/i, /^place(ment)?\s*(pts|points)?$/i, /^pos(ition)?\s*(pts|points)$/i] },
   { key: 'points', patterns: [/^points?$/i, /^pts$/i, /^total\s*(points|pts)?$/i] },
 ];
 
@@ -59,6 +59,8 @@ function matchHeader(raw: string): StandingRowField | null {
 }
 
 function splitRow(line: string): string[] {
+  // Tab-separated (pasted from Sheets/Excel) is also accepted.
+  if (line.includes('\t') && !line.includes('|')) return line.split('\t').map((c) => c.trim());
   return line
     .trim()
     .replace(/^\|/, '')
